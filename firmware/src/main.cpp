@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include "platform/mbed_wait_api.h"
 
 // #define NUM_LEDS 1
 // #define DATA_PIN 23u
@@ -90,12 +91,66 @@ void printOut() {
                Serial.println();
 }
 
+volatile uint64_t dupa;
+volatile uint64_t dupa1;
+volatile uint64_t dupa2;
+
 void setup() {
   // pinMode(LED_BUILTIN, OUTPUT);
   // pinMode(24u, INPUT_PULLUP);
   // Serial.begin(9600);
   // FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   // FastLED.setBrightness(30);
+
+  dupa1 = 1231231232534;
+  dupa2 = 23492839742;
+
+  pinMode(0, OUTPUT);
+  pinMode(1, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+
+  digitalWrite(0, LOW);
+  digitalWrite(1, LOW);
+  digitalWrite(2, LOW);
+  digitalWrite(3, HIGH);
+  digitalWrite(4, LOW);
+  digitalWrite(5, LOW);
+
+  while(true) {
+    digitalWrite(3, LOW);
+    wait_ns(250);
+    digitalWrite(0, HIGH);
+    digitalWrite(1, HIGH);
+    // digitalWrite(2, HIGH);
+    // digitalWrite(4, HIGH);
+    // digitalWrite(5, HIGH);
+
+    // for(int i = 0; i < 300; i++) {
+    //   dupa = dupa1 * dupa2;
+    // }
+
+    wait_ns(250);
+
+    digitalWrite(3, HIGH);
+    wait_ns(250);
+    digitalWrite(0, LOW);
+    digitalWrite(1, LOW);
+    // digitalWrite(2, LOW);
+    // digitalWrite(4, LOW);
+    // digitalWrite(5, LOW);
+
+    // for(int i = 0; i < 300; i++) {
+    //   dupa = dupa1 * dupa2;
+    // }
+
+    wait_ns(250);
+  }
+
+
+  return
 
   pinMode(Q1, INPUT_PULLDOWN);
   pinMode(Q2, INPUT_PULLDOWN);
