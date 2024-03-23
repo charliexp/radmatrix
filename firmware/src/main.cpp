@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "gfx.h"
 
 #define COL_SER 0
 #define COL_OE 26
@@ -12,35 +13,13 @@
 #define ROW_SRCLK 5
 #define ROW_SRCLR 4
 
-#define ROW_COUNT 24
-#define COL_COUNT 21
+#define ROW_COUNT 20 //24
+#define COL_COUNT 20 //21
 
-uint32_t demo_pic[ROW_COUNT] = {
-  0b111011001001111011110,
-  0b010010101010000010000,
-  0b010010101001110011100,
-  0b010010011000001010000,
-  0b111010001011110011110,
-  0b000000000000000000000,
-  0b111001110001110001100,
-  0b100100100001001010010,
-  0b111000100001110011110,
-  0b100100100001001010010,
-  0b100100100001110010010,
-  0b000000000000000000000,
-  0b111000001100111001000,
-  0b100100010010100101000,
-  0b100100011110111001000,
-  0b100100010010100001000,
-  0b111000010010100001110,
-  0b000000000000000000000,
-  0b111100100101110111000,
-  0b100000100101000100100,
-  0b111000111101100111000,
-  0b100000100101000100100,
-  0b111100100101110100100,
-  0b000000000000000000000,
-};
+uint8_t frameIndex = 0;
+uint16_t frameLastChangedAt;
+
+#define MS_PER_FRAME 150
 
 void printOut() {
     Serial.println("------");
@@ -120,7 +99,9 @@ void setup() {
 
   digitalWrite(ROW_OE, LOW);
 
-  // printOut();
+  // clear frames
+  frameIndex = 0;
+  frameLastChangedAt = millis();
 }
 
 void loop() {
@@ -129,7 +110,7 @@ void loop() {
     printOut();
   }
 
-  auto b4 = millis();
+  uint32_t *frame = frames[frameIndex];
 
   // clear columns
   digitalWrite(COL_SRCLR, LOW);
@@ -152,10 +133,16 @@ void loop() {
       digitalWrite(COL_SRCLK, LOW);
     }
 
+    // clear row
+    digitalWrite(ROW_SRCLR, LOW);
+    digitalWrite(ROW_SRCLK, HIGH);
+    digitalWrite(ROW_SRCLK, LOW);
+    digitalWrite(ROW_SRCLR, HIGH);
+
     // set column with rows' data
     for (int y = 0; y < ROW_COUNT; y++) {
       // get value
-      bool pxValue = demo_pic[ROW_COUNT - 1 - y] & (1 << ((COL_COUNT - 1) - x));
+      bool pxValue = frame[ROW_COUNT - 1 - y] & (1 << ((COL_COUNT - 1) - x));
       digitalWrite(ROW_SER, pxValue);
       // push value
       digitalWrite(ROW_SRCLK, HIGH);
@@ -171,5 +158,14 @@ void loop() {
     digitalWrite(ROW_RCLK, LOW);
     // enable rows after latch
     digitalWrite(ROW_OE, LOW);
+  }
+
+  // next frame
+  if (millis() - frameLastChangedAt > MS_PER_FRAME) {
+    frameLastChangedAt = millis();
+    frameIndex++;
+    if (frameIndex == GFX_COUNT) {
+      frameIndex = 0;
+    }
   }
 }
