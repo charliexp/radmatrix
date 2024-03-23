@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "gfx.h"
 #include "gfx_png.h"
 #include "lodepng.h"
 
@@ -18,48 +17,10 @@
 #define ROW_COUNT 20 //24
 #define COL_COUNT 20 //21
 
-uint8_t frameIndex = 0;
+#define MS_PER_FRAME 33
+
+uint16_t frameIndex = 0;
 unsigned long frameLastChangedAt;
-
-#define MS_PER_FRAME 200
-
-void printOut() {
-    Serial.println("------");
-    Serial.println("Row:");
-
-    Serial.print("SER: ");
-    Serial.println(digitalRead(ROW_SER));
-
-    Serial.print("OE_N: ");
-    Serial.println(digitalRead(ROW_OE));
-
-    Serial.print("RCLK: ");
-    Serial.println(digitalRead(ROW_RCLK));
-
-    Serial.print("SRCLK: ");
-    Serial.println(digitalRead(ROW_SRCLK));
-
-    Serial.print("SRCLR_N: ");
-    Serial.println(digitalRead(ROW_SRCLR));
-
-    Serial.println("------");
-    Serial.println("Col:");
-
-    Serial.print("SER: ");
-    Serial.println(digitalRead(COL_SER));
-
-    Serial.print("OE_N: ");
-    Serial.println(digitalRead(COL_OE));
-
-    Serial.print("RCLK: ");
-    Serial.println(digitalRead(COL_RCLK));
-
-    Serial.print("SRCLK: ");
-    Serial.println(digitalRead(COL_SRCLK));
-
-    Serial.print("SRCLR_N: ");
-    Serial.println(digitalRead(COL_SRCLR));
-}
 
 void setup() {
   Serial.begin(9600);
@@ -104,31 +65,33 @@ void setup() {
   // clear frames
   frameIndex = 0;
   frameLastChangedAt = millis();
+}
 
-  delay(1500);
-
-  Serial.println("Decoding PNG...");
-
+void loop() {
   auto b4 = millis();
+  unsigned error;
   unsigned char *buffer = 0;
   unsigned width, height;
-  lodepng_decode_memory(&buffer, &width, &height, png_badapple_001, sizeof(png_badapple_001), LCT_GREY, 8);
+
+  const uint8_t *png = png_frames[frameIndex];
+  size_t pngSize = png_frame_sizes[frameIndex];
+
+  error = lodepng_decode_memory(&buffer, &width, &height, png, pngSize, LCT_GREY, 8);
+
+  if (error) {
+    Serial.print("PNG decode error ");
+    Serial.print(error);
+    Serial.print(": ");
+    Serial.println(lodepng_error_text(error));
+    return;
+  } else if (width != COL_COUNT || height != ROW_COUNT) {
+    Serial.println("Invalid frame size");
+    return;
+  }
 
   Serial.print("Decoded in ");
   Serial.print(millis() - b4);
   Serial.println("ms");
-
-  Serial.println(width);
-  Serial.println(height);
-}
-
-void loop() {
-  char c = Serial.read();
-  if (c == 'o') {
-    printOut();
-  }
-
-  uint32_t *frame = frames[frameIndex];
 
   // clear columns
   digitalWrite(COL_SRCLR, LOW);
@@ -160,7 +123,7 @@ void loop() {
     // set column with rows' data
     for (int y = 0; y < ROW_COUNT; y++) {
       // get value
-      bool pxValue = frame[ROW_COUNT - 1 - y] & (1 << ((COL_COUNT - 1) - x));
+      uint8_t pxValue = buffer[y * COL_COUNT + x] > 128 ? 1 : 0;
       digitalWrite(ROW_SER, pxValue);
       // push value
       digitalWrite(ROW_SRCLK, HIGH);
@@ -178,12 +141,17 @@ void loop() {
     digitalWrite(ROW_OE, LOW);
   }
 
+  free(buffer);
+
   // next frame
   if (millis() - frameLastChangedAt > MS_PER_FRAME) {
     frameLastChangedAt = millis();
     frameIndex++;
-    if (frameIndex == GFX_COUNT) {
+    Serial.print("Going to frame ");
+    Serial.println(frameIndex);
+    if (frameIndex == PNG_COUNT) {
       frameIndex = 0;
+      Serial.println("Loop over!");
     }
   }
 }
