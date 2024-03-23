@@ -7,8 +7,10 @@ from PIL import Image
 
 def get_all_gfx():
     gfx = []
-    for root, dirs, files in os.walk("gfx"):
+    for root, dirs, files in os.walk("gfx-badapple"):
         for file in files:
+            if file.startswith("."):
+                continue
             # file name without extention
             name = os.path.splitext(file)[0]
             gfx.append((name, os.path.join(root, file)))
@@ -29,7 +31,7 @@ def to_code(name, path):
         code += "  0b"
         for x in range(w):
             px = img.getpixel((x, y))
-            code += '1' if px == 0 else '0'
+            code += '0' if px == 0 else '1'
         code += ",\n"
 
     code += "};\n\n"

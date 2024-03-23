@@ -17,9 +17,9 @@
 #define COL_COUNT 20 //21
 
 uint8_t frameIndex = 0;
-uint16_t frameLastChangedAt;
+unsigned long frameLastChangedAt;
 
-#define MS_PER_FRAME 150
+#define MS_PER_FRAME 200
 
 void printOut() {
     Serial.println("------");
