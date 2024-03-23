@@ -13,7 +13,34 @@
 #define ROW_SRCLR 4
 
 #define ROW_COUNT 24
-#define COL_COUNT 14
+#define COL_COUNT 21
+
+uint32_t demo_pic[ROW_COUNT] = {
+  0b111011001001111011110,
+  0b010010101010000010000,
+  0b010010101001110011100,
+  0b010010011000001010000,
+  0b111010001011110011110,
+  0b000000000000000000000,
+  0b111001110001110001100,
+  0b100100100001001010010,
+  0b111000100001110011110,
+  0b100100100001001010010,
+  0b100100100001110010010,
+  0b000000000000000000000,
+  0b111000001100111001000,
+  0b100100010010100101000,
+  0b100100011110111001000,
+  0b100100010010100001000,
+  0b111000010010100001110,
+  0b000000000000000000000,
+  0b111100100101110111000,
+  0b100000100101000100100,
+  0b111000111101100111000,
+  0b100000100101000100100,
+  0b111100100101110100100,
+  0b000000000000000000000,
+};
 
 void printOut() {
     Serial.println("------");
@@ -93,24 +120,7 @@ void setup() {
 
   digitalWrite(ROW_OE, LOW);
 
-  printOut();
-
-  digitalWrite(ROW_SER, HIGH);
-  digitalWrite(ROW_SRCLK, HIGH);
-  digitalWrite(ROW_SRCLK, LOW);
-  digitalWrite(ROW_SER, LOW);
-  digitalWrite(ROW_RCLK, HIGH);
-  digitalWrite(ROW_RCLK, LOW);
-
-  digitalWrite(COL_SER, HIGH);
-  digitalWrite(COL_SRCLK, HIGH);
-  digitalWrite(COL_SRCLK, LOW);
-  digitalWrite(COL_SER, LOW);
-  digitalWrite(COL_SRCLK, HIGH);
-  digitalWrite(COL_SRCLK, LOW);
-  digitalWrite(COL_RCLK, HIGH);
-  digitalWrite(COL_RCLK, LOW);
-
+  // printOut();
 }
 
 void loop() {
@@ -118,6 +128,8 @@ void loop() {
   if (c == 'o') {
     printOut();
   }
+
+  auto b4 = millis();
 
   // clear columns
   digitalWrite(COL_SRCLR, LOW);
@@ -128,64 +140,36 @@ void loop() {
   // start selecting columns
   digitalWrite(COL_SER, HIGH);
 
-  for (int y = 0; y < COL_COUNT; y++) {
+  for (int x = 0; x < COL_COUNT; x++) {
     // next column
     digitalWrite(COL_SRCLK, HIGH);
     digitalWrite(COL_SRCLK, LOW);
     // only one column
     digitalWrite(COL_SER, LOW);
     // we use 7/8 stages on shift registers for columns
-    if (y % 7 == 0) {
+    if (x % 7 == 0) {
       digitalWrite(COL_SRCLK, HIGH);
       digitalWrite(COL_SRCLK, LOW);
     }
-    // clear rows
-    digitalWrite(ROW_SRCLR, LOW);
-    digitalWrite(ROW_SRCLK, HIGH);
-    digitalWrite(ROW_SRCLK, LOW);
-    digitalWrite(ROW_SRCLR, HIGH);
-    // latch cleared row
-    digitalWrite(ROW_RCLK, HIGH);
-    digitalWrite(ROW_RCLK, LOW);
+
+    // set column with rows' data
+    for (int y = 0; y < ROW_COUNT; y++) {
+      // get value
+      bool pxValue = demo_pic[ROW_COUNT - 1 - y] & (1 << ((COL_COUNT - 1) - x));
+      digitalWrite(ROW_SER, pxValue);
+      // push value
+      digitalWrite(ROW_SRCLK, HIGH);
+      digitalWrite(ROW_SRCLK, LOW);
+    }
+    // disable rows before latch
+    digitalWrite(ROW_OE, HIGH);
     // latch column
     digitalWrite(COL_RCLK, HIGH);
     digitalWrite(COL_RCLK, LOW);
-
-    // start selecting rows
-    digitalWrite(ROW_SER, HIGH);
-
-    for (int x = 0; x < ROW_COUNT; x++) {
-      // next row
-      digitalWrite(ROW_SRCLK, HIGH);
-      digitalWrite(ROW_SRCLK, LOW);
-      // only one row
-      digitalWrite(ROW_SER, LOW);
-      // latch
-      digitalWrite(ROW_RCLK, HIGH);
-      digitalWrite(ROW_RCLK, LOW);
-      // delay
-      // delay(1);
-    }
+    // latch rows
+    digitalWrite(ROW_RCLK, HIGH);
+    digitalWrite(ROW_RCLK, LOW);
+    // enable rows after latch
+    digitalWrite(ROW_OE, LOW);
   }
-
-
-
-  // if (c == '1') {
-  //   digitalWrite(SER, !digitalRead(SER));
-  //   printOut();
-  // } else if (c == '2') {
-  //   digitalWrite(OE, !digitalRead(OE));
-  //   printOut();
-  // } else if (c == '3') {
-  //   digitalWrite(RCLK, HIGH);
-  //   digitalWrite(RCLK, LOW);
-  //   printOut();
-  // } else if (c == '4') {
-  //   digitalWrite(SRCLK, HIGH);
-  //   digitalWrite(SRCLK, LOW);
-  //   printOut();
-  // } else if (c == '5') {
-  //   digitalWrite(SRCLR, !digitalRead(SRCLR));
-  //   printOut();
-  // }
 }
