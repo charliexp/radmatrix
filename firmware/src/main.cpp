@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "gfx.h"
+#include "gfx_png.h"
+#include "lodepng.h"
 
 #define COL_SER 0
 #define COL_OE 26
@@ -102,6 +104,22 @@ void setup() {
   // clear frames
   frameIndex = 0;
   frameLastChangedAt = millis();
+
+  delay(1500);
+
+  Serial.println("Decoding PNG...");
+
+  auto b4 = millis();
+  unsigned char *buffer = 0;
+  unsigned width, height;
+  lodepng_decode_memory(&buffer, &width, &height, png_badapple_001, sizeof(png_badapple_001), LCT_GREY, 8);
+
+  Serial.print("Decoded in ");
+  Serial.print(millis() - b4);
+  Serial.println("ms");
+
+  Serial.println(width);
+  Serial.println(height);
 }
 
 void loop() {
