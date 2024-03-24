@@ -24,6 +24,11 @@
 uint16_t frameIndex = 0;
 unsigned long frameLastChangedAt;
 
+// we have 4-bit color depth, so 16 levels of brightness
+// we go from phase 0 to phase 3
+uint8_t brightnessPhase = 0;
+uint8_t brightnessPhaseDelays[] = {10, 30, 80, 200};
+
 void main2();
 void setup() {
   Serial.begin(9600);
@@ -84,6 +89,21 @@ void main2() {
 }
 
 void loop() {
+  if (Serial.available() > 0) {
+    char c = Serial.read();
+    if (c == 'p') {
+      Serial.println("Paused. Press any key to continue.");
+      digitalWrite(ROW_OE, HIGH);
+      while (Serial.available() == 0) {
+        Serial.read();
+        delay(50);
+      }
+    } else if (c == 'r') {
+      Serial.println("Restarting...");
+
+    }
+  }
+
   if (multicore_fifo_rvalid()) {
     uint32_t value = multicore_fifo_pop_blocking();
     // Serial.print("Core 1 says: ");
@@ -119,6 +139,9 @@ void loop() {
   // start selecting columns
   digitalWrite(COL_SER, HIGH);
 
+  // temp: hide
+  digitalWrite(ROW_OE, HIGH);
+
   for (int x = 0; x < COL_COUNT; x++) {
     // next column
     digitalWrite(COL_SRCLK, HIGH);
@@ -140,14 +163,16 @@ void loop() {
     // set column with rows' data
     for (int y = 0; y < ROW_COUNT; y++) {
       // get value
-      uint8_t pxValue = buffer[(ROW_COUNT - y) * COL_COUNT + x] > 128 ? 1 : 0;
-      digitalWrite(ROW_SER, pxValue);
+      uint8_t pxValue = buffer[(ROW_COUNT - 1 - y) * COL_COUNT + x];
+      // apply brightness
+      bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
+      digitalWrite(ROW_SER, gotLight);
       // push value
       digitalWrite(ROW_SRCLK, HIGH);
       digitalWrite(ROW_SRCLK, LOW);
     }
     // disable rows before latch
-    digitalWrite(ROW_OE, HIGH);
+    // digitalWrite(ROW_OE, HIGH);
     // latch column
     digitalWrite(COL_RCLK, HIGH);
     digitalWrite(COL_RCLK, LOW);
@@ -155,10 +180,20 @@ void loop() {
     digitalWrite(ROW_RCLK, HIGH);
     digitalWrite(ROW_RCLK, LOW);
     // enable rows after latch
+    // digitalWrite(ROW_OE, LOW);
+
+    // note: 40us per column
+
+    // show for a certain period
     digitalWrite(ROW_OE, LOW);
+    delayMicroseconds(brightnessPhaseDelays[brightnessPhase]);
+    digitalWrite(ROW_OE, HIGH);
   }
 
   free(buffer);
+
+  // next brightness phase
+  brightnessPhase = (brightnessPhase + 1) % 4;
 
   // next frame
   if (millis() - frameLastChangedAt > MS_PER_FRAME) {
