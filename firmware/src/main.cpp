@@ -71,7 +71,7 @@ void setup() {
 
   // launch core1
   // NOTE: For some reason, without delay, core1 doesn't start?
-  delay(300);
+  delay(500);
   multicore_reset_core1();
   multicore_launch_core1(main2);
 }
@@ -84,11 +84,10 @@ void main2() {
 }
 
 void loop() {
-  // Serial.println(multicore_fifo_get_status());
   if (multicore_fifo_rvalid()) {
     uint32_t value = multicore_fifo_pop_blocking();
-    Serial.print("Core 1 says: ");
-    Serial.println(value);
+    // Serial.print("Core 1 says: ");
+    // Serial.println(value);
   }
 
   unsigned error;
@@ -141,7 +140,7 @@ void loop() {
     // set column with rows' data
     for (int y = 0; y < ROW_COUNT; y++) {
       // get value
-      uint8_t pxValue = buffer[y * COL_COUNT + x] > 128 ? 1 : 0;
+      uint8_t pxValue = buffer[(ROW_COUNT - y) * COL_COUNT + x] > 128 ? 1 : 0;
       digitalWrite(ROW_SER, pxValue);
       // push value
       digitalWrite(ROW_SRCLK, HIGH);
