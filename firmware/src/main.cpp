@@ -16,10 +16,26 @@
 #define ROW_SRCLK 5
 #define ROW_SRCLR 4
 
+inline void pulsePin(uint8_t pin) {
+  digitalWrite(pin, HIGH);
+  digitalWrite(pin, LOW);
+}
+
+void clearShiftReg(uint8_t srclk, uint8_t srclr) {
+  digitalWrite(srclr, LOW);
+  pulsePin(srclk);
+  digitalWrite(srclr, HIGH);
+}
+
+inline void outputEnable(uint8_t pin, bool enable) {
+  digitalWrite(pin, !enable);
+}
+
 #define ROW_COUNT 20 //24
 #define COL_COUNT 20 //21
 
-#define MS_PER_FRAME 33
+#define FPS 30
+#define MS_PER_FRAME 1000 / FPS
 
 uint16_t frameIndex = 0;
 uint16_t lastDecodedFrame = 0;
@@ -37,6 +53,8 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Hello");
 
+  memset(framebuffer, 0, sizeof(framebuffer));
+
   // set up col pins
   pinMode(COL_SER, OUTPUT);
   pinMode(COL_OE, OUTPUT);
@@ -53,25 +71,19 @@ void setup() {
 
   // clear output - cols
   digitalWrite(COL_SER, LOW);
-  digitalWrite(COL_OE, HIGH);
+  outputEnable(COL_OE, false);
 
-  digitalWrite(COL_SRCLR, LOW);
-  digitalWrite(COL_RCLK, HIGH);
-  digitalWrite(COL_RCLK, LOW);
-  digitalWrite(COL_SRCLR, HIGH);
+  clearShiftReg(COL_SRCLK, COL_SRCLR);
 
-  digitalWrite(COL_OE, LOW);
+  outputEnable(COL_OE, true);
 
   // clear output - rows
   digitalWrite(ROW_SER, LOW);
-  digitalWrite(ROW_OE, HIGH);
+  outputEnable(ROW_OE, false);
 
-  digitalWrite(ROW_SRCLR, LOW);
-  digitalWrite(ROW_RCLK, HIGH);
-  digitalWrite(ROW_RCLK, LOW);
-  digitalWrite(ROW_SRCLR, HIGH);
+  clearShiftReg(ROW_SRCLK, ROW_SRCLR);
 
-  digitalWrite(ROW_OE, LOW);
+  outputEnable(ROW_OE, true);
 
   // clear frames
   frameIndex = 0;
@@ -96,7 +108,7 @@ void loop() {
     char c = Serial.read();
     if (c == 'p') {
       Serial.println("Paused. Press any key to continue.");
-      digitalWrite(ROW_OE, HIGH);
+      outputEnable(ROW_OE, false);
       while (Serial.available() == 0) {
         Serial.read();
         delay(50);
@@ -114,7 +126,7 @@ void loop() {
   }
 
   // hide output
-  digitalWrite(ROW_OE, HIGH);
+  outputEnable(ROW_OE, false);
 
   // decode png
   if (lastDecodedFrame != frameIndex) {
@@ -150,10 +162,7 @@ void loop() {
   }
 
   // clear columns
-  digitalWrite(COL_SRCLR, LOW);
-  digitalWrite(COL_SRCLK, HIGH);
-  digitalWrite(COL_SRCLK, LOW);
-  digitalWrite(COL_SRCLR, HIGH);
+  clearShiftReg(COL_SRCLK, COL_SRCLR);
 
   // start selecting columns
   digitalWrite(COL_SER, HIGH);
@@ -166,21 +175,16 @@ void loop() {
     digitalWrite(ROW_OE, !brightPhase);
 
     // next column
-    digitalWrite(COL_SRCLK, HIGH);
-    digitalWrite(COL_SRCLK, LOW);
+    pulsePin(COL_SRCLK);
     // only one column
     digitalWrite(COL_SER, LOW);
     // we use 7/8 stages on shift registers for columns
     if (x % 7 == 0) {
-      digitalWrite(COL_SRCLK, HIGH);
-      digitalWrite(COL_SRCLK, LOW);
+      pulsePin(COL_SRCLK);
     }
 
     // clear row
-    digitalWrite(ROW_SRCLR, LOW);
-    digitalWrite(ROW_SRCLK, HIGH);
-    digitalWrite(ROW_SRCLK, LOW);
-    digitalWrite(ROW_SRCLR, HIGH);
+    clearShiftReg(ROW_SRCLK, ROW_SRCLR);
 
     // set column with rows' data
     for (int y = 0; y < ROW_COUNT; y++) {
@@ -190,24 +194,20 @@ void loop() {
       bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
       digitalWrite(ROW_SER, gotLight);
       // push value
-      digitalWrite(ROW_SRCLK, HIGH);
-      digitalWrite(ROW_SRCLK, LOW);
+      pulsePin(ROW_SRCLK);
     }
     // disable rows before latch
-    digitalWrite(ROW_OE, HIGH);
-    // latch column
-    digitalWrite(COL_RCLK, HIGH);
-    digitalWrite(COL_RCLK, LOW);
-    // latch rows
-    digitalWrite(ROW_RCLK, HIGH);
-    digitalWrite(ROW_RCLK, LOW);
+    outputEnable(ROW_OE, false);
+    // latch columns and rows
+    pulsePin(COL_RCLK);
+    pulsePin(ROW_RCLK);
     // enable rows after latch
-    digitalWrite(ROW_OE, !brightPhase);
+    outputEnable(ROW_OE, brightPhase);
 
     // show for a certain period
-    digitalWrite(ROW_OE, LOW);
+    outputEnable(ROW_OE, true);
     delayMicroseconds(brightnessPhaseDelays[brightnessPhase]);
-    digitalWrite(ROW_OE, HIGH);
+    outputEnable(ROW_OE, false);
   }
 
   // next brightness phase
