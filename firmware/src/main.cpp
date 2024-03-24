@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "gfx_png.h"
 #include "lodepng.h"
+#include "pico/multicore.h"
+#include "mbed_wait_api.h"
 
 #define COL_SER 0
 #define COL_OE 26
@@ -22,6 +24,7 @@
 uint16_t frameIndex = 0;
 unsigned long frameLastChangedAt;
 
+void main2();
 void setup() {
   Serial.begin(9600);
   Serial.println("Hello");
@@ -65,10 +68,29 @@ void setup() {
   // clear frames
   frameIndex = 0;
   frameLastChangedAt = millis();
+
+  // launch core1
+  // NOTE: For some reason, without delay, core1 doesn't start?
+  delay(300);
+  multicore_reset_core1();
+  multicore_launch_core1(main2);
+}
+
+void loop2();
+void main2() {
+  while (true) {
+    loop2();
+  }
 }
 
 void loop() {
-  auto b4 = millis();
+  // Serial.println(multicore_fifo_get_status());
+  if (multicore_fifo_rvalid()) {
+    uint32_t value = multicore_fifo_pop_blocking();
+    Serial.print("Core 1 says: ");
+    Serial.println(value);
+  }
+
   unsigned error;
   unsigned char *buffer = 0;
   unsigned width, height;
@@ -88,10 +110,6 @@ void loop() {
     Serial.println("Invalid frame size");
     return;
   }
-
-  Serial.print("Decoded in ");
-  Serial.print(millis() - b4);
-  Serial.println("ms");
 
   // clear columns
   digitalWrite(COL_SRCLR, LOW);
@@ -154,4 +172,14 @@ void loop() {
       Serial.println("Loop over!");
     }
   }
+}
+
+uint32_t counter = 0;
+
+void loop2() {
+  counter += 1;
+  if (multicore_fifo_wready()) {
+    multicore_fifo_push_blocking(counter);
+  }
+  busy_wait_us(500000);
 }
