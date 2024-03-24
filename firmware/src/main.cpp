@@ -22,12 +22,15 @@
 #define MS_PER_FRAME 33
 
 uint16_t frameIndex = 0;
+uint16_t lastDecodedFrame = 0;
 unsigned long frameLastChangedAt;
 
 // we have 4-bit color depth, so 16 levels of brightness
 // we go from phase 0 to phase 3
 uint8_t brightnessPhase = 0;
 uint8_t brightnessPhaseDelays[] = {10, 30, 80, 200};
+
+uint8_t framebuffer[ROW_COUNT * COL_COUNT] = {0};
 
 void main2();
 void setup() {
@@ -110,24 +113,40 @@ void loop() {
     // Serial.println(value);
   }
 
-  unsigned error;
-  unsigned char *buffer = 0;
-  unsigned width, height;
+  // hide output
+  digitalWrite(ROW_OE, HIGH);
 
-  const uint8_t *png = png_frames[frameIndex];
-  size_t pngSize = png_frame_sizes[frameIndex];
+  // decode png
+  if (lastDecodedFrame != frameIndex) {
+    lastDecodedFrame = frameIndex;
+    unsigned error;
+    unsigned char *buffer = 0;
+    unsigned width, height;
 
-  error = lodepng_decode_memory(&buffer, &width, &height, png, pngSize, LCT_GREY, 8);
+    const uint8_t *png = png_frames[frameIndex];
+    size_t pngSize = png_frame_sizes[frameIndex];
 
-  if (error) {
-    Serial.print("PNG decode error ");
-    Serial.print(error);
-    Serial.print(": ");
-    Serial.println(lodepng_error_text(error));
-    return;
-  } else if (width != COL_COUNT || height != ROW_COUNT) {
-    Serial.println("Invalid frame size");
-    return;
+    error = lodepng_decode_memory(&buffer, &width, &height, png, pngSize, LCT_GREY, 8);
+
+    if (error) {
+      Serial.print("PNG decode error ");
+      Serial.print(error);
+      Serial.print(": ");
+      Serial.println(lodepng_error_text(error));
+      return;
+    } else if (width != COL_COUNT || height != ROW_COUNT) {
+      Serial.println("Invalid frame size");
+      return;
+    }
+
+    // copy to framebuffer
+    // TODO: learn to use memcpy lmao
+    for (int y = ROW_COUNT - 1; y >= 0; y--) {
+      for (int x = 0; x < COL_COUNT; x++) {
+        framebuffer[y * COL_COUNT + x] = buffer[(ROW_COUNT - 1 - y) * COL_COUNT + x];
+      }
+    }
+    free(buffer);
   }
 
   // clear columns
@@ -139,10 +158,13 @@ void loop() {
   // start selecting columns
   digitalWrite(COL_SER, HIGH);
 
-  // temp: hide
-  digitalWrite(ROW_OE, HIGH);
-
   for (int x = 0; x < COL_COUNT; x++) {
+    // brigthness - pushing data takes 40us, so to maximize brightness (at high brightness phases)
+    // we want to keep the matrix on during update (except during latch). At low brightness phases,
+    // we want it off to actually be dim
+    bool brightPhase = brightnessPhase >= 2;
+    digitalWrite(ROW_OE, !brightPhase);
+
     // next column
     digitalWrite(COL_SRCLK, HIGH);
     digitalWrite(COL_SRCLK, LOW);
@@ -163,7 +185,7 @@ void loop() {
     // set column with rows' data
     for (int y = 0; y < ROW_COUNT; y++) {
       // get value
-      uint8_t pxValue = buffer[(ROW_COUNT - 1 - y) * COL_COUNT + x];
+      uint8_t pxValue = framebuffer[y * COL_COUNT + x];
       // apply brightness
       bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
       digitalWrite(ROW_SER, gotLight);
@@ -172,7 +194,7 @@ void loop() {
       digitalWrite(ROW_SRCLK, LOW);
     }
     // disable rows before latch
-    // digitalWrite(ROW_OE, HIGH);
+    digitalWrite(ROW_OE, HIGH);
     // latch column
     digitalWrite(COL_RCLK, HIGH);
     digitalWrite(COL_RCLK, LOW);
@@ -180,17 +202,13 @@ void loop() {
     digitalWrite(ROW_RCLK, HIGH);
     digitalWrite(ROW_RCLK, LOW);
     // enable rows after latch
-    // digitalWrite(ROW_OE, LOW);
-
-    // note: 40us per column
+    digitalWrite(ROW_OE, !brightPhase);
 
     // show for a certain period
     digitalWrite(ROW_OE, LOW);
     delayMicroseconds(brightnessPhaseDelays[brightnessPhase]);
     digitalWrite(ROW_OE, HIGH);
   }
-
-  free(buffer);
 
   // next brightness phase
   brightnessPhase = (brightnessPhase + 1) % 4;
