@@ -4,7 +4,9 @@
 #include "pico/multicore.h"
 #include "mbed_wait_api.h"
 
-#define COL_SER 0
+#define Serial Serial1
+
+#define COL_SER 2
 #define COL_OE 26
 #define COL_RCLK 27
 #define COL_SRCLK 28
@@ -38,20 +40,20 @@ inline void outputEnable(uint8_t pin, bool enable) {
 #define MS_PER_FRAME 1000 / FPS
 
 uint16_t frameIndex = 0;
-uint16_t lastDecodedFrame = 0;
+uint16_t lastRenderedFrameIndex = 0;
 unsigned long frameLastChangedAt;
 
 // we have 4-bit color depth, so 16 levels of brightness
 // we go from phase 0 to phase 3
 uint8_t brightnessPhase = 0;
-uint8_t brightnessPhaseDelays[] = {10, 30, 80, 200};
+uint8_t brightnessPhaseDelays[] = {2, 20, 60, 200};
 
 uint8_t framebuffer[ROW_COUNT * COL_COUNT] = {0};
 
 void main2();
 void setup() {
-  Serial.begin(9600);
-  Serial.println("Hello");
+  Serial.begin(115200);
+  Serial.println("Hello worldd!");
 
   memset(framebuffer, 0, sizeof(framebuffer));
 
@@ -121,45 +123,24 @@ void loop() {
 
   if (multicore_fifo_rvalid()) {
     uint32_t value = multicore_fifo_pop_blocking();
-    // Serial.print("Core 1 says: ");
-    // Serial.println(value);
+    if (value == 21372137) {
+      Serial.println("Invalid frame size");
+    } else {
+      Serial.print("PNG decode error ");
+      Serial.print(value);
+      Serial.print(": ");
+      Serial.println(lodepng_error_text(value));
+    }
+  }
+
+  if (frameIndex != lastRenderedFrameIndex) {
+    Serial.print("Going to frame ");
+    Serial.println(frameIndex);
+    lastRenderedFrameIndex = frameIndex;
   }
 
   // hide output
   outputEnable(ROW_OE, false);
-
-  // decode png
-  if (lastDecodedFrame != frameIndex) {
-    lastDecodedFrame = frameIndex;
-    unsigned error;
-    unsigned char *buffer = 0;
-    unsigned width, height;
-
-    const uint8_t *png = png_frames[frameIndex];
-    size_t pngSize = png_frame_sizes[frameIndex];
-
-    error = lodepng_decode_memory(&buffer, &width, &height, png, pngSize, LCT_GREY, 8);
-
-    if (error) {
-      Serial.print("PNG decode error ");
-      Serial.print(error);
-      Serial.print(": ");
-      Serial.println(lodepng_error_text(error));
-      return;
-    } else if (width != COL_COUNT || height != ROW_COUNT) {
-      Serial.println("Invalid frame size");
-      return;
-    }
-
-    // copy to framebuffer
-    // TODO: learn to use memcpy lmao
-    for (int y = ROW_COUNT - 1; y >= 0; y--) {
-      for (int x = 0; x < COL_COUNT; x++) {
-        framebuffer[y * COL_COUNT + x] = buffer[(ROW_COUNT - 1 - y) * COL_COUNT + x];
-      }
-    }
-    free(buffer);
-  }
 
   // clear columns
   clearShiftReg(COL_SRCLK, COL_SRCLR);
@@ -212,26 +193,44 @@ void loop() {
 
   // next brightness phase
   brightnessPhase = (brightnessPhase + 1) % 4;
-
-  // next frame
-  if (millis() - frameLastChangedAt > MS_PER_FRAME) {
-    frameLastChangedAt = millis();
-    frameIndex++;
-    Serial.print("Going to frame ");
-    Serial.println(frameIndex);
-    if (frameIndex == PNG_COUNT) {
-      frameIndex = 0;
-      Serial.println("Loop over!");
-    }
-  }
 }
 
-uint32_t counter = 0;
-
 void loop2() {
-  counter += 1;
-  if (multicore_fifo_wready()) {
-    multicore_fifo_push_blocking(counter);
+  unsigned error;
+  unsigned char *buffer = 0;
+  unsigned width, height;
+
+  // decode png
+  const uint8_t *png = png_frames[frameIndex];
+  size_t pngSize = png_frame_sizes[frameIndex];
+
+  error = lodepng_decode_memory(&buffer, &width, &height, png, pngSize, LCT_GREY, 8);
+
+  // push errors onto queue to be reported on core0, can't use serial here
+  if (error) {
+    free(buffer);
+    multicore_fifo_push_blocking(error);
+    return;
+  } else if (width != COL_COUNT || height != ROW_COUNT) {
+    free(buffer);
+    multicore_fifo_push_blocking(21372137);
+    return;
   }
-  busy_wait_us(500000);
+
+  // copy to framebuffer
+  // TODO: mutex? double buffer? or something...
+  // TODO: learn to use memcpy lmao
+  for (int y = ROW_COUNT - 1; y >= 0; y--) {
+    for (int x = 0; x < COL_COUNT; x++) {
+      framebuffer[y * COL_COUNT + x] = buffer[(ROW_COUNT - 1 - y) * COL_COUNT + x];
+    }
+  }
+
+  free(buffer);
+
+  // wait until next frame
+  // TODO: measure time to decode png
+  busy_wait_ms(MS_PER_FRAME);
+
+  frameIndex = (frameIndex + 1) % PNG_COUNT;
 }
