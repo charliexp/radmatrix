@@ -50,14 +50,8 @@ uint8_t framebuffer[ROW_COUNT * COL_COUNT] = {0};
 
 void main2();
 void setup() {
-  delay(500);
   Serial.begin(9600);
   Serial.println("Hello");
-  pinMode(15, OUTPUT);
-  pinMode(14, OUTPUT);
-  multicore_reset_core1();
-  multicore_launch_core1(main2);
-  return;
 
   memset(framebuffer, 0, sizeof(framebuffer));
 
@@ -109,23 +103,7 @@ void main2() {
   }
 }
 
-uint8_t testcnt = 0;
-uint8_t testdelays[] = {200, 100, 50, 25, 12, 6, 3, 1, 0};
-
 void loop() {
-  Serial.println(testdelays[testcnt]);
-  for (int i = 0; i < 50; i++) {
-    digitalWrite(15, HIGH);
-    digitalWrite(14, LOW);
-    delayMicroseconds(testdelays[testcnt]);
-    digitalWrite(15, LOW);
-    digitalWrite(14, HIGH);
-    delayMicroseconds(200*40);
-  }
-
-  testcnt = (testcnt + 1) % 9;
-
-  return;
   if (Serial.available() > 0) {
     char c = Serial.read();
     if (c == 'p') {
@@ -251,20 +229,9 @@ void loop() {
 uint32_t counter = 0;
 
 void loop2() {
-  // counter += 1;
-  // if (multicore_fifo_wready()) {
-  //   multicore_fifo_push_blocking(counter);
-  // }
-
-  unsigned error;
-  unsigned char *buffer = 0;
-  unsigned width, height;
-
-  const uint8_t *png = png_frames[frameIndex];
-  size_t pngSize = png_frame_sizes[frameIndex];
-
-  error = lodepng_decode_memory(&buffer, &width, &height, png, pngSize, LCT_GREY, 8);
-
+  counter += 1;
+  if (multicore_fifo_wready()) {
+    multicore_fifo_push_blocking(counter);
+  }
   busy_wait_us(500000);
-  frameIndex += 1;
 }
