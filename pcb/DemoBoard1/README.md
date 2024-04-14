@@ -1,4 +1,4 @@
-# Demo Baord 1
+# Demo Board 1
 
 Learning how to use shift registers, darlington arrays, and mosfets. I don't know what I'm doing.
 
