@@ -147,53 +147,60 @@ void loop() {
   // start selecting rows
   digitalWrite(ROW_SER, HIGH);
 
-  for (int y = 0; y < ROW_COUNT; y++) {
+  for (int yCount = 0; yCount < ROW_COUNT; yCount++) {
+    int y = ROW_COUNT - 1 - yCount;
     // brigthness - pushing data takes 40us, so to maximize brightness (at high brightness phases)
     // we want to keep the matrix on during update (except during latch). At low brightness phases,
     // we want it off to actually be dim
     bool brightPhase = brightnessPhase >= 2;
-    digitalWrite(ROW_OE, !brightPhase);
+    // digitalWrite(ROW_OE, !brightPhase);
 
     // next row
     pulsePin(ROW_SRCLK);
     // only one row
     digitalWrite(ROW_SER, LOW);
+
     // we use 7/8 stages on shift registers + 1 is unused
-    if (y % 20 % 7 == 0) {
+    int moduleY = yCount % 20;
+    if (moduleY == 0) {
       pulsePin(ROW_SRCLK);
     }
-    if (y % 20 == 0 && y != 0) {
+
+    if (moduleY == 7 || moduleY == 14 || (moduleY == 0 && yCount != 0)) {
       pulsePin(ROW_SRCLK);
     }
 
     // clear columns
     clearShiftReg(COL_SRCLK, COL_SRCLR);
 
-    // set row with column' data
+    // set row data
     for (int x = 0; x < COL_COUNT; x++) {
-      // we use 7/8 stages on shift registers + 1 is unused
-      if (x % 20 % 7 == 0) {
-        pulsePin(COL_SRCLK);
-      }
-      if (x % 20 == 0 && x != 0) {
-        pulsePin(COL_SRCLK);
-      }
-
       // get value
+      // NOTE: values are loaded right-left
       uint8_t pxValue = framebuffer[y * ROW_COUNT + x];
       // apply brightness
       bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
+      // set value (note: inverted logic)
       digitalWrite(COL_SER, !gotLight);
       // push value
       pulsePin(COL_SRCLK);
+
+      // we use 7/8 stages on shift registers + 1 is unused
+      int moduleX = x % 20;
+      if (moduleX == 0) {
+        pulsePin(COL_SRCLK);
+      }
+      if (moduleX == 6 || moduleX == 13 || moduleX == 19) {
+        pulsePin(COL_SRCLK);
+      }
     }
+
     // disable columns before latch
     outputEnable(ROW_OE, false);
+
     // latch rows and columns
     pulsePin(ROW_RCLK);
     pulsePin(COL_RCLK);
-    // enable columns after latch
-    outputEnable(ROW_OE, brightPhase);
 
     // show for a certain period
     outputEnable(ROW_OE, true);
@@ -230,11 +237,7 @@ void loop2() {
   // copy to framebuffer
   // TODO: mutex? double buffer? or something...
   // TODO: learn to use memcpy lmao
-  for (int x = COL_COUNT - 1; x >= 0; x--) {
-    for (int y = 0; y < ROW_COUNT; y++) {
-      framebuffer[x * ROW_COUNT + y] = buffer[(COL_COUNT - 1 - x) * ROW_COUNT + y];
-    }
-  }
+  memcpy(framebuffer, buffer, ROW_COUNT * COL_COUNT);
 
   free(buffer);
 
