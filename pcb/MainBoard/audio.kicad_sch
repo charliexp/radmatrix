@@ -5,7 +5,7 @@
 	(uuid "358d64ad-a131-4f0e-8329-6cb0cf45b576")
 	(paper "A4")
 	(lib_symbols
-		(symbol "Connector_Audio:AudioJack3_Ground"
+		(symbol "Connector_Audio:AudioJack3"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -17,7 +17,7 @@
 					)
 				)
 			)
-			(property "Value" "AudioJack3_Ground"
+			(property "Value" "AudioJack3"
 				(at 0 6.35 0)
 				(effects
 					(font
@@ -43,7 +43,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Audio Jack, 3 Poles (Stereo / TRS), Grounded Sleeve"
+			(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
 				(at 0 0 0)
 				(effects
 					(font
@@ -70,10 +70,10 @@
 					(hide yes)
 				)
 			)
-			(symbol "AudioJack3_Ground_0_1"
+			(symbol "AudioJack3_0_1"
 				(rectangle
-					(start -5.08 -2.54)
-					(end -6.35 -5.08)
+					(start -5.08 -5.08)
+					(end -6.35 -2.54)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -130,25 +130,7 @@
 					)
 				)
 			)
-			(symbol "AudioJack3_Ground_1_1"
-				(pin passive line
-					(at 0 -7.62 90)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "G"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
+			(symbol "AudioJack3_1_1"
 				(pin passive line
 					(at 5.08 0 180)
 					(length 2.54)
@@ -584,12 +566,6 @@
 		(uuid "8ff6cac3-628c-45c8-a01f-989fdf656d70")
 	)
 	(junction
-		(at 130.81 52.07)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a4eba287-cd6b-4d2a-b680-92839eb30a40")
-	)
-	(junction
 		(at 77.47 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -613,16 +589,6 @@
 	)
 	(wire
 		(pts
-			(xy 130.81 41.91) (xy 130.81 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1fb7651a-10bf-4180-bd69-bf5ed4e788e9")
-	)
-	(wire
-		(pts
 			(xy 83.82 60.96) (xy 104.14 60.96)
 		)
 		(stroke
@@ -630,16 +596,6 @@
 			(type default)
 		)
 		(uuid "2db310db-65d5-40af-b050-364be1568f9e")
-	)
-	(wire
-		(pts
-			(xy 140.97 41.91) (xy 130.81 41.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "309e60a1-c51c-4449-9a87-406bd4051207")
 	)
 	(wire
 		(pts
@@ -831,25 +787,6 @@
 		)
 		(uuid "e5922f6b-454e-4ae4-8eea-d9bb45efbb04")
 	)
-	(text_box "TODO: select footprint"
-		(exclude_from_sim no)
-		(at 134.62 34.29 0)
-		(size 30.48 3.81)
-		(stroke
-			(width -0.0001)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left top)
-		)
-		(uuid "50ecc89c-ce59-4bac-bbbc-b64990221378")
-	)
 	(text "Taken from \"Hardware design with RP2040\""
 		(exclude_from_sim no)
 		(at 89.916 30.48 0)
@@ -972,7 +909,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Audio:AudioJack3_Ground")
+		(lib_id "Connector_Audio:AudioJack3")
 		(at 140.97 49.53 180)
 		(unit 1)
 		(exclude_from_sim no)
@@ -998,7 +935,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "led-matrix:3.5mm-audio-jack"
 			(at 140.97 49.53 0)
 			(effects
 				(font
@@ -1016,7 +953,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS), Grounded Sleeve"
+		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
 			(at 140.97 49.53 0)
 			(effects
 				(font
@@ -1027,9 +964,6 @@
 		)
 		(pin "R"
 			(uuid "78b63f25-550b-4b26-ba9f-5607e724a4a2")
-		)
-		(pin "G"
-			(uuid "b39ca047-7dcc-4205-967a-7e227d5f4d12")
 		)
 		(pin "S"
 			(uuid "2b15e620-abde-41d5-9936-7bc10bfa876b")
