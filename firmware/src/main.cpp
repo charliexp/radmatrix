@@ -2,6 +2,7 @@
 #include "gfx_png.h"
 #include "lodepng.h"
 #include "pico/multicore.h"
+#include "hardware/gpio.h"
 #include "mbed_wait_api.h"
 
 #define Serial Serial1
@@ -19,18 +20,18 @@
 #define ROW_SRCLR 10
 
 inline void pulsePin(uint8_t pin) {
-  digitalWrite(pin, HIGH);
-  digitalWrite(pin, LOW);
+  gpio_put(pin, HIGH);
+  gpio_put(pin, LOW);
 }
 
 void clearShiftReg(uint8_t srclk, uint8_t srclr) {
-  digitalWrite(srclr, LOW);
+  gpio_put(srclr, LOW);
   pulsePin(srclk);
-  digitalWrite(srclr, HIGH);
+  gpio_put(srclr, HIGH);
 }
 
 inline void outputEnable(uint8_t pin, bool enable) {
-  digitalWrite(pin, !enable);
+  gpio_put(pin, !enable);
 }
 
 #define ROW_COUNT 40
@@ -57,6 +58,10 @@ void setup() {
 
   memset(framebuffer, 0, sizeof(framebuffer));
 
+  // disable output
+  outputEnable(COL_OE, false);
+  outputEnable(ROW_OE, false);
+
   // set up col pins
   pinMode(COL_SER, OUTPUT);
   pinMode(COL_OE, OUTPUT);
@@ -71,20 +76,14 @@ void setup() {
   pinMode(ROW_SRCLK, OUTPUT);
   pinMode(ROW_SRCLR, OUTPUT);
 
-  // disable output
-  outputEnable(COL_OE, false);
-  outputEnable(ROW_OE, false);
-
   // clear output - cols
-  digitalWrite(COL_SER, LOW);
   clearShiftReg(COL_SRCLK, COL_SRCLR);
+  pulsePin(COL_RCLK);
   outputEnable(COL_OE, true);
 
   // clear output - rows
-  digitalWrite(ROW_SRCLR, HIGH);
-  digitalWrite(ROW_SER, HIGH);
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
-  outputEnable(ROW_OE, true);
+  pulsePin(ROW_RCLK);
 
   // clear frames
   frameIndex = 0;
@@ -181,7 +180,7 @@ void loop() {
       // apply brightness
       bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
       // set value (note: inverted logic)
-      digitalWrite(COL_SER, !gotLight);
+      gpio_put(COL_SER, !gotLight);
       // push value
       pulsePin(COL_SRCLK);
 
