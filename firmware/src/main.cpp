@@ -52,6 +52,10 @@ uint8_t brightnessPhaseDelays[] = {1, 10, 30, 100};
 uint8_t framebuffer[ROW_COUNT * COL_COUNT] = {0};
 
 void main2();
+void life_setup();
+void life_step();
+extern bool cells[ROW_COUNT * COL_COUNT];
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Hello worldd!");
@@ -91,9 +95,20 @@ void setup() {
 
   // launch core1
   // NOTE: For some reason, without delay, core1 doesn't start?
-  delay(500);
-  multicore_reset_core1();
-  multicore_launch_core1(main2);
+  // delay(500);
+  // multicore_reset_core1();
+  // multicore_launch_core1(main2);
+
+  // setup_audio();
+
+  life_setup();
+
+  // copy cells to framebuffer
+  for (int y = 0; y < ROW_COUNT; y++) {
+    for (int x = 0; x < COL_COUNT; x++) {
+      framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
+    }
+  }
 }
 
 void loop2();
@@ -135,6 +150,18 @@ void loop() {
     Serial.print("Going to frame ");
     Serial.println(frameIndex);
     lastRenderedFrameIndex = frameIndex;
+  }
+
+  // game of life step
+  auto now = millis();
+  if (now - frameLastChangedAt > 100) {
+    frameLastChangedAt = now;
+    life_step();
+    for (int y = 0; y < ROW_COUNT; y++) {
+      for (int x = 0; x < COL_COUNT; x++) {
+        framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
+      }
+    }
   }
 
   // hide output
