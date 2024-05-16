@@ -4,4 +4,6 @@
 .vscode/launch.json
 .vscode/ipch
 src/gfx_png.h
+src/audio_sample.h
 gfx/
+audio/

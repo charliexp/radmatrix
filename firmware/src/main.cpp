@@ -4,6 +4,7 @@
 #include "pico/multicore.h"
 #include "hardware/gpio.h"
 #include "mbed_wait_api.h"
+#include "audio.h"
 
 #define Serial Serial1
 
@@ -60,6 +61,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Hello worldd!");
 
+
+  init_audio();
   memset(framebuffer, 0, sizeof(framebuffer));
 
   // disable output

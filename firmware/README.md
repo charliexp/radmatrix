@@ -11,3 +11,15 @@ move to `gfx` folder, then:
 ```
 python3 scripts/gfx_convert.py
 ```
+
+convert audio
+
+```
+ffmpeg -i badapple.webm -t 30 -ar 11000 output.wav
+```
+
+move to `audio` folder, then:
+
+```
+python3 scripts/audio_convert.py
+```
