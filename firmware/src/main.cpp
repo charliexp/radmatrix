@@ -4,9 +4,12 @@
 #include "pico/multicore.h"
 #include "hardware/gpio.h"
 #include "mbed_wait_api.h"
-#include "audio.h"
+#include <SPI.h>
+// #include <SD.h>
+#include <RP2040_SD.h>
+// #include "audio.h"
 
-#define Serial Serial1
+// #define Serial Serial1
 
 #define COL_SER 20
 #define COL_OE 21
@@ -57,12 +60,142 @@ void life_setup();
 void life_step();
 extern bool cells[ROW_COUNT * COL_COUNT];
 
+void printDirectory(File dir, int numTabs);
+
 void setup() {
+  pinMode(16, INPUT);
+  pinMode(17, OUTPUT);
+  digitalWrite(17, HIGH);
+  pinMode(18, OUTPUT);
+  pinMode(19, OUTPUT);
+  pinMode(28, INPUT_PULLUP);
+  // pinMode(23, OUTPUT);
+
+  delay(2000);
   Serial.begin(115200);
   Serial.println("Hello worldd!");
 
 
-  init_audio();
+  SPI.begin();
+
+  while (digitalRead(28) == HIGH) {
+    Serial.println("SD card not connected, waiting...");
+    delay(1000);
+  }
+
+  Serial.println(BOARD_NAME);
+   Serial.println(RP2040_SD_VERSION);
+
+   Serial.print("Initializing SD card with SS = ");
+   Serial.println(PIN_SPI_SS);
+   Serial.print("SCK = ");
+   Serial.println(PIN_SPI_SCK);
+   Serial.print("MOSI = ");
+   Serial.println(PIN_SPI_MOSI);
+   Serial.print("MISO = ");
+   Serial.println(PIN_SPI_MISO);
+
+   if (!SD.begin(PIN_SPI_SS))
+   {
+     Serial.println("Initialization failed!");
+    Serial.print("Error code: ");
+    // Serial.println(SD.card.errorCode(), HEX);
+     return;
+   }
+
+  Serial.println("initialization done.");
+
+  // delay(2000);
+  // return;
+
+   // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  File myFile = SD.open("test2.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    Serial.print("Writing to test.txt...");
+    myFile.println("testing 1, 2, 3.");
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+
+  // re-open the file for reading:
+  myFile = SD.open("test2.txt");
+  if (myFile) {
+    Serial.println("test.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+/*
+  Serial.print("Clusters:          ");
+  Serial.println(SD.volume.clusterCount());
+  Serial.print("Blocks x Cluster:  ");
+  Serial.println(SD.volume.blocksPerCluster());
+
+  Serial.print("Total Blocks:      ");
+  Serial.println(SD.volume.blocksPerCluster() * SD.volume.clusterCount());
+  Serial.println();
+
+  // print the type and size of the first FAT-type volume
+  uint32_t volumesize;
+  Serial.print("Volume type is:    FAT");
+  Serial.println(SD.volume.fatType(), DEC);
+
+  volumesize = SD.volume.blocksPerCluster();    // clusters are collections of blocks
+  volumesize *= SD.volume.clusterCount();       // we'll have a lot of clusters
+  volumesize /= 2;                           // SD card blocks are always 512 bytes (2 blocks are 1 KB)
+  Serial.print("Volume size (KB):  ");
+  Serial.println(volumesize);
+  Serial.print("Volume size (MB):  ");
+  volumesize /= 1024;
+  Serial.println(volumesize);
+  Serial.print("Volume size (GB):  ");
+  Serial.println((float)volumesize / 1024.0);*/
+
+  File root = SD.open("/");
+
+  printDirectory(root, 0);
+
+  // Serial.println("\nFiles found on the card (name, date and size in bytes): ");
+  // SD.root.openRoot(SD.volume);
+
+  // list all files in the card with date and size
+  // SD.root.ls(LS_R | LS_DATE | LS_SIZE);
+  // SD.root.close();
+
+/*
+  Serial.print("Initializing SD card...");
+
+  if (!SD.begin(17)) {
+    Serial.println("initialization failed!");
+    Serial.print("Error code: ");
+    Serial.println(SD.card.errorCode(), HEX);
+    while (1);
+  }
+*/
+
+  // if (!SD.begin(17)) {
+  //   Serial.println("initialization failed!");
+  //   Serial.print("Error code: ");
+  //   Serial.println(SD.card.errorCode(), HEX);
+  //   while (1);
+  // }
+
+  return;
+
   memset(framebuffer, 0, sizeof(framebuffer));
 
   // disable output
@@ -98,19 +231,62 @@ void setup() {
 
   // launch core1
   // NOTE: For some reason, without delay, core1 doesn't start?
-  // delay(500);
-  // multicore_reset_core1();
-  // multicore_launch_core1(main2);
+  delay(500);
+  multicore_reset_core1();
+  multicore_launch_core1(main2);
 
   // setup_audio();
 
-  life_setup();
+  // life_setup();
 
-  // copy cells to framebuffer
-  for (int y = 0; y < ROW_COUNT; y++) {
-    for (int x = 0; x < COL_COUNT; x++) {
-      framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
+  // // copy cells to framebuffer
+  // for (int y = 0; y < ROW_COUNT; y++) {
+  //   for (int x = 0; x < COL_COUNT; x++) {
+  //     framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
+  //   }
+  // }
+}
+
+void printDirectory(File dir, int numTabs) {
+
+  while (true) {
+
+    File entry =  dir.openNextFile();
+
+    if (! entry) {
+
+      // no more files
+
+      break;
+
     }
+
+    for (uint8_t i = 0; i < numTabs; i++) {
+
+      Serial.print('\t');
+
+    }
+
+    Serial.print(entry.name());
+
+    if (entry.isDirectory()) {
+
+      Serial.println("/");
+
+      printDirectory(entry, numTabs + 1);
+
+    } else {
+
+      // files have sizes, directories do not
+
+      Serial.print("\t\t");
+
+      Serial.println(entry.size(), DEC);
+
+    }
+
+    entry.close();
+
   }
 }
 
@@ -122,6 +298,8 @@ void main2() {
 }
 
 void loop() {
+
+  return;
   if (Serial.available() > 0) {
     char c = Serial.read();
     if (c == 'p') {
@@ -156,16 +334,16 @@ void loop() {
   }
 
   // game of life step
-  auto now = millis();
-  if (now - frameLastChangedAt > 100) {
-    frameLastChangedAt = now;
-    life_step();
-    for (int y = 0; y < ROW_COUNT; y++) {
-      for (int x = 0; x < COL_COUNT; x++) {
-        framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
-      }
-    }
-  }
+  // auto now = millis();
+  // if (now - frameLastChangedAt > 100) {
+  //   frameLastChangedAt = now;
+  //   life_step();
+  //   for (int y = 0; y < ROW_COUNT; y++) {
+  //     for (int x = 0; x < COL_COUNT; x++) {
+  //       framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
+  //     }
+  //   }
+  // }
 
   // hide output
   outputEnable(ROW_OE, false);

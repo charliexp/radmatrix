@@ -787,6 +787,16 @@
 		)
 		(uuid "e5922f6b-454e-4ae4-8eea-d9bb45efbb04")
 	)
+	(text "220R is VERY loud"
+		(exclude_from_sim no)
+		(at 60.96 35.814 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "3a8e57bf-0b15-44ce-b0e8-e3c71fc72ce9")
+	)
 	(text "Taken from \"Hardware design with RP2040\""
 		(exclude_from_sim no)
 		(at 89.916 30.48 0)

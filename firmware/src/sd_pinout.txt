@@ -1,0 +1,10 @@
+
+                  17
+DAT1   GND  +3V3   CS     SHLD
+  2     4     6     8     10
+  1     3     5     7     9
+DET   MISO   CLK   MOSI   DAT2
+28     16    18     19
+
+
+
