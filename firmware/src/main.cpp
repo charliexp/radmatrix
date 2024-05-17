@@ -34,10 +34,12 @@ void setup() {
     Serial.println("Failed to load gfx blob");
     while (true) {}
   }
+
+  leds_initRenderer();
 }
 
 void loop() {
-  sd_loadNextAudio();
+  // sd_loadNextAudio();
 
   // if (Serial.available() > 0) {
   //   char c = Serial.read();
@@ -55,6 +57,4 @@ void loop() {
   if (!gfx_decoder_handleLoop()) {
     Serial.println("Failed to load frame...");
   }
-
-  leds_render();
 }

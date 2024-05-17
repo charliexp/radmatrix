@@ -193,6 +193,7 @@ void sd_loadNextAudio() {
   }
   next_buffer_requested = false;
 
+  auto b4 = millis();
   auto next_buffer = wav_buffer1_active ? &wav_buffer_0 : &wav_buffer_1;
   auto bytesRead = audioFile.read(next_buffer, BUFFER_LEN);
 
@@ -202,7 +203,9 @@ void sd_loadNextAudio() {
   } else {
     Serial.print("Read ");
     Serial.print(bytesRead);
-    Serial.println(" bytes from audio file");
+    Serial.print(" bytes from audio file in ");
+    Serial.print(millis() - b4);
+    Serial.println("ms");
   }
 }
 

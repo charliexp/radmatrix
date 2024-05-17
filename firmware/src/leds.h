@@ -23,6 +23,7 @@
 #define MS_PER_FRAME 1000 / FPS
 
 void leds_init();
+void leds_initRenderer();
 void leds_disable();
 void leds_loop();
 void leds_render();

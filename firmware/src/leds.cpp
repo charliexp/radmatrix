@@ -56,34 +56,26 @@ void leds_init() {
   // clear output - rows
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
   pulsePin(ROW_RCLK);
-
-  /*
-  // launch core1
-  // NOTE: For some reason, without delay, core1 doesn't start?
-  delay(500);
-  multicore_reset_core1();
-  multicore_launch_core1(main2);
-  */
 }
 
 void leds_disable() {
   outputEnable(ROW_OE, false);
 }
 
-void leds_loop() {
-  // game of life step
-  // auto now = millis();
-  // if (now - frameLastChangedAt > 100) {
-  //   frameLastChangedAt = now;
-  //   life_step();
-  //   for (int y = 0; y < ROW_COUNT; y++) {
-  //     for (int x = 0; x < COL_COUNT; x++) {
-  //       framebuffer[y * ROW_COUNT + x] = cells[y * ROW_COUNT + x] ? 255 : 0;
-  //     }
-  //   }
-  // }
+void main2() {
+  // where we're going, we don't need no interrupts
+  noInterrupts();
+  while (true) {
+    leds_render();
+  }
+}
 
-  leds_render();
+void leds_initRenderer() {
+  // launch core1
+  // NOTE: For some reason, without delay, core1 doesn't start?
+  // delay(500);
+  multicore_reset_core1();
+  multicore_launch_core1(main2);
 }
 
 void leds_render() {
@@ -153,7 +145,7 @@ void leds_render() {
 
     // show for a certain period
     outputEnable(ROW_OE, true);
-    delayMicroseconds(brightnessPhaseDelays[brightnessPhase]);
+    busy_wait_us_32(brightnessPhaseDelays[brightnessPhase]);
     outputEnable(ROW_OE, false);
   }
 

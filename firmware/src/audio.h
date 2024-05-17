@@ -6,7 +6,7 @@
 #define AUDIO_PIN 2
 
 #define AUDIO_RATE 44000.0f
-#define BUFFER_LEN 16384
+#define BUFFER_LEN 512*32
 #define BUFFER_LEN_MS (BUFFER_LEN / AUDIO_RATE) * 1000.0f
 
 extern uint8_t wav_buffer_0[BUFFER_LEN];
