@@ -1910,7 +1910,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0b4b11fe-d869-4547-8bd9-6722532103b9")
-		(property "Reference" "R?"
+		(property "Reference" "R303"
 			(at 22.86 74.9299 0)
 			(effects
 				(font
@@ -1973,7 +1973,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "R?")
+					(reference "R303")
 					(unit 1)
 				)
 			)
@@ -1989,7 +1989,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "18a83b2d-8aec-4a0c-ac94-daeef818e6e8")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR0301"
 			(at 74.93 58.42 0)
 			(effects
 				(font
@@ -2040,7 +2040,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "#PWR07")
+					(reference "#PWR0301")
 					(unit 1)
 				)
 			)
@@ -2056,7 +2056,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "45a74c33-b733-43ae-a196-b3c2bcbb198f")
-		(property "Reference" "D?"
+		(property "Reference" "D304"
 			(at 123.19 41.275 0)
 			(effects
 				(font
@@ -2074,7 +2074,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "can:DFN1006_TVS"
+		(property "Footprint" "led-matrix:DFN1006_TVS"
 			(at 123.19 44.45 0)
 			(effects
 				(font
@@ -2119,7 +2119,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "D?")
+					(reference "D304")
 					(unit 1)
 				)
 			)
@@ -2134,7 +2134,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "63e09765-1daf-4b3d-9b73-b05d09450a1f")
-		(property "Reference" "J?"
+		(property "Reference" "J301"
 			(at 30.4165 22.86 0)
 			(effects
 				(font
@@ -2150,7 +2150,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12"
+		(property "Footprint" "led-matrix:USB_C_Receptacle_HRO_TYPE-C-31-M-12"
 			(at 31.75 45.72 0)
 			(effects
 				(font
@@ -2249,7 +2249,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "J?")
+					(reference "J301")
 					(unit 1)
 				)
 			)
@@ -2264,7 +2264,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6898b218-d10f-40ae-b638-700f24f7ea61")
-		(property "Reference" "#FLG02"
+		(property "Reference" "#FLG0302"
 			(at 31.115 68.58 0)
 			(effects
 				(font
@@ -2315,7 +2315,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "#FLG02")
+					(reference "#FLG0302")
 					(unit 1)
 				)
 			)
@@ -2331,7 +2331,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "803bf89e-93bd-41cf-92a2-5eb06a953bc1")
-		(property "Reference" "#FLG01"
+		(property "Reference" "#FLG0301"
 			(at 49.53 24.765 0)
 			(effects
 				(font
@@ -2381,7 +2381,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "#FLG01")
+					(reference "#FLG0301")
 					(unit 1)
 				)
 			)
@@ -2397,7 +2397,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8256b6f8-9921-4218-8c9a-ac674219c18a")
-		(property "Reference" "#PWR013"
+		(property "Reference" "#PWR0302"
 			(at 129.54 62.23 0)
 			(effects
 				(font
@@ -2448,7 +2448,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "#PWR013")
+					(reference "#PWR0302")
 					(unit 1)
 				)
 			)
@@ -2464,7 +2464,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9235c1ca-d1aa-4e43-9a16-cb7a4a100192")
-		(property "Reference" "R?"
+		(property "Reference" "R301"
 			(at 71.12 43.1799 0)
 			(effects
 				(font
@@ -2527,7 +2527,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "R?")
+					(reference "R301")
 					(unit 1)
 				)
 			)
@@ -2543,7 +2543,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9dbaf0a8-cfbd-4fca-84eb-236a49d906d7")
-		(property "Reference" "D?"
+		(property "Reference" "D301"
 			(at 123.19 22.225 0)
 			(effects
 				(font
@@ -2561,7 +2561,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "can:DFN1006_TVS"
+		(property "Footprint" "led-matrix:DFN1006_TVS"
 			(at 123.19 25.4 0)
 			(effects
 				(font
@@ -2606,7 +2606,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "D?")
+					(reference "D301")
 					(unit 1)
 				)
 			)
@@ -2622,7 +2622,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a4f2cf41-761f-4cc9-bf3a-71ca936e760c")
-		(property "Reference" "R?"
+		(property "Reference" "R302"
 			(at 78.74 43.1799 0)
 			(effects
 				(font
@@ -2685,7 +2685,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "R?")
+					(reference "R302")
 					(unit 1)
 				)
 			)
@@ -2701,7 +2701,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ad65afcd-69cb-4f7e-9325-8677542b3238")
-		(property "Reference" "D?"
+		(property "Reference" "D303"
 			(at 123.19 34.925 0)
 			(effects
 				(font
@@ -2719,7 +2719,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "can:DFN1006_TVS"
+		(property "Footprint" "led-matrix:DFN1006_TVS"
 			(at 123.19 38.1 0)
 			(effects
 				(font
@@ -2764,7 +2764,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "D?")
+					(reference "D303")
 					(unit 1)
 				)
 			)
@@ -2780,7 +2780,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b36d08cd-2c9a-4767-b1e9-ec091ec1143a")
-		(property "Reference" "#PWR010"
+		(property "Reference" "#PWR0304"
 			(at 20.32 88.9 0)
 			(effects
 				(font
@@ -2831,7 +2831,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "#PWR010")
+					(reference "#PWR0304")
 					(unit 1)
 				)
 			)
@@ -2847,7 +2847,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d12db568-086a-4e2c-a5bf-c55f24254cd5")
-		(property "Reference" "D?"
+		(property "Reference" "D302"
 			(at 123.19 28.575 0)
 			(effects
 				(font
@@ -2865,7 +2865,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "can:DFN1006_TVS"
+		(property "Footprint" "led-matrix:DFN1006_TVS"
 			(at 123.19 31.75 0)
 			(effects
 				(font
@@ -2910,7 +2910,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "D?")
+					(reference "D302")
 					(unit 1)
 				)
 			)
@@ -2926,7 +2926,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "db691f9d-c6bc-43f7-9dfb-a2e863b58792")
-		(property "Reference" "D?"
+		(property "Reference" "D305"
 			(at 123.19 47.625 0)
 			(effects
 				(font
@@ -2944,7 +2944,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "can:DFN1006_TVS"
+		(property "Footprint" "led-matrix:DFN1006_TVS"
 			(at 123.19 50.8 0)
 			(effects
 				(font
@@ -2989,7 +2989,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "D?")
+					(reference "D305")
 					(unit 1)
 				)
 			)
@@ -3005,7 +3005,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e323f511-2f7b-410d-829d-be4f37e82d06")
-		(property "Reference" "#PWR011"
+		(property "Reference" "#PWR0303"
 			(at 27.94 78.74 0)
 			(effects
 				(font
@@ -3056,7 +3056,7 @@
 		(instances
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/5232c3be-bd03-4015-929e-0effd1f09850"
-					(reference "#PWR011")
+					(reference "#PWR0303")
 					(unit 1)
 				)
 			)
