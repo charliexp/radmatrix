@@ -156,54 +156,53 @@ void printSDStats(RP2040_SdVolume volume) {
   Serial.println((float)volumesize / 1024.0);
 }
 
-File file;
+File audioFile;
 
-void sd_getAudio() {
+void sd_loadAudio() {
   if (!SD.exists("/badapple/audio.bin")) {
     Serial.println("Audio not found :(");
     return;
   }
 
-  if (file) {
-    file.close();
+  if (audioFile) {
+    audioFile.close();
   }
 
-  file = SD.open("/badapple/audio.bin", FILE_READ);
+  audioFile = SD.open("/badapple/audio.bin", FILE_READ);
   Serial.println("Audio file opened");
 
   audio_stop();
 
   // load two buffers' worth of audio
-  if (file.read(&wav_buffer_0, BUFFER_LEN) < BUFFER_LEN) {
+  if (audioFile.read(&wav_buffer_0, BUFFER_LEN) < BUFFER_LEN) {
     Serial.println("Could not read first sample");
     return;
   }
 
-  if (file.read(&wav_buffer_1, BUFFER_LEN) < BUFFER_LEN) {
+  if (audioFile.read(&wav_buffer_1, BUFFER_LEN) < BUFFER_LEN) {
     Serial.println("Could not read second sample");
     return;
   }
 
   audio_start();
+}
 
-  while (true) {
-    if (!next_buffer_requested) {
-      delay(50);
-      continue;
-    }
-    next_buffer_requested = false;
+void sd_loadNextAudio() {
+  if (!next_buffer_requested) {
+    return;
+  }
+  next_buffer_requested = false;
 
-    auto next_buffer = wav_buffer1_active ? &wav_buffer_0 : &wav_buffer_1;
-    auto bytesRead = file.read(next_buffer, BUFFER_LEN);
+  auto next_buffer = wav_buffer1_active ? &wav_buffer_0 : &wav_buffer_1;
+  auto bytesRead = audioFile.read(next_buffer, BUFFER_LEN);
 
-    if (bytesRead < BUFFER_LEN) {
-      Serial.println("End of audio file");
-      file.seek(0);
-    } else {
-      Serial.print("Read ");
-      Serial.print(bytesRead);
-      Serial.println(" bytes from audio file");
-    }
+  if (bytesRead < BUFFER_LEN) {
+    Serial.println("End of audio file, rewinding...");
+    audioFile.seek(0);
+  } else {
+    Serial.print("Read ");
+    Serial.print(bytesRead);
+    Serial.println(" bytes from audio file");
   }
 }
 

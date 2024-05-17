@@ -46,3 +46,14 @@ bool gfx_decoder_loadNextFrame() {
   free(buffer);
   return true;
 }
+
+unsigned long frameLastChangedAt = 0;
+
+bool gfx_decoder_handleLoop() {
+  auto now = millis();
+  if (now - frameLastChangedAt > MS_PER_FRAME) {
+    frameLastChangedAt = now;
+    return gfx_decoder_loadNextFrame();
+  }
+  return true;
+}

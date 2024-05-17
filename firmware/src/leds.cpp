@@ -20,10 +20,6 @@ inline void outputEnable(uint8_t pin, bool enable) {
   gpio_put(pin, !enable);
 }
 
-uint16_t frameIndex = 0;
-uint16_t lastRenderedFrameIndex = 0;
-unsigned long frameLastChangedAt;
-
 // we have 4-bit color depth, so 16 levels of brightness
 // we go from phase 0 to phase 3
 uint8_t brightnessPhase = 0;
@@ -60,10 +56,6 @@ void leds_init() {
   // clear output - rows
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
   pulsePin(ROW_RCLK);
-
-  // clear frames
-  frameIndex = 0;
-  frameLastChangedAt = millis();
 
   /*
   // launch core1

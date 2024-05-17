@@ -9,5 +9,6 @@ extern uint16_t frameCount;
 extern uint8_t gfxFrameBuffer[2048];
 
 bool gfx_decoder_loadNextFrame();
+bool gfx_decoder_handleLoop();
 
 #endif
