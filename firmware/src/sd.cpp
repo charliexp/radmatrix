@@ -3,6 +3,7 @@
 #include <RP2040_SD.h>
 #include "sd.h"
 #include "audio.h"
+#include "gfx_decoder.h"
 
 #define SD_DET_PIN 28
 
@@ -206,60 +207,86 @@ void sd_getAudio() {
   }
 }
 
-uint16_t lenBuffer[12000] = {0};
-uint8_t dataBuffer[2048] = {0};
-uint16_t frameCount = 0;
+bool sd_loadGfxFrameLengths() {
+  auto path = "badapple/gfx_len.bin";
 
-void sd_getGfx() {
-  // read frame lengths
-  auto lengthsFile = SD.open("badapple/gfx_len.bin", FILE_READ);
-  frameCount = lengthsFile.size() / sizeof(uint16_t);
+  if (!SD.exists(path)) {
+    Serial.println("Frame lengths file not found :(");
+    return false;
+  }
 
-  Serial.print("Frames: ");
-  Serial.println(frameCount);
+  auto lengthsFile = SD.open(path, FILE_READ);
+  auto fileSize = lengthsFile.size();
+
+  if (fileSize > sizeof(gfxFrameLengthsBuffer)) {
+    Serial.println("Frame lengths file too large");
+    return false;
+  }
+
+  frameCount = fileSize / sizeof(uint16_t);
 
   while (lengthsFile.available()) {
-    lengthsFile.read(&lenBuffer, sizeof(lenBuffer));
+    lengthsFile.read(&gfxFrameLengthsBuffer, sizeof(gfxFrameLengthsBuffer));
   }
 
   lengthsFile.close();
   Serial.println("Done reading frame lengths");
 
-  auto gfxBlobFile = SD.open("badapple/gfx.bin", FILE_READ);
+  return true;
+}
 
-  auto b4 = millis();
-  for (uint16_t i = 0; i < frameCount; i++) {
-    Serial.print("Frame ");
-    Serial.print(i);
-    Serial.print(" - length ");
+File gfxFile;
 
-    auto len = lenBuffer[i];
+uint16_t frameIdx = 0;
 
-    Serial.print(lenBuffer[i]);
-    Serial.print(" - read in ");
+bool sd_loadGfxBlob() {
+  auto path = "badapple/gfx.bin";
 
-    if (len > sizeof(dataBuffer)) {
-      Serial.println("Frame too large");
-      return;
-    }
-
-    auto bytesRead = gfxBlobFile.read(&dataBuffer, len);
-    if (bytesRead < len) {
-      Serial.println("Could not read the entire frame");
-      return;
-    }
-
-    auto now = millis();
-    auto time = now - b4;
-    Serial.print(time);
-    Serial.println("ms");
-    if (time > 20) {
-      Serial.println("Frame took too long to read");
-      return;
-    }
-    b4 = now;
+  if (!SD.exists(path)) {
+    Serial.println("Gfx blob file not found :(");
+    return false;
   }
 
-  gfxBlobFile.close();
-  Serial.println("Done reading frames");
+  gfxFile = SD.open(path, FILE_READ);
+  Serial.println("Opened video frames");
+
+  return true;
+}
+
+// Returns size of frame read or -1 if error
+int32_t sd_loadNextFrame() {
+  if (!gfxFile || !gfxFile.available()) {
+    Serial.println("Gfx file not available");
+    return -1;
+  }
+
+  if (frameIdx >= frameCount) {
+    Serial.println("Frame out of range");
+    return -1;
+  }
+
+  // get size of frame png
+  auto frameSize = gfxFrameLengthsBuffer[frameIdx];
+  if (frameSize > sizeof(gfxFrameBuffer)) {
+    Serial.println("Frame too large");
+    return -1;
+  }
+
+  // read data
+  auto bytesRead = gfxFile.read(&gfxFrameBuffer, frameSize);
+  if (bytesRead < frameSize) {
+    Serial.println("Could not read the entire frame");
+    return -1;
+  }
+
+  // increment
+  if (frameIdx == frameCount - 1) {
+    Serial.println("Last frame, rewinding...");
+    gfxFile.seek(0);
+    frameIdx = 0;
+  } else {
+    frameIdx++;
+  }
+
+  return frameSize;
 }

@@ -9,8 +9,6 @@
 
 // Adapted from https://github.com/rgrosset/pico-pwm-audio
 
-#define AUDIO_PIN 23
-
 #define MAX_PWM_POS (BUFFER_LEN << 3)
 
 uint8_t wav_buffer_0[BUFFER_LEN] = {0};

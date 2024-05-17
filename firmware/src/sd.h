@@ -6,4 +6,6 @@ void setupSD();
 bool isSDCardInserted();
 
 void sd_getAudio();
-void sd_getGfx();
+bool sd_loadGfxFrameLengths();
+bool sd_loadGfxBlob();
+int32_t sd_loadNextFrame();
