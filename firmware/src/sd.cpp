@@ -1,6 +1,8 @@
 #include <Arduino.h>
-#include <RP2040_SD.h>
 #include <SPI.h>
+#include <RP2040_SD.h>
+#include "sd.h"
+#include "audio.h"
 
 #define SD_DET_PIN 28
 
@@ -39,22 +41,23 @@ void printDirectory(File dir, int numTabs);
 void setupSD() {
   SPI.begin();
 
-  printSDConfig();
+  // printSDConfig();
 
   if (!SD.begin(PIN_SPI_SS)) {
     Serial.println("SD Initialization failed!");
     // Serial.print("Error code: ");
     // Serial.println(SD.card.errorCode(), HEX);
+    while (true) {}
     return;
   }
 
   Serial.println("SD Initialization done");
 
-  testSDCard();
+  // testSDCard();
   // printSDStats(SD.volume);
 
-  File root = SD.open("/");
-  printDirectory(root, 0);
+  // File root = SD.open("/");
+  // printDirectory(root, 0);
 }
 
 void printSDConfig() {
@@ -150,4 +153,55 @@ void printSDStats(RP2040_SdVolume volume) {
   Serial.println(volumesize);
   Serial.print("Volume size (GB):  ");
   Serial.println((float)volumesize / 1024.0);
+}
+
+File file;
+
+void sd_getAudio() {
+  if (!SD.exists("/badapple/audio.bin")) {
+    Serial.println("Audio not found :(");
+    return;
+  }
+
+  if (file) {
+    file.close();
+  }
+
+  file = SD.open("/badapple/audio.bin", FILE_READ);
+  Serial.println("Audio file opened");
+
+  audio_stop();
+
+  // load two buffers' worth of audio
+  if (file.read(&wav_buffer_0, BUFFER_LEN) < BUFFER_LEN) {
+    Serial.println("Could not read first sample");
+    return;
+  }
+
+  if (file.read(&wav_buffer_1, BUFFER_LEN) < BUFFER_LEN) {
+    Serial.println("Could not read second sample");
+    return;
+  }
+
+  audio_start();
+
+  while (true) {
+    if (!next_buffer_requested) {
+      delay(50);
+      continue;
+    }
+    next_buffer_requested = false;
+
+    auto next_buffer = wav_buffer1_active ? &wav_buffer_0 : &wav_buffer_1;
+    auto bytesRead = file.read(next_buffer, BUFFER_LEN);
+
+    if (bytesRead < BUFFER_LEN) {
+      Serial.println("End of audio file");
+      file.seek(0);
+    } else {
+      Serial.print("Read ");
+      Serial.print(bytesRead);
+      Serial.println(" bytes from audio file");
+    }
+  }
 }

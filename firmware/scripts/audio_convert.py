@@ -55,3 +55,10 @@ with open("src/audio_sample.h", "w") as f:
     f.write(m68code)
 
 print("done!")
+
+print("writing blob...")
+
+with open("audio/audio.bin", "wb") as f:
+    f.write(bytes(normalized))
+
+print("done!")

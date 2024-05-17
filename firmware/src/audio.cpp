@@ -3,13 +3,21 @@
 #include "hardware/pwm.h"  // pwm
 #include "hardware/sync.h" // wait for interrupt
 #include "hardware/gpio.h"
+#include "audio.h"
 
-#include "audio_sample.h"
+// #include "audio_sample.h"
 
 // Adapted from https://github.com/rgrosset/pico-pwm-audio
 
 #define AUDIO_PIN 23
-int wav_position = 0;
+
+#define MAX_PWM_POS (BUFFER_LEN << 3)
+
+uint8_t wav_buffer_0[BUFFER_LEN] = {0};
+uint8_t wav_buffer_1[BUFFER_LEN] = {0};
+bool wav_buffer1_active = false;
+volatile bool next_buffer_requested = false; // horrible, use some interrupt-based solution or at least locks or whatever
+uint32_t pwm_position = 0;
 
 /*
  * PWM Interrupt Handler which outputs PWM level and advances the
@@ -21,21 +29,23 @@ int wav_position = 0;
  */
 void pwm_interrupt_handler() {
     pwm_clear_irq(pwm_gpio_to_slice_num(AUDIO_PIN));
-    if (wav_position < (WAV_DATA_LENGTH<<3) - 1) {
+    if (pwm_position < MAX_PWM_POS - 1) {
+        auto wav_buffer = wav_buffer1_active ? wav_buffer_1 : wav_buffer_0;
         // set pwm level
         // allow the pwm value to repeat for 8 cycles this is >>3
-        pwm_set_gpio_level(AUDIO_PIN, WAV_DATA[wav_position>>3]);
-        wav_position++;
+        pwm_set_gpio_level(AUDIO_PIN, wav_buffer[pwm_position>>3]);
+        pwm_position++;
     } else {
-        // reset to start
-        wav_position = 0;
+        // reset to start, flip to other buffer
+        pwm_position = 0;
+        next_buffer_requested = true;
+        wav_buffer1_active = !wav_buffer1_active;
     }
 }
 
 // 11 KHz is fine for speech. Phone lines generally sample at 8 KHz
 #define SYS_CLOCK 125000000.0f
 #define AUDIO_WRAP 250.0f
-#define AUDIO_RATE 11000.0f
 #define AUDIO_CLK_DIV (SYS_CLOCK / AUDIO_WRAP / 8 / AUDIO_RATE)
 
 void init_audio() {
@@ -49,7 +59,7 @@ void init_audio() {
 
     // set the handle function above
     irq_set_exclusive_handler(PWM_IRQ_WRAP, pwm_interrupt_handler);
-    irq_set_enabled(PWM_IRQ_WRAP, true);
+    // irq_set_enabled(PWM_IRQ_WRAP, true);
 
     // Setup PWM for audio output
     pwm_config config = pwm_get_default_config();
@@ -59,4 +69,18 @@ void init_audio() {
     pwm_init(audio_pin_slice, 0, &config, true);
 
     pwm_set_gpio_level(AUDIO_PIN, 0);
+}
+
+void audio_stop() {
+    Serial.println("audio_stop");
+    irq_set_enabled(PWM_IRQ_WRAP, false);
+    pwm_set_gpio_level(AUDIO_PIN, 0);
+}
+
+void audio_start() {
+    Serial.println("audio_start");
+    audio_stop();
+    pwm_position = 0;
+    wav_buffer1_active = false;
+    irq_set_enabled(PWM_IRQ_WRAP, true);
 }

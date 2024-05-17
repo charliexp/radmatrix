@@ -75,6 +75,8 @@ void setup() {
 
   setupSD();
 
+  sd_getAudio();
+
   return;
 
   memset(framebuffer, 0, sizeof(framebuffer));
