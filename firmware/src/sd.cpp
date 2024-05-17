@@ -43,7 +43,7 @@ void setupSD() {
 
   // printSDConfig();
 
-  if (!SD.begin(PIN_SPI_SS)) {
+  if (!SD.begin(5000000, PIN_SPI_SS)) {
     Serial.println("SD Initialization failed!");
     // Serial.print("Error code: ");
     // Serial.println(SD.card.errorCode(), HEX);
@@ -204,4 +204,62 @@ void sd_getAudio() {
       Serial.println(" bytes from audio file");
     }
   }
+}
+
+uint16_t lenBuffer[12000] = {0};
+uint8_t dataBuffer[2048] = {0};
+uint16_t frameCount = 0;
+
+void sd_getGfx() {
+  // read frame lengths
+  auto lengthsFile = SD.open("badapple/gfx_len.bin", FILE_READ);
+  frameCount = lengthsFile.size() / sizeof(uint16_t);
+
+  Serial.print("Frames: ");
+  Serial.println(frameCount);
+
+  while (lengthsFile.available()) {
+    lengthsFile.read(&lenBuffer, sizeof(lenBuffer));
+  }
+
+  lengthsFile.close();
+  Serial.println("Done reading frame lengths");
+
+  auto gfxBlobFile = SD.open("badapple/gfx.bin", FILE_READ);
+
+  auto b4 = millis();
+  for (uint16_t i = 0; i < frameCount; i++) {
+    Serial.print("Frame ");
+    Serial.print(i);
+    Serial.print(" - length ");
+
+    auto len = lenBuffer[i];
+
+    Serial.print(lenBuffer[i]);
+    Serial.print(" - read in ");
+
+    if (len > sizeof(dataBuffer)) {
+      Serial.println("Frame too large");
+      return;
+    }
+
+    auto bytesRead = gfxBlobFile.read(&dataBuffer, len);
+    if (bytesRead < len) {
+      Serial.println("Could not read the entire frame");
+      return;
+    }
+
+    auto now = millis();
+    auto time = now - b4;
+    Serial.print(time);
+    Serial.println("ms");
+    if (time > 20) {
+      Serial.println("Frame took too long to read");
+      return;
+    }
+    b4 = now;
+  }
+
+  gfxBlobFile.close();
+  Serial.println("Done reading frames");
 }

@@ -6,4 +6,5 @@
 src/gfx_png.h
 src/audio_sample.h
 gfx/
+gfx_output/
 audio/

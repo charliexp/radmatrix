@@ -75,7 +75,8 @@ void setup() {
 
   setupSD();
 
-  sd_getAudio();
+  // sd_getAudio();
+  sd_getGfx();
 
   return;
 

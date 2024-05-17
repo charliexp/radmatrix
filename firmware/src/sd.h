@@ -6,3 +6,4 @@ void setupSD();
 bool isSDCardInserted();
 
 void sd_getAudio();
+void sd_getGfx();
