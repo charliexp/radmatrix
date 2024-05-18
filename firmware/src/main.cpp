@@ -8,6 +8,7 @@
 void setup() {
   leds_init();
   setupSDPins();
+  pinMode(6, INPUT_PULLUP);
 
   delay(2000);
   Serial.begin(115200);
@@ -39,7 +40,9 @@ void setup() {
 }
 
 void loop() {
-  // sd_loadNextAudio();
+  if (digitalRead(6) == LOW) {
+    sd_loadNextAudio();
+  }
 
   // if (Serial.available() > 0) {
   //   char c = Serial.read();
