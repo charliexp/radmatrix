@@ -1394,7 +1394,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 68.58) (xy 20.32 72.39)
+			(xy 20.32 68.58) (xy 20.32 76.2)
 		)
 		(stroke
 			(width 0)
@@ -1564,7 +1564,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 80.01) (xy 20.32 82.55)
+			(xy 20.32 83.82) (xy 20.32 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1780,6 +1780,17 @@
 		)
 		(uuid "73b3a478-4189-40bd-b39f-f835979f9190")
 	)
+	(label "USB_SHIELD"
+		(at 20.32 74.93 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 0.65 0.65)
+			)
+			(justify left bottom)
+		)
+		(uuid "3533f622-cc3f-4b08-b353-f3ad71d61a4a")
+	)
 	(hierarchical_label "USB_D-"
 		(shape bidirectional)
 		(at 116.84 44.45 180)
@@ -1902,7 +1913,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 20.32 76.2 0)
+		(at 20.32 80.01 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1911,7 +1922,7 @@
 		(fields_autoplaced yes)
 		(uuid "0b4b11fe-d869-4547-8bd9-6722532103b9")
 		(property "Reference" "R303"
-			(at 22.86 74.9299 0)
+			(at 22.86 78.7399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1920,7 +1931,7 @@
 			)
 		)
 		(property "Value" "0R"
-			(at 22.86 77.4699 0)
+			(at 22.86 81.2799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1929,7 +1940,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 18.542 76.2 90)
+			(at 18.542 80.01 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1938,7 +1949,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 20.32 76.2 0)
+			(at 20.32 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1947,7 +1958,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 20.32 76.2 0)
+			(at 20.32 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1956,7 +1967,7 @@
 			)
 		)
 		(property "LCSC" "C21189"
-			(at 20.32 76.2 0)
+			(at 20.32 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2772,7 +2783,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 20.32 82.55 0)
+		(at 20.32 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2781,7 +2792,7 @@
 		(fields_autoplaced yes)
 		(uuid "b36d08cd-2c9a-4767-b1e9-ec091ec1143a")
 		(property "Reference" "#PWR0304"
-			(at 20.32 88.9 0)
+			(at 20.32 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2790,7 +2801,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 20.32 87.63 0)
+			(at 20.32 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2799,7 +2810,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 20.32 82.55 0)
+			(at 20.32 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2808,7 +2819,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 20.32 82.55 0)
+			(at 20.32 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2817,7 +2828,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 20.32 82.55 0)
+			(at 20.32 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)

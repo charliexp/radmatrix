@@ -5,6 +5,145 @@
 	(uuid "eff661c4-5a98-4c9e-8717-e17950ddb169")
 	(paper "A4")
 	(lib_symbols
+		(symbol "Connector_Generic:Conn_01x02"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x02"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x02_1_1"
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 1.27)
+					(end 1.27 -3.81)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Device:C"
 			(pin_numbers hide)
 			(pin_names
@@ -391,6 +530,186 @@
 					(at 0 -3.81 90)
 					(length 1.27)
 					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Jumper:SolderJumper_2_Open"
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "JP"
+				(at 0 2.032 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SolderJumper_2_Open"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Solder Jumper, 2-pole, open"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "solder jumper SPST"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SolderJumper*Open*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SolderJumper_2_Open_0_1"
+				(arc
+					(start -0.254 1.016)
+					(mid -1.2656 0)
+					(end -0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 1.016)
+					(mid -1.2656 0)
+					(end -0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.254 1.016) (xy -0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.016) (xy 0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0.254 -1.016)
+					(mid 1.2656 0)
+					(end 0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0.254 -1.016)
+					(mid 1.2656 0)
+					(end 0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Open_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "B"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -914,6 +1233,16 @@
 	)
 	(wire
 		(pts
+			(xy 167.64 104.14) (xy 168.91 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2eb072f6-c7fe-4c98-996e-1dc4aca030bc")
+	)
+	(wire
+		(pts
 			(xy 207.01 68.58) (xy 213.36 68.58)
 		)
 		(stroke
@@ -921,6 +1250,16 @@
 			(type default)
 		)
 		(uuid "463c5de4-0cb2-4228-8c1b-2d1f81fc7b12")
+	)
+	(wire
+		(pts
+			(xy 234.95 101.6) (xy 229.87 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ecbb741-a8ee-424a-aee7-68bdda0ba069")
 	)
 	(wire
 		(pts
@@ -1014,6 +1353,26 @@
 	)
 	(wire
 		(pts
+			(xy 167.64 106.68) (xy 168.91 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7971742-e5d6-4d88-87a5-370d0d6d2f2c")
+	)
+	(wire
+		(pts
+			(xy 242.57 101.6) (xy 247.65 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aafc6bef-015f-4574-9622-3e6388e63f8f")
+	)
+	(wire
+		(pts
 			(xy 143.51 80.01) (xy 151.13 80.01)
 		)
 		(stroke
@@ -1074,6 +1433,16 @@
 	)
 	(wire
 		(pts
+			(xy 222.25 101.6) (xy 219.71 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e90eb581-4e80-493a-a02a-e4d2763fe78f")
+	)
+	(wire
+		(pts
 			(xy 207.01 64.77) (xy 213.36 64.77)
 		)
 		(stroke
@@ -1130,6 +1499,51 @@
 		)
 		(uuid "ab4cb207-e2a7-4e43-a66e-f5f87dcf4cc2")
 	)
+	(text "TODO: Select connector"
+		(exclude_from_sim no)
+		(at 176.53 112.268 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "aa08f178-2a0b-4263-9265-e9ae99bd6b1f")
+	)
+	(label "CAN_T_R"
+		(at 229.87 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 0.65 0.65)
+			)
+			(justify left bottom)
+		)
+		(uuid "610fbf1c-0a11-432f-af05-4d68a3b92e61")
+	)
+	(hierarchical_label "CANH"
+		(shape bidirectional)
+		(at 167.64 104.14 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "01eb8995-7f60-4791-8987-95a84e77272d")
+	)
+	(hierarchical_label "CANL"
+		(shape bidirectional)
+		(at 219.71 101.6 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "295b7e95-e8dd-4cd7-b429-6ddd1731820f")
+	)
 	(hierarchical_label "RXD"
 		(shape output)
 		(at 109.22 74.93 180)
@@ -1168,6 +1582,18 @@
 	)
 	(hierarchical_label "CANH"
 		(shape bidirectional)
+		(at 247.65 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "45bddc8c-5157-46f0-a13a-4432411f004c")
+	)
+	(hierarchical_label "CANH"
+		(shape bidirectional)
 		(at 195.58 64.77 180)
 		(fields_autoplaced yes)
 		(effects
@@ -1177,6 +1603,18 @@
 			(justify right)
 		)
 		(uuid "5feaae88-ba3f-4e46-a631-e059e155df41")
+	)
+	(hierarchical_label "CANL"
+		(shape bidirectional)
+		(at 167.64 106.68 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "911a2be3-881a-48af-a9dc-c0f6a45af97e")
 	)
 	(hierarchical_label "TXD"
 		(shape input)
@@ -1213,6 +1651,76 @@
 			(justify left)
 		)
 		(uuid "dddc9ace-a27f-4545-a3f2-d0cc2f3e503e")
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 173.99 104.14 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "12dc3d48-4954-4a0d-91f1-c0e5e1894863")
+		(property "Reference" "J601"
+			(at 176.53 104.1399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "CANConn"
+			(at 176.53 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal"
+			(at 173.99 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 173.99 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 173.99 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "34209443-ad1f-4d00-9194-9cd988f5fdf7")
+		)
+		(pin "1"
+			(uuid "14d87bd8-9916-4fb6-ad14-b6043b6f9eb2")
+		)
+		(instances
+			(project "MainBoard"
+				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/085d11a9-fbb6-4cf1-879a-d3aa30071fa1"
+					(reference "J601")
+					(unit 1)
+				)
+			)
+		)
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -1505,6 +2013,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Jumper:SolderJumper_2_Open")
+		(at 226.06 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "83c78d55-d178-4d39-9941-71627bd3d8ce")
+		(property "Reference" "JP601"
+			(at 226.06 98.552 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SolderJumper_2_Open"
+			(at 226.06 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "led-matrix:SolderJumper-2_Open_RoundedPad_Smol"
+			(at 226.06 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 226.06 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Solder Jumper, 2-pole, open"
+			(at 226.06 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "29ca24ac-f2b0-4da0-a60e-96466f05a25d")
+		)
+		(pin "1"
+			(uuid "42d7a6b7-713b-41f7-bce5-6fe65179cedf")
+		)
+		(instances
+			(project "MainBoard"
+				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/085d11a9-fbb6-4cf1-879a-d3aa30071fa1"
+					(reference "JP601")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "can:TJA1050T")
 		(at 130.81 77.47 0)
 		(unit 1)
@@ -1675,6 +2251,83 @@
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/085d11a9-fbb6-4cf1-879a-d3aa30071fa1"
 					(reference "D601")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 238.76 101.6 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "af99caa1-654c-4565-ac2d-4034ec6a8275")
+		(property "Reference" "R602"
+			(at 238.76 95.25 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "120R"
+			(at 238.76 97.79 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 238.76 103.378 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 238.76 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 238.76 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25079"
+			(at 238.76 101.6 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0b2954cd-b914-4402-aed2-566f04a7db89")
+		)
+		(pin "2"
+			(uuid "d023ada5-e45b-4b68-a55e-f431dc659083")
+		)
+		(instances
+			(project "MainBoard"
+				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/085d11a9-fbb6-4cf1-879a-d3aa30071fa1"
+					(reference "R602")
 					(unit 1)
 				)
 			)

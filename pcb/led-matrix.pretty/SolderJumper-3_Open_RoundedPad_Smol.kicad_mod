@@ -1,0 +1,142 @@
+(footprint "SolderJumper-3_Open_RoundedPad_Smol"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "SMD Solder Jumper, 1x1.5mm, rounded Pads, 0.3mm gap, open")
+	(tags "solder jumper open")
+	(property "Reference" "REF**"
+		(at 0 -1.8 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "2d856dc9-d208-4833-9630-aba95b597ba1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "SolderJumper-3_Open_RoundedPad_Smol"
+		(at 0 1.9 0)
+		(layer "F.Fab")
+		(uuid "656a70db-01ef-42a7-91d8-cc57681f457d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0.05 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "17ae3d13-3548-4f30-8a40-b971c302a3de")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0.05 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "e0e7dfd6-8cc1-4c55-bda5-695978b3c026")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0.05 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "de824fa2-69ad-4520-91b5-f846e8ea5eeb")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(zone_connect 1)
+	(attr exclude_from_pos_files exclude_from_bom)
+	(fp_rect
+		(start -1.9 -0.8)
+		(end 1.9 0.8)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill none)
+		(layer "F.CrtYd")
+		(uuid "621bf60e-a126-4da7-923d-a96e0522b419")
+	)
+	(pad "1" smd custom
+		(at -1.05 0)
+		(size 0.9 0.5)
+		(layers "F.Cu" "F.Mask")
+		(zone_connect 2)
+		(thermal_bridge_angle 45)
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts
+					(xy 0.45 0.5) (xy -0.05 0.5) (xy -0.05 -0.5) (xy 0.45 -0.5)
+				)
+				(width 0)
+				(fill yes)
+			)
+			(gr_circle
+				(center -0.05 0)
+				(end 0.45 0)
+				(width 0)
+				(fill yes)
+			)
+		)
+		(uuid "e063a5e6-7590-4ed9-b874-fcdfe4e3ced2")
+	)
+	(pad "2" smd rect
+		(at 0 0.000001)
+		(size 0.8 0.999998)
+		(layers "F.Cu" "F.Mask")
+		(zone_connect 2)
+		(thermal_bridge_angle 45)
+		(uuid "f43dcfbc-e6d6-48df-85bd-f68156215645")
+	)
+	(pad "3" smd custom
+		(at 1.05 0)
+		(size 0.9 0.5)
+		(layers "F.Cu" "F.Mask")
+		(zone_connect 2)
+		(thermal_bridge_angle 45)
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives
+			(gr_poly
+				(pts
+					(xy 0.05 0.5) (xy -0.45 0.5) (xy -0.45 -0.5) (xy 0.05 -0.5)
+				)
+				(width 0)
+				(fill yes)
+			)
+			(gr_circle
+				(center 0.05 0)
+				(end 0.55 0)
+				(width 0)
+				(fill yes)
+			)
+		)
+		(uuid "37bcfcab-e649-4b60-823e-fae5254ddfe9")
+	)
+)
