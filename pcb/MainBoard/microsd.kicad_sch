@@ -1129,13 +1129,13 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 62.23) (xy 101.6 62.23)
+			(xy 52.07 69.85) (xy 82.55 69.85)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "437eac0c-7510-4dbd-bc44-8d54a0f87458")
+		(uuid "47768312-1e06-444e-a205-60ca70975c44")
 	)
 	(wire
 		(pts
@@ -1169,6 +1169,16 @@
 	)
 	(wire
 		(pts
+			(xy 52.07 64.77) (xy 91.44 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58d4c71f-4f85-4b21-972d-17afca94db00")
+	)
+	(wire
+		(pts
 			(xy 152.4 92.71) (xy 153.67 92.71)
 		)
 		(stroke
@@ -1189,13 +1199,13 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 64.77) (xy 91.44 64.77)
+			(xy 52.07 62.23) (xy 101.6 62.23)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "5f401f97-217c-4ae4-b27a-271dcdd4ea21")
+		(uuid "60f14a36-0c94-4bb4-83b2-59f788ff8525")
 	)
 	(wire
 		(pts
@@ -1276,16 +1286,6 @@
 			(type default)
 		)
 		(uuid "857df60f-a77e-4248-87a5-094a84616c50")
-	)
-	(wire
-		(pts
-			(xy 52.07 69.85) (xy 82.55 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "87dc611b-d857-4b03-a783-71eac35ab9f9")
 	)
 	(wire
 		(pts
@@ -1655,7 +1655,7 @@
 		(uuid "1887344f-ff5e-43a1-9a9d-f5e24e43518b")
 	)
 	(label "SD_CLK"
-		(at 59.69 69.85 0)
+		(at 60.96 69.85 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1666,7 +1666,7 @@
 		(uuid "25487422-3555-45ec-b5ef-336143b4a444")
 	)
 	(label "SD_CS_DAT3"
-		(at 59.69 62.23 0)
+		(at 60.96 62.23 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1688,7 +1688,7 @@
 		(uuid "88d4e665-6450-45d8-b61e-ee0ef714a380")
 	)
 	(label "SD_MOSI_CMD"
-		(at 59.69 64.77 0)
+		(at 60.96 64.77 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1699,7 +1699,7 @@
 		(uuid "bb4d3927-b49a-42cb-b88c-8342c70f3acb")
 	)
 	(label "SD_MISO_DAT0"
-		(at 59.69 74.93 0)
+		(at 60.96 74.93 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1956,7 +1956,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 91.44 101.6 0)
 			(effects
 				(font
@@ -2114,7 +2114,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 110.49 54.61 0)
 			(effects
 				(font
@@ -2325,7 +2325,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 73.66 54.61 0)
 			(effects
 				(font
@@ -2404,7 +2404,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 73.66 101.6 0)
 			(effects
 				(font
@@ -2549,7 +2549,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 110.49 101.6 0)
 			(effects
 				(font
@@ -2628,7 +2628,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 64.77 54.61 0)
 			(effects
 				(font
@@ -2915,7 +2915,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 91.44 54.61 0)
 			(effects
 				(font
@@ -3086,7 +3086,7 @@
 		(at 140.97 50.8 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -3248,7 +3248,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 101.6 54.61 0)
 			(effects
 				(font
@@ -3393,7 +3393,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 82.55 101.6 0)
 			(effects
 				(font
@@ -3472,7 +3472,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C307331"
+		(property "LCSC" "C1525"
 			(at 124.46 40.64 0)
 			(effects
 				(font
@@ -3627,7 +3627,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 64.77 101.6 0)
 			(effects
 				(font
@@ -3772,7 +3772,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 101.6 101.6 0)
 			(effects
 				(font
@@ -4115,7 +4115,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" ""
+		(property "LCSC" "C25819"
 			(at 82.55 54.61 0)
 			(effects
 				(font

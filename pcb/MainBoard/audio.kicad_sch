@@ -923,7 +923,7 @@
 		(at 140.97 49.53 180)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "21ebb72f-9bad-4d6e-b046-8bb788495541")
@@ -1267,7 +1267,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C307331"
+		(property "LCSC" "C1525"
 			(at 69.85 54.61 0)
 			(effects
 				(font

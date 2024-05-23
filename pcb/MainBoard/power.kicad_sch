@@ -3418,7 +3418,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4u7"
 			(at 234.442 112.522 0)
 			(effects
 				(font
@@ -3505,7 +3505,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 199.39 103.632 90)
 			(effects
 				(font
@@ -3532,7 +3532,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25117"
+		(property "LCSC" "C23179"
 			(at 199.39 105.41 90)
 			(effects
 				(font
@@ -3628,7 +3628,7 @@
 		(at 74.93 110.49 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "171189d3-c5c1-49a4-8211-050baa7cb8c6")
@@ -3805,7 +3805,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100pF"
+		(property "Value" "100p"
 			(at 59.182 111.76 0)
 			(effects
 				(font
@@ -4381,7 +4381,7 @@
 		(at 240.03 92.71 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "71b4050f-ade0-4a1c-b263-32be06d7b268")
@@ -4545,7 +4545,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "150R"
+		(property "Value" "120R"
 			(at 209.55 128.2699 0)
 			(effects
 				(font
@@ -4581,7 +4581,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25082"
+		(property "LCSC" "C25079"
 			(at 207.01 127 0)
 			(effects
 				(font
@@ -4916,7 +4916,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4u7"
 			(at 186.944 45.212 0)
 			(effects
 				(font
@@ -4994,7 +4994,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4u7"
 			(at 154.178 45.212 0)
 			(effects
 				(font
@@ -5072,7 +5072,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4u7"
 			(at 188.468 84.582 0)
 			(effects
 				(font
@@ -5283,7 +5283,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4u7"
 			(at 187.198 112.522 0)
 			(effects
 				(font
@@ -5292,7 +5292,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 194.31 110.49 0)
 			(effects
 				(font
@@ -5319,7 +5319,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C19666"
+		(property "LCSC" "C1779"
 			(at 194.31 110.49 0)
 			(effects
 				(font
@@ -5866,7 +5866,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 85.09 99.0599 0)
 			(effects
 				(font
@@ -6213,7 +6213,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4u7"
 			(at 223.012 84.582 0)
 			(effects
 				(font
@@ -6602,7 +6602,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 207.01 120.65 0)
 			(effects
 				(font
@@ -6629,7 +6629,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C453576"
+		(property "LCSC" "C4177"
 			(at 207.01 120.65 0)
 			(effects
 				(font

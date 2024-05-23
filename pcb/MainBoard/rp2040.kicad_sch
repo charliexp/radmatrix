@@ -956,25 +956,23 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 21.844 51.054 0)
+			(property "Reference" "U401"
+				(at 24.638 -37.846 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left bottom)
 				)
 			)
 			(property "Value" "RP2040"
-				(at 21.844 48.514 0)
+				(at 24.638 -40.386 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left bottom)
 				)
 			)
-			(property "Footprint" "RadPie2040:RP2040-QFN-56"
+			(property "Footprint" "led-matrix:RP2040-QFN-56"
 				(at -20.32 62.23 0)
 				(effects
 					(font
@@ -995,6 +993,15 @@
 				)
 			)
 			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C2040"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2034,7 +2041,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin bidirectional line
 					(at 31.75 25.4 180)
 					(length 2.54)
 					(name "GPIO7"
@@ -2580,6 +2587,16 @@
 			(type default)
 		)
 		(uuid "134875fd-cbbf-4a93-bddf-ff91636ccab7")
+	)
+	(wire
+		(pts
+			(xy 119.38 68.58) (xy 124.46 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "144f2eba-d364-4da6-9a51-ead7c6ab389e")
 	)
 	(wire
 		(pts
@@ -3420,16 +3437,6 @@
 			(type default)
 		)
 		(uuid "9c790027-6407-4beb-8582-66399703cae5")
-	)
-	(wire
-		(pts
-			(xy 119.38 68.58) (xy 124.46 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9d3342ef-dc9d-48c4-93ec-04efae6c26da")
 	)
 	(wire
 		(pts
@@ -4867,7 +4874,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 68.58 27.9399 0)
 			(effects
 				(font
@@ -5214,7 +5221,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 41.91 27.9399 0)
 			(effects
 				(font
@@ -5361,7 +5368,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 67.31 162.5535 0)
 			(effects
 				(font
@@ -5640,7 +5647,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "22uF"
+		(property "Value" "22u"
 			(at 161.29 30.4799 0)
 			(effects
 				(font
@@ -5649,7 +5656,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 158.4452 33.02 0)
 			(effects
 				(font
@@ -5676,7 +5683,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C12891"
+		(property "LCSC" "C45783"
 			(at 157.48 29.21 0)
 			(effects
 				(font
@@ -5796,7 +5803,7 @@
 				)
 			)
 		)
-		(property "Value" "33pF"
+		(property "Value" "33p"
 			(at 33.02 81.28 90)
 			(effects
 				(font
@@ -5873,7 +5880,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1uF"
+		(property "Value" "1u"
 			(at 68.326 37.084 0)
 			(effects
 				(font
@@ -5951,7 +5958,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 50.8 27.9399 0)
 			(effects
 				(font
@@ -6029,7 +6036,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 59.69 27.9399 0)
 			(effects
 				(font
@@ -6094,7 +6101,7 @@
 		(at 87.63 93.98 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "5be3e4d7-906b-4b09-ac25-5acb7552cad5")
@@ -6626,7 +6633,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1uF"
+		(property "Value" "1u"
 			(at 40.132 60.452 0)
 			(effects
 				(font
@@ -6999,7 +7006,7 @@
 				)
 			)
 		)
-		(property "Value" "33pF"
+		(property "Value" "33p"
 			(at 33.02 87.63 90)
 			(effects
 				(font
@@ -7077,7 +7084,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1uF"
+		(property "Value" "1u"
 			(at 124.46 35.5601 0)
 			(effects
 				(font
@@ -7156,7 +7163,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 133.35 30.4799 0)
 			(effects
 				(font
@@ -7386,7 +7393,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 33.02 27.9399 0)
 			(effects
 				(font
@@ -7755,7 +7762,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 24.13 27.9399 0)
 			(effects
 				(font
@@ -7833,7 +7840,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 77.47 27.9399 0)
 			(effects
 				(font
@@ -7911,7 +7918,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 102.87 27.9399 0)
 			(effects
 				(font
@@ -8058,7 +8065,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100nF"
+		(property "Value" "100n"
 			(at 124.46 30.4799 0)
 			(effects
 				(font
