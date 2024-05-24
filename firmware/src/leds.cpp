@@ -2,11 +2,21 @@
 #include "hardware/gpio.h"
 #include "mbed_wait_api.h"
 #include "pico/multicore.h"
+#include "hardware/pio.h"
 
 #include "leds.h"
+#include "leds.pio.h"
 
+PIO pusher_pio = pio0;
+uint pusher_sm = 255; // invalid
+
+// NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
   gpio_put(pin, HIGH);
+   // there are glitches without this (maybe just due to breadboard...)
+  _NOP();
+  _NOP();
+  _NOP();
   gpio_put(pin, LOW);
 }
 
@@ -37,6 +47,7 @@ void leds_init() {
   // set up col pins
   pinMode(COL_SER, OUTPUT);
   pinMode(COL_OE, OUTPUT);
+  outputEnable(ROW_OE, false);
   pinMode(COL_RCLK, OUTPUT);
   pinMode(COL_SRCLK, OUTPUT);
   pinMode(COL_SRCLR, OUTPUT);
@@ -44,6 +55,7 @@ void leds_init() {
   // set up row pins
   pinMode(ROW_SER, OUTPUT);
   pinMode(ROW_OE, OUTPUT);
+  outputEnable(ROW_OE, false);
   pinMode(ROW_RCLK, OUTPUT);
   pinMode(ROW_SRCLK, OUTPUT);
   pinMode(ROW_SRCLR, OUTPUT);
@@ -70,10 +82,10 @@ void main2() {
   }
 }
 
+void leds_initPusher();
+
 void leds_initRenderer() {
-  // launch core1
-  // NOTE: For some reason, without delay, core1 doesn't start?
-  // delay(500);
+  leds_initPusher();
   multicore_reset_core1();
   multicore_launch_core1(main2);
 }
@@ -94,10 +106,12 @@ void leds_render() {
     // we want to keep the matrix on during update (except during latch). At low brightness phases,
     // we want it off to actually be dim
     bool brightPhase = brightnessPhase >= 2;
-    // digitalWrite(ROW_OE, !brightPhase);
+    digitalWrite(ROW_OE, !brightPhase);
 
     // next row
-    pulsePin(ROW_SRCLK);
+    gpio_put(ROW_SRCLK, HIGH);
+    busy_wait_us_32(1);
+    gpio_put(ROW_SRCLK, LOW);
     // only one row
     digitalWrite(ROW_SER, LOW);
 
@@ -111,29 +125,26 @@ void leds_render() {
       pulsePin(ROW_SRCLK);
     }
 
-    // clear columns
-    clearShiftReg(COL_SRCLK, COL_SRCLR);
-
     // set row data
+    size_t rowOffset = y * COL_COUNT;
     for (int x = 0; x < COL_COUNT; x++) {
       // get value
       // NOTE: values are loaded right-left
-      uint8_t pxValue = framebuffer[y * ROW_COUNT + x];
-      // apply brightness
-      bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
-      // set value (note: inverted logic)
-      gpio_put(COL_SER, !gotLight);
-      // push value
-      pulsePin(COL_SRCLK);
+      uint8_t pxValue = framebuffer[rowOffset + x];
 
       // we use 7/8 stages on shift registers + 1 is unused
       int moduleX = x % 20;
       if (moduleX == 0) {
-        pulsePin(COL_SRCLK);
+        pio_sm_put_blocking(pusher_pio, pusher_sm, 0);
       }
       if (moduleX == 6 || moduleX == 13 || moduleX == 19) {
-        pulsePin(COL_SRCLK);
+        pio_sm_put_blocking(pusher_pio, pusher_sm, 0);
       }
+
+      // apply brightness
+      bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
+      // push value
+      pio_sm_put_blocking(pusher_pio, pusher_sm, gotLight);
     }
 
     // disable columns before latch
@@ -151,4 +162,35 @@ void leds_render() {
 
   // next brightness phase
   brightnessPhase = (brightnessPhase + 1) % 4;
+}
+
+void leds_initPusher() {
+  PIO pio = pusher_pio;
+  uint sm = pio_claim_unused_sm(pio, true);
+  pusher_sm = sm;
+
+  uint offset = pio_add_program(pio, &leds_px_pusher_program);
+
+  uint dataPin = COL_SER;
+  uint latchPin = COL_SRCLK;
+
+  pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
+  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+
+  // Set OUT (data) pin, connect to pad, set as output
+  sm_config_set_out_pins(&config, dataPin, 1);
+  pio_gpio_init(pio, dataPin);
+  pio_sm_set_consecutive_pindirs(pio, sm, dataPin, 1, true);
+
+  // data is inverted
+  gpio_set_outover(dataPin, GPIO_OVERRIDE_INVERT);
+
+  // Set SET (latch) pin, connect to pad, set as output
+  sm_config_set_sideset_pins(&config, latchPin);
+  pio_gpio_init(pio, latchPin);
+  pio_sm_set_consecutive_pindirs(pio, sm, latchPin, 1, true);
+
+  // Load our configuration, and jump to the start of the program
+  pio_sm_init(pio, sm, offset, &config);
+  pio_sm_set_enabled(pio, sm, true);
 }
