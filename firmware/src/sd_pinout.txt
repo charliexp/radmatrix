@@ -8,3 +8,5 @@ DET   MISO   CLK   MOSI   DAT2
 
 
 
+D2  D3/CS   CMD/MOSI   VSS1 VDD CLK  VSS2  D0/MISO  D1
+x    17        19       x    x   18   x      16     x
