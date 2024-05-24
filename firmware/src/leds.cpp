@@ -16,7 +16,6 @@ inline void pulsePin(uint8_t pin) {
    // there are glitches without this (maybe just due to breadboard...)
   _NOP();
   _NOP();
-  _NOP();
   gpio_put(pin, LOW);
 }
 
@@ -35,7 +34,8 @@ inline void outputEnable(uint8_t pin, bool enable) {
 uint8_t brightnessPhase = 0;
 uint8_t brightnessPhaseDelays[] = {1, 10, 30, 100};
 
-uint8_t framebuffer[ROW_COUNT * COL_COUNT] = {0};
+// NOTE: Alignment required to allow 4-byte reads
+uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
 
 void leds_init() {
   memset(framebuffer, 0, sizeof(framebuffer));
@@ -98,7 +98,7 @@ void leds_render() {
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
 
   // start selecting rows
-  digitalWrite(ROW_SER, HIGH);
+  gpio_put(ROW_SER, HIGH);
 
   for (int yCount = 0; yCount < ROW_COUNT; yCount++) {
     int y = ROW_COUNT - 1 - yCount;
@@ -106,14 +106,12 @@ void leds_render() {
     // we want to keep the matrix on during update (except during latch). At low brightness phases,
     // we want it off to actually be dim
     bool brightPhase = brightnessPhase >= 2;
-    digitalWrite(ROW_OE, !brightPhase);
+    outputEnable(ROW_OE, brightPhase);
 
     // next row
-    gpio_put(ROW_SRCLK, HIGH);
-    busy_wait_us_32(1);
-    gpio_put(ROW_SRCLK, LOW);
+    pulsePin(ROW_SRCLK);
     // only one row
-    digitalWrite(ROW_SER, LOW);
+    gpio_put(ROW_SER, LOW);
 
     // we use 7/8 stages on shift registers + 1 is unused
     int moduleY = yCount % 20;
@@ -126,26 +124,53 @@ void leds_render() {
     }
 
     // set row data
-    size_t rowOffset = y * COL_COUNT;
-    for (int x = 0; x < COL_COUNT; x++) {
-      // get value
-      // NOTE: values are loaded right-left
-      uint8_t pxValue = framebuffer[rowOffset + x];
+    // NOTE: values are loaded right-left
+    // Optimized implementation: use PIO, avoid division, modulo, etc...
+    // we use 7/8 stages of each shift register + 1 is unused so we need to do
+    // silly shit
+    // TODO: Some ideas for future optimization:
+    // - see if we can disable px pusher delays on improved electric interface
+    // - use a profiler to see how the inner loop can be improved
+    // - do the shift register bullshit once per frame, so that data can be loaded into
+    //   registers with aligned access, DMA, etc.
+    // - improve outer loop which adds 2us of processing on each loop
+    // - change busy wait into some kind of interrupt-based thing so that processing can continue
+    // - latch row and clock simultaneously, avoid disabling output
+    uint8_t *buffer = framebuffer + (y * COL_COUNT);
+    for (int xModule = 0; xModule < COL_MODULES; xModule++) {
+      uint32_t pxValues;
 
-      // we use 7/8 stages on shift registers + 1 is unused
-      int moduleX = x % 20;
-      if (moduleX == 0) {
-        pio_sm_put_blocking(pusher_pio, pusher_sm, 0);
-      }
-      if (moduleX == 6 || moduleX == 13 || moduleX == 19) {
-        pio_sm_put_blocking(pusher_pio, pusher_sm, 0);
-      }
+      // placeholder at 0; pixels 0, 1, 2
+      pxValues = *(reinterpret_cast<uint32_t *>(buffer));
+      // pxValues = pxValues << 8;
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
 
-      // apply brightness
-      bool gotLight = (pxValue >> (4 + brightnessPhase)) & 1;
-      // push value
-      pio_sm_put_blocking(pusher_pio, pusher_sm, gotLight);
+      // pixels 3, 4, 5, placeholder at 6
+      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 3));
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
+
+      // pixels 6, 7, 8, 9
+      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 6));
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
+
+      // pixels 10, 11, 12, placeholder at 13
+      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 10));
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
+
+      // pixels 13, 14, 15, 16
+      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 13));
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
+
+      // pixels 17, 18, placeholder, 19
+      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 17));
+      // pxValues = (pxValues & 0x0000ffff) | ((pxValues & 0x00ff0000) << 8);
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
+
+      buffer += 20;
     }
+
+    // wait for all data to be shifted out
+    pio_sm_drain_tx_fifo(pusher_pio, pusher_sm);
 
     // disable columns before latch
     outputEnable(ROW_OE, false);
@@ -176,6 +201,9 @@ void leds_initPusher() {
 
   pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
   sm_config_set_clkdiv_int_frac(&config, 1, 0);
+
+  // Shift OSR to the right, autopull
+  sm_config_set_out_shift(&config, true, true, 32);
 
   // Set OUT (data) pin, connect to pad, set as output
   sm_config_set_out_pins(&config, dataPin, 1);

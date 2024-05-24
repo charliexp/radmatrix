@@ -17,7 +17,8 @@
 #define ROW_SRCLR 10
 
 #define ROW_COUNT 40
-#define COL_COUNT 40
+#define COL_MODULES 2
+#define COL_COUNT COL_MODULES * 20
 
 #define FPS 30
 #define MS_PER_FRAME 1000 / FPS

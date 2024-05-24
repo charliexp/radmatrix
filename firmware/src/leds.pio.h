@@ -19,9 +19,9 @@
 
 static const uint16_t leds_px_pusher_program_instructions[] = {
             //     .wrap_target
-    0x90a0, //  0: pull   block           side 0     
+    0x7064, //  0: out    null, 4         side 0     
     0x6001, //  1: out    pins, 1                    
-    0xb942, //  2: nop                    side 1 [1] 
+    0x7963, //  2: out    null, 3         side 1 [1] 
             //     .wrap
 };
 
