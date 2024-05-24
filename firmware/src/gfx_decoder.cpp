@@ -6,7 +6,7 @@
 uint16_t gfxFrameLengthsBuffer[12000] = {0};
 uint16_t frameCount = 0;
 
-uint8_t gfxFrameBuffer[2048] = {0};
+uint8_t gfxFrameBuffer[6400] = {0};
 
 bool gfx_decoder_loadNextFrame() {
   // load frame from SD card

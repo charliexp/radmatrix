@@ -270,7 +270,8 @@ int32_t sd_loadNextFrame() {
   // get size of frame png
   auto frameSize = gfxFrameLengthsBuffer[frameIdx];
   if (frameSize > sizeof(gfxFrameBuffer)) {
-    Serial.println("Frame too large");
+    Serial.print("Frame too large: ");
+    Serial.println(frameSize);
     return -1;
   }
 

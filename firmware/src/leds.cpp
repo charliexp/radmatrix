@@ -142,7 +142,7 @@ void leds_render() {
 
       // placeholder at 0; pixels 0, 1, 2
       pxValues = *(reinterpret_cast<uint32_t *>(buffer));
-      // pxValues = pxValues << 8;
+      pxValues = pxValues << 8;
       pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
 
       // pixels 3, 4, 5, placeholder at 6
@@ -161,9 +161,8 @@ void leds_render() {
       pxValues = *(reinterpret_cast<uint32_t *>(buffer + 13));
       pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
 
-      // pixels 17, 18, placeholder, 19
+      // pixels 17, 18, 19, placeholder
       pxValues = *(reinterpret_cast<uint32_t *>(buffer + 17));
-      // pxValues = (pxValues & 0x0000ffff) | ((pxValues & 0x00ff0000) << 8);
       pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
 
       buffer += 20;
