@@ -29,10 +29,10 @@ inline void outputEnable(uint8_t pin, bool enable) {
   gpio_put(pin, !enable);
 }
 
-// we have 4-bit color depth, so 16 levels of brightness
-// we go from phase 0 to phase 3
+// we have COLOR_BITS-bit color depth, so 2^COLOR_BITS levels of brightness
+// we go from phase 0 to phase (COLOR_BITS-1)
 uint8_t brightnessPhase = 0;
-uint8_t brightnessPhaseDelays[] = {1, 10, 30, 100};
+uint8_t brightnessPhaseDelays[COLOR_BITS] = {0, 1, 6, 20, 60};
 
 // NOTE: Alignment required to allow 4-byte reads
 uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
@@ -185,7 +185,7 @@ void leds_render() {
   }
 
   // next brightness phase
-  brightnessPhase = (brightnessPhase + 1) % 4;
+  brightnessPhase = (brightnessPhase + 1) % COLOR_BITS;
 }
 
 void leds_initPusher() {

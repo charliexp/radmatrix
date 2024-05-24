@@ -20,6 +20,7 @@
 #define COL_MODULES 2
 #define COL_COUNT COL_MODULES * 20
 
+#define COLOR_BITS 5
 #define FPS 30
 #define MS_PER_FRAME 1000 / FPS
 
