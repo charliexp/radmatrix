@@ -5,16 +5,19 @@
 #include "leds.h"
 #include "gfx_decoder.h"
 
+void loadVideo(size_t index);
+
 void setup() {
   leds_init();
   setupSDPins();
-  pinMode(6, INPUT_PULLUP);
+  pinMode(4, INPUT_PULLUP);
 
   delay(2000);
   Serial.begin(115200);
   Serial.println("Hello worldd!");
 
   init_audio();
+  leds_initRenderer();
 
   // while (!isSDCardInserted()) {
   //   Serial.println("SD card not connected, waiting...");
@@ -23,25 +26,37 @@ void setup() {
   // delay(100);
 
   setupSD();
+  sd_loadPlaylist();
 
-  sd_loadAudio();
+  loadVideo(0);
+}
 
-  if (!sd_loadGfxFrameLengths()) {
+size_t currentVideoIndex = 0;
+bool isLoaded = false;
+
+void loadVideo(size_t index) {
+  audio_stop();
+
+  sd_loadAudio(index);
+
+  if (!sd_loadGfxFrameLengths(index)) {
     Serial.println("Failed to load gfx frame lengths");
     while (true) {}
   }
 
-  if (!sd_loadGfxBlob()) {
+  if (!sd_loadGfxBlob(index)) {
     Serial.println("Failed to load gfx blob");
     while (true) {}
   }
 
-  leds_initRenderer();
+  isLoaded = true;
 }
 
 void loop() {
-  if (digitalRead(6) == LOW) {
-    sd_loadNextAudio();
+  if (digitalRead(4) == LOW) {
+    Serial.println("Next song!");
+    currentVideoIndex = (currentVideoIndex + 1) % playlistSize;
+    loadVideo(currentVideoIndex);
   }
 
   // if (Serial.available() > 0) {
@@ -57,7 +72,11 @@ void loop() {
   //   }
   // }
 
-  if (!gfx_decoder_handleLoop()) {
-    Serial.println("Failed to load frame...");
+  if (isLoaded) {
+    sd_loadNextAudio();
+
+    if (!gfx_decoder_handleLoop()) {
+      Serial.println("Failed to load frame...");
+    }
   }
 }

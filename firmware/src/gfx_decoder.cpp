@@ -3,7 +3,7 @@
 #include "lodepng.h"
 #include "leds.h"
 
-uint16_t gfxFrameLengthsBuffer[12000] = {0};
+uint16_t gfxFrameLengthsBuffer[24000] = {0};
 uint16_t frameCount = 0;
 
 uint8_t gfxFrameBuffer[6400] = {0};

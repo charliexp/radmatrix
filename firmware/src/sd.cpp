@@ -156,10 +156,83 @@ void printSDStats(RP2040_SdVolume volume) {
   Serial.println((float)volumesize / 1024.0);
 }
 
+String playlist[128] = {};
+size_t playlistSize = 0;
+
+void sd_loadPlaylist() {
+  auto path = "video/playlist.txt";
+
+  if (!SD.exists(path)) {
+    Serial.println("Could not find playlist for videos :(");
+    return;
+  }
+
+  auto playlistFile = SD.open(path, FILE_READ);
+  Serial.println("Playlist file opened");
+
+  char playlist_buffer[512];
+  auto fileSize = playlistFile.size();
+  if (fileSize > sizeof(playlist_buffer)) {
+    Serial.print("Playlist file too large, max: ");
+    Serial.println(sizeof(playlist_buffer));
+    return;
+  }
+
+  if (playlistFile.read(&playlist_buffer, sizeof(playlist_buffer)) != fileSize) {
+    Serial.println("Could not read playlist file");
+    return;
+  }
+
+  playlistFile.close();
+
+  Serial.println("Parsing playlist...");
+
+  // parse playlist
+  auto playlistStr = String(playlist_buffer, fileSize);
+  Serial.println(playlistStr);
+
+  auto idx = 0;
+  while (true) {
+    auto nextIdx = playlistStr.indexOf('\n', idx);
+    if (nextIdx == -1) {
+      break;
+    }
+
+    auto line = playlistStr.substring(idx, nextIdx);
+    if (line.length() == 0) {
+      break;
+    }
+    if (line.length() > 8) {
+      Serial.print("Video name too long, size: ");
+      Serial.print(line.length());
+      Serial.println(", max 8");
+      break;
+    }
+
+    playlist[playlistSize++] = line;
+    idx = nextIdx + 1;
+  }
+
+  Serial.println("Playlist loaded");
+
+  for (size_t i = 0; i < playlistSize; i++) {
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(playlist[i]);
+  }
+}
+
 File audioFile;
 
-void sd_loadAudio() {
-  if (!SD.exists("byebyem/audio.bin")) {
+void sd_loadAudio(size_t index) {
+  if (index >= playlistSize) {
+    Serial.println("Index out of range");
+    return;
+  }
+
+  auto path = "video/" + playlist[index] + "/audio.bin";
+
+  if (!SD.exists(path)) {
     Serial.println("Audio not found :(");
     return;
   }
@@ -168,7 +241,7 @@ void sd_loadAudio() {
     audioFile.close();
   }
 
-  audioFile = SD.open("byebyem/audio.bin", FILE_READ);
+  audioFile = SD.open(path, FILE_READ);
   Serial.println("Audio file opened");
 
   audio_stop();
@@ -201,16 +274,23 @@ void sd_loadNextAudio() {
     Serial.println("End of audio file, rewinding...");
     audioFile.seek(0);
   } else {
+    /*
     Serial.print("Read ");
     Serial.print(bytesRead);
     Serial.print(" bytes from audio file in ");
     Serial.print(millis() - b4);
     Serial.println("ms");
+    */
   }
 }
 
-bool sd_loadGfxFrameLengths() {
-  auto path = "byebyem/gfx_len.bin";
+bool sd_loadGfxFrameLengths(size_t index) {
+  if (index >= playlistSize) {
+    Serial.println("Index out of range");
+    return false;
+  }
+
+  auto path = "video/" + playlist[index] + "/gfx_len.bin";
 
   if (!SD.exists(path)) {
     Serial.println("Frame lengths file not found :(");
@@ -241,8 +321,13 @@ File gfxFile;
 
 uint16_t frameIdx = 0;
 
-bool sd_loadGfxBlob() {
-  auto path = "byebyem/gfx.bin";
+bool sd_loadGfxBlob(size_t index) {
+  if (index >= playlistSize) {
+    Serial.println("Index out of range");
+    return false;
+  }
+
+  auto path = "video/" + playlist[index] + "/gfx.bin";
 
   if (!SD.exists(path)) {
     Serial.println("Gfx blob file not found :(");
@@ -251,6 +336,8 @@ bool sd_loadGfxBlob() {
 
   gfxFile = SD.open(path, FILE_READ);
   Serial.println("Opened video frames");
+
+  frameIdx = 0;
 
   return true;
 }

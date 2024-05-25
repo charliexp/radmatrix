@@ -4,7 +4,7 @@
 
 #include <Arduino.h>
 
-extern uint16_t gfxFrameLengthsBuffer[12000];
+extern uint16_t gfxFrameLengthsBuffer[24000];
 extern uint16_t frameCount;
 extern uint8_t gfxFrameBuffer[6400];
 
