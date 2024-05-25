@@ -2363,6 +2363,12 @@
 		(uuid "7077b966-af0f-4ef0-9e9f-15fd6ce55cb7")
 	)
 	(junction
+		(at 64.77 157.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7116c980-0d27-4696-9df8-0462e1d179fe")
+	)
+	(junction
 		(at 87.63 31.75)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2373,6 +2379,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7a4858ab-c7a5-441e-ad2b-ee9549d1105d")
+	)
+	(junction
+		(at 64.77 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8542235a-c7af-4564-9067-8271d16edc2b")
 	)
 	(junction
 		(at 24.13 88.9)
@@ -2537,6 +2549,16 @@
 			(type default)
 		)
 		(uuid "03fa1a7b-2915-4a83-8765-f51d89086ee4")
+	)
+	(wire
+		(pts
+			(xy 76.2 165.1) (xy 64.77 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "078be540-ac42-445b-a455-a16279e27713")
 	)
 	(wire
 		(pts
@@ -3160,6 +3182,16 @@
 	)
 	(wire
 		(pts
+			(xy 64.77 166.37) (xy 64.77 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "70828f5a-ace5-4f63-a652-6d8ff9ae0aec")
+	)
+	(wire
+		(pts
 			(xy 102.87 40.64) (xy 102.87 43.18)
 		)
 		(stroke
@@ -3257,6 +3289,16 @@
 			(type default)
 		)
 		(uuid "7e00bbe5-6c99-4880-9cfb-3ff9f0bbbf44")
+	)
+	(wire
+		(pts
+			(xy 64.77 157.48) (xy 76.2 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f7af3f9-9904-4a4a-883a-3c54253c7103")
 	)
 	(wire
 		(pts
@@ -4080,7 +4122,7 @@
 	)
 	(rectangle
 		(start 13.716 143.256)
-		(end 83.82 195.58)
+		(end 96.52 195.58)
 		(stroke
 			(width 0.2)
 			(type default)
@@ -6550,7 +6592,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 64.77 165.1 0)
+		(at 64.77 166.37 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6558,7 +6600,7 @@
 		(dnp no)
 		(uuid "7cd2980e-050c-4da5-a04b-cff725605981")
 		(property "Reference" "#PWR0414"
-			(at 64.77 171.45 0)
+			(at 64.77 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6567,7 +6609,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 69.85 165.1 0)
+			(at 69.85 166.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6576,7 +6618,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 64.77 165.1 0)
+			(at 64.77 166.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6585,7 +6627,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 64.77 165.1 0)
+			(at 64.77 166.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6594,7 +6636,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 64.77 165.1 0)
+			(at 64.77 166.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6609,6 +6651,84 @@
 			(project "MainBoard"
 				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/94f24be7-e4f5-4d4a-8789-064f4a08d889"
 					(reference "#PWR0414")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 76.2 161.29 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "83241554-039b-45b3-a8a2-558771424ce7")
+		(property "Reference" "C418"
+			(at 80.01 160.0199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22u"
+			(at 80.01 162.5599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 77.1652 165.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 76.2 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 76.2 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C45783"
+			(at 76.2 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "b162c568-ec06-4300-ab23-5beb1ad5cd2d")
+		)
+		(pin "1"
+			(uuid "7b9b923d-efa0-4973-8c97-29eb53850c82")
+		)
+		(instances
+			(project "MainBoard"
+				(path "/ac576ee3-ac6f-4244-babf-9af36c7a7db3/94f24be7-e4f5-4d4a-8789-064f4a08d889"
+					(reference "C418")
 					(unit 1)
 				)
 			)

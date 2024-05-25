@@ -1499,16 +1499,6 @@
 		)
 		(uuid "ab4cb207-e2a7-4e43-a66e-f5f87dcf4cc2")
 	)
-	(text "TODO: Select connector"
-		(exclude_from_sim no)
-		(at 176.53 112.268 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "aa08f178-2a0b-4263-9265-e9ae99bd6b1f")
-	)
 	(label "CAN_T_R"
 		(at 229.87 101.6 0)
 		(fields_autoplaced yes)
@@ -1680,7 +1670,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal"
 			(at 173.99 104.14 0)
 			(effects
 				(font

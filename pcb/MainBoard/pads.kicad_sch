@@ -3756,6 +3756,25 @@
 		)
 		(uuid "b6f22f4e-4447-4461-9eeb-2763bc913958")
 	)
+	(text_box "470u could be too much"
+		(exclude_from_sim no)
+		(at 15.24 13.97 0)
+		(size 34.29 3.81)
+		(stroke
+			(width -0.0001)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "d2390650-2e31-4a89-844e-89cfe1972053")
+	)
 	(text "clear and disable output by default"
 		(exclude_from_sim no)
 		(at 215.392 57.912 0)
