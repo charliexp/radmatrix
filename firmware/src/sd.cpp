@@ -159,7 +159,7 @@ void printSDStats(RP2040_SdVolume volume) {
 File audioFile;
 
 void sd_loadAudio() {
-  if (!SD.exists("/badapple/audio.bin")) {
+  if (!SD.exists("byebyem/audio.bin")) {
     Serial.println("Audio not found :(");
     return;
   }
@@ -168,7 +168,7 @@ void sd_loadAudio() {
     audioFile.close();
   }
 
-  audioFile = SD.open("/badapple/audio.bin", FILE_READ);
+  audioFile = SD.open("byebyem/audio.bin", FILE_READ);
   Serial.println("Audio file opened");
 
   audio_stop();
@@ -210,7 +210,7 @@ void sd_loadNextAudio() {
 }
 
 bool sd_loadGfxFrameLengths() {
-  auto path = "badapple/gfx_len.bin";
+  auto path = "byebyem/gfx_len.bin";
 
   if (!SD.exists(path)) {
     Serial.println("Frame lengths file not found :(");
@@ -242,7 +242,7 @@ File gfxFile;
 uint16_t frameIdx = 0;
 
 bool sd_loadGfxBlob() {
-  auto path = "badapple/gfx.bin";
+  auto path = "byebyem/gfx.bin";
 
   if (!SD.exists(path)) {
     Serial.println("Gfx blob file not found :(");
@@ -257,6 +257,9 @@ bool sd_loadGfxBlob() {
 
 // Returns size of frame read or -1 if error
 int32_t sd_loadNextFrame() {
+  if (frameIdx > 0) {
+    // return -1;
+  }
   if (!gfxFile || !gfxFile.available()) {
     Serial.println("Gfx file not available");
     return -1;

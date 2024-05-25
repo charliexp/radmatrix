@@ -58,7 +58,9 @@ normalized = [int((v-minValue)/vrange*255) for v in data_out]
 
 print("writing blob...")
 
-with open("audio/audio.bin", "wb") as f:
+os.makedirs("video_output", exist_ok=True)
+
+with open("video_output/audio.bin", "wb") as f:
     f.write(bytes(normalized))
 
 print("done!")

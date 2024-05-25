@@ -26,10 +26,10 @@ for (name, path) in gfx_files:
         lengths += size.to_bytes(2, byteorder="little")
 
 # create the output directory if it doesn't exist
-os.makedirs("gfx_output", exist_ok=True)
+os.makedirs("video_output", exist_ok=True)
 
-with open("gfx_output/gfx.bin", "wb") as f:
+with open("video_output/gfx.bin", "wb") as f:
     f.write(blob)
 
-with open("gfx_output/gfx_len.bin", "wb") as f:
+with open("video_output/gfx_len.bin", "wb") as f:
     f.write(lengths)

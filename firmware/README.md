@@ -1,4 +1,10 @@
-convert video
+## convert video
+
+```sh
+scripts/convert.sh ../badapple.webm
+```
+
+or manually:
 
 ```
 ffmpeg -i ../badapple.webm -vf "fps=30,scale=40:40:force_original_aspect_ratio=increase,crop=40:40,format=gray" gfx/frame_%04d.png
