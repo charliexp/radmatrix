@@ -52,11 +52,15 @@ void loadVideo(size_t index) {
   isLoaded = true;
 }
 
+void nextSong() {
+  Serial.println("Next song!");
+  currentVideoIndex = (currentVideoIndex + 1) % playlistSize;
+  loadVideo(currentVideoIndex);
+}
+
 void loop() {
   if (digitalRead(4) == LOW) {
-    Serial.println("Next song!");
-    currentVideoIndex = (currentVideoIndex + 1) % playlistSize;
-    loadVideo(currentVideoIndex);
+    nextSong();
   }
 
   // if (Serial.available() > 0) {
@@ -75,8 +79,12 @@ void loop() {
   if (isLoaded) {
     sd_loadNextAudio();
 
-    if (!gfx_decoder_handleLoop()) {
+    auto loopStatus = gfx_decoder_handleLoop();
+
+    if (loopStatus == -1) {
       Serial.println("Failed to load frame...");
+    } else if (loopStatus == -2) {
+      nextSong();
     }
   }
 }

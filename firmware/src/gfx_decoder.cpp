@@ -8,11 +8,11 @@ uint16_t frameCount = 0;
 
 uint8_t gfxFrameBuffer[6400] = {0};
 
-bool gfx_decoder_loadNextFrame() {
+int32_t gfx_decoder_loadNextFrame() {
   // load frame from SD card
   auto frameSize = sd_loadNextFrame();
   if (frameSize < 0) {
-    return false;
+    return frameSize;
   }
 
   // decode PNG
@@ -44,16 +44,16 @@ bool gfx_decoder_loadNextFrame() {
   // TODO: mutex? double buffer? or something...
   memcpy(framebuffer, buffer, ROW_COUNT * COL_COUNT);
   free(buffer);
-  return true;
+  return frameSize;
 }
 
 unsigned long frameLastChangedAt = 0;
 
-bool gfx_decoder_handleLoop() {
+int32_t gfx_decoder_handleLoop() {
   auto now = millis();
   if (now - frameLastChangedAt > MS_PER_FRAME) {
     frameLastChangedAt = now;
     return gfx_decoder_loadNextFrame();
   }
-  return true;
+  return 0;
 }

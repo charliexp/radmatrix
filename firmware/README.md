@@ -36,10 +36,10 @@ python3 scripts/audio_convert.py
 
 ## play videos on device
 
-videos/YOURNAME/files
+create `video/YOURNAME/` folder, with files:
 
 (where files are audio.bin, gfx.bin, gfx_len.bin)
 
 NOTE: yourname MUST be at most 8 characters long
 
-also `videos/playlist.txt` with names of videos in order
+also `video/playlist.txt` with names of videos in order

@@ -271,8 +271,10 @@ void sd_loadNextAudio() {
   auto bytesRead = audioFile.read(next_buffer, BUFFER_LEN);
 
   if (bytesRead < BUFFER_LEN) {
-    Serial.println("End of audio file, rewinding...");
-    audioFile.seek(0);
+    // Serial.println("End of audio file, rewinding...");
+    // audioFile.seek(0);
+    Serial.println("End of audio.");
+    audio_stop();
   } else {
     /*
     Serial.print("Read ");
@@ -374,9 +376,11 @@ int32_t sd_loadNextFrame() {
 
   // increment
   if (frameIdx == frameCount - 1) {
-    Serial.println("Last frame, rewinding...");
-    gfxFile.seek(0);
-    frameIdx = 0;
+    // Serial.println("Last frame, rewinding...");
+    // gfxFile.seek(0);
+    // frameIdx = 0;
+    Serial.println("Last frame, next video!");
+    return -2;
   } else {
     frameIdx++;
   }
