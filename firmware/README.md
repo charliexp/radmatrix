@@ -1,8 +1,12 @@
 ## convert video
 
+automatically:
+
 ```sh
 scripts/convert.sh ../badapple.webm
 ```
+
+the output is in video_output
 
 or manually:
 
@@ -30,4 +34,12 @@ move to `audio` folder, then:
 python3 scripts/audio_convert.py
 ```
 
-on the SD card, create a folder named `badapple` and inside, add `audio.bin` from `audio` and `gfx.bin` and `gfx_len.bin` from `gfx_output`.
+## play videos on device
+
+videos/YOURNAME/files
+
+(where files are audio.bin, gfx.bin, gfx_len.bin)
+
+NOTE: yourname MUST be at most 8 characters long
+
+also `videos/playlist.txt` with names of videos in order
