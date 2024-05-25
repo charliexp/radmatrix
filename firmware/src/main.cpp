@@ -44,18 +44,18 @@ void loop() {
     sd_loadNextAudio();
   }
 
-  if (Serial.available() > 0) {
-    char c = Serial.read();
-    if (c == 'p') {
-      Serial.println("Paused. Press any key to continue.");
-      leds_disable();
-      while (Serial.available() == 0) {
-        Serial.read();
-        delay(50);
-      }
-      Serial.println("Continuing...");
-    }
-  }
+  // if (Serial.available() > 0) {
+  //   char c = Serial.read();
+  //   if (c == 'p') {
+  //     Serial.println("Paused. Press any key to continue.");
+  //     leds_disable();
+  //     while (Serial.available() == 0) {
+  //       Serial.read();
+  //       delay(50);
+  //     }
+  //     Serial.println("Continuing...");
+  //   }
+  // }
 
   if (!gfx_decoder_handleLoop()) {
     Serial.println("Failed to load frame...");

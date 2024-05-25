@@ -44,7 +44,7 @@ void setupSD() {
 
   // printSDConfig();
 
-  if (!SD.begin(5000000, PIN_SPI_SS)) {
+  if (!SD.begin(20000000, PIN_SPI_SS)) {
     Serial.println("SD Initialization failed!");
     // Serial.print("Error code: ");
     // Serial.println(SD.card.errorCode(), HEX);

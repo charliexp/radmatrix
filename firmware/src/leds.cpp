@@ -16,6 +16,8 @@ inline void pulsePin(uint8_t pin) {
    // there are glitches without this (maybe just due to breadboard...)
   _NOP();
   _NOP();
+  _NOP();
+    // busy_wait_us_32(50);
   gpio_put(pin, LOW);
 }
 
@@ -199,7 +201,7 @@ void leds_initPusher() {
   uint latchPin = COL_SRCLK;
 
   pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, 2, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
