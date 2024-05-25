@@ -1,0 +1,198 @@
+(footprint "HY-C-03"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Side button, momentary switch")
+	(tags "SMD SMT SPST")
+	(property "Reference" "REF**"
+		(at 0 -3.3 0)
+		(layer "F.SilkS")
+		(uuid "34855f22-bfbe-445f-a6e7-10056056a2b7")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "HY-C-03"
+		(at 0 2.6 0)
+		(layer "F.Fab")
+		(uuid "8510de21-5939-4926-9b10-b466af3eda2a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0.15 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "3786251a-d436-4e08-842d-de02df22fcef")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0.15 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "e561a97e-78b8-4211-bd0e-c078a123b126")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0.15 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2cb2e034-d5d9-41b3-a37c-6e000136edc4")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -2.2 -1.1)
+		(end -2.2 -1.45)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "26029a73-cfa0-4dff-b98f-8960407ed3ee")
+	)
+	(fp_line
+		(start -1.1875 -1.65)
+		(end -2 -1.65)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "9371f427-8812-4e4e-8a9c-d13e59951e37")
+	)
+	(fp_line
+		(start 2 -1.65)
+		(end 1.1875 -1.65)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b84084d4-b3e9-4172-8ac4-432b194508e3")
+	)
+	(fp_line
+		(start 2 1.65)
+		(end -2 1.65)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "9b668ecc-1621-492a-950d-5f6f80c117df")
+	)
+	(fp_line
+		(start 2.2 -1.1)
+		(end 2.2 -1.45)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "df21d897-8e6a-4198-be63-97992e2c7c7f")
+	)
+	(fp_rect
+		(start -2.8 -2.4)
+		(end 2.8 1.7)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill none)
+		(layer "F.CrtYd")
+		(uuid "d4f66d17-a1c4-4bde-aded-13be223ade4c")
+	)
+	(fp_rect
+		(start -2 -1.45)
+		(end 2 1.45)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.Fab")
+		(uuid "51ec1e56-67a5-452a-85b0-d8265c4112d1")
+	)
+	(fp_rect
+		(start -1 -2.25)
+		(end 1 -1.45)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.Fab")
+		(uuid "2fc79d72-b9e7-4c1d-89b5-212d13221b6e")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0.15 0)
+		(layer "F.Fab")
+		(uuid "4ad2aa99-1f93-49c7-beb7-0fd3b221fbae")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "" np_thru_hole circle
+		(at 0 -0.9 180)
+		(size 0.75 0.75)
+		(drill 0.75)
+		(layers "F&B.Cu" "*.Mask")
+		(uuid "66daa9c4-81b5-4c79-93e9-0eaaffc1b8b3")
+	)
+	(pad "" np_thru_hole circle
+		(at 0 0.9 180)
+		(size 0.75 0.75)
+		(drill 0.75)
+		(layers "*.Cu" "*.Mask")
+		(uuid "119925c6-c9d1-418c-a6d0-314d76d95cb6")
+	)
+	(pad "1" smd rect
+		(at -1.875 0 180)
+		(size 1.45 1.9)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "fb7b90cb-b705-4919-8cae-b85a0391f3fc")
+	)
+	(pad "2" smd rect
+		(at 1.875001 0 180)
+		(size 1.449998 1.9)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "4b522f1f-62ea-47e3-afaf-2405951d8a1a")
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/Panasonic_EVQPUL_EVQPUC.wrl"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

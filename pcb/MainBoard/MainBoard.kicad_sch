@@ -3747,16 +3747,6 @@
 		)
 		(uuid "59780213-a13c-495a-bbe8-02eb4b7bdb1a")
 	)
-	(text "TODO: Select switch model"
-		(exclude_from_sim no)
-		(at 230.378 95.25 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "2ea3f618-b43e-4536-aa8e-4f50ac5f7188")
-	)
 	(text "pinout options on page 258\nof rp2040 data sheet"
 		(exclude_from_sim no)
 		(at 168.91 63.246 0)
@@ -6215,7 +6205,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_B3U-3000P"
+		(property "Footprint" "led-matrix:HY-C-03"
 			(at 237.49 67.31 0)
 			(effects
 				(font
@@ -7381,7 +7371,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_B3U-3000P"
+		(property "Footprint" "led-matrix:HY-C-03"
 			(at 237.49 81.28 0)
 			(effects
 				(font
