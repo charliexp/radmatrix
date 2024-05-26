@@ -7,15 +7,26 @@ public entry_point:
   ; push 24 bits to the shift registers
   ; also, return latch bit to 0
   set x, 23   side 0
-  ; ignore the 8 least significant bits
-  out null, 8
 loop:
-  ; lower clock edge
-  nop side 0
-  ; set bit
-  out pins, 1
+  ; TODO: check if delays can be lowered with a PCB
+  ; set bit; lower clock edge
+  out pins, 1    side 0 [1]
   ; loop; latch bit (rising edge)
-  ; TODO: check if this delay can be lowered with a PCB
   jmp x-- loop   side 1 [2]
 end:
-.wrap
+  ; ignore unused bits
+  ; load MSBs into x
+  ; lower clock edge
+  out x, 8    side 0
+  ; MSB=1 indicates end of row
+  jmp x-- end_of_row
+  .wrap
+end_of_row:
+  ; indicate to main processor that row was processed
+  ; clock RCLK (latch onto register output stage)
+  set pins, 1 [3]
+  set pins, 0
+  irq wait 0 rel
+
+  ; wait for next row
+  jmp entry_point

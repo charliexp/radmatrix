@@ -49,7 +49,8 @@ void leds_init() {
   pinMode(COL_SER, OUTPUT);
   pinMode(COL_OE, OUTPUT);
   outputEnable(ROW_OE, false);
-  pinMode(COL_RCLK, OUTPUT);
+  // pinMode(COL_RCLK, OUTPUT);
+  pinMode(RCLK, OUTPUT);
   pinMode(COL_SRCLK, OUTPUT);
   pinMode(COL_SRCLR, OUTPUT);
 
@@ -57,18 +58,18 @@ void leds_init() {
   pinMode(ROW_SER, OUTPUT);
   pinMode(ROW_OE, OUTPUT);
   outputEnable(ROW_OE, false);
-  pinMode(ROW_RCLK, OUTPUT);
+  // pinMode(ROW_RCLK, OUTPUT);
   pinMode(ROW_SRCLK, OUTPUT);
   pinMode(ROW_SRCLR, OUTPUT);
 
   // clear output - cols
   clearShiftReg(COL_SRCLK, COL_SRCLR);
-  pulsePin(COL_RCLK);
-  outputEnable(COL_OE, true);
+  pulsePin(RCLK);
+  outputEnable(COL_OE, true); // this is fine, because we control OE via rows only
 
   // clear output - rows
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
-  pulsePin(ROW_RCLK);
+  pulsePin(RCLK);
 }
 
 void leds_disable() {
@@ -127,11 +128,8 @@ void leds_render() {
         pulsePin(ROW_SRCLK);
       }
 
-      // set row data
-      // NOTE: values are loaded right-left
-      // Optimized implementation: use PIO, avoid division, modulo, etc...
-      // we use 7/8 stages of each shift register + 1 is unused so we need to do
-      // silly shit
+      // set row data using PIO
+      // latch signal is also sent here
       // TODO: Some ideas for future optimization:
       // - see if we can disable px pusher delays on improved electric interface
       // - improve outer loop which adds 2us of processing on each loop
@@ -151,12 +149,11 @@ void leds_render() {
       // pio_sm_drain_tx_fifo doesn't seem to do the trick
       // if not, we might need to use irqs or something
       busy_wait_us(4);
-
-      // latch rows and columns
-      gpio_set_mask(1 << ROW_RCLK | 1 << COL_RCLK);
-      _NOP();
-      _NOP();
-      gpio_clr_mask(1 << ROW_RCLK | 1 << COL_RCLK);
+      // TODO: Why doesn't this work?!
+      // while (!pio_interrupt_get(pusher_pio, pusher_sm)) {
+      //   tight_loop_contents();
+      // }
+      pio_interrupt_clear(pusher_pio, pusher_sm);
 
       // show for a certain period
       outputEnable(ROW_OE, true);
@@ -196,10 +193,15 @@ void leds_initPusher() {
   // data is inverted
   gpio_set_outover(dataPin, GPIO_OVERRIDE_INVERT);
 
-  // Set SET (latch) pin, connect to pad, set as output
+  // Set sideset (SRCLK) pin, connect to pad, set as output
   sm_config_set_sideset_pins(&config, latchPin);
   pio_gpio_init(pio, latchPin);
   pio_sm_set_consecutive_pindirs(pio, sm, latchPin, 1, true);
+
+  // Set SET (RCLK) pin, connect to pad, set as output
+  sm_config_set_set_pins(&config, RCLK, 1);
+  pio_gpio_init(pio, RCLK);
+  pio_sm_set_consecutive_pindirs(pio, sm, RCLK, 1, true);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);

@@ -67,6 +67,12 @@ int32_t gfx_decoder_loadNextFrame() {
         }
         // insert placeholder for unused last stage (after pixel 19)
         sample >>=1;
+        // shift to LSB position
+        sample >>=8;
+        // MSB=1 indicates end of row
+        if (xModule == COL_MODULES - 1) {
+          sample |= 0x80000000;
+        }
 
         ledBuffer[bi][(ROW_COUNT - 1 - y) * COL_MODULES + xModule] = sample;
       }
