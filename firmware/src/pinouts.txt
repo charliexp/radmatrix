@@ -1,3 +1,4 @@
+## SD breadboard connector
 
                   17
 DAT1   GND  +3V3   CS     SHLD
@@ -6,7 +7,16 @@ DAT1   GND  +3V3   CS     SHLD
 DET   MISO   CLK   MOSI   DAT2
 28     16    18     19
 
-
+## Big SD card
 
 D2  D3/CS   CMD/MOSI   VSS1 VDD CLK  VSS2  D0/MISO  D1
 x    17        19       x    x   18   x      16     x
+
+## LED drivers
+
+- VCC
+- SER
+- OE
+- RCLK
+- SRCLK
+- SRCLR
