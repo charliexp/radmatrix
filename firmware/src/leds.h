@@ -16,7 +16,8 @@
 #define ROW_SRCLK 11
 #define ROW_SRCLR 10
 
-#define ROW_COUNT 40
+#define ROW_MODULES 2
+#define ROW_COUNT ROW_MODULES * 20
 #define COL_MODULES 2
 #define COL_COUNT COL_MODULES * 20
 

@@ -44,6 +44,7 @@ int32_t gfx_decoder_loadNextFrame() {
   // Data will be held in buffers, one per pixel's depth bit (aka brightness stage),
   // with each row split into 32-bit chunks, one per module
   // (20 pixels, 24 shift register stages, 8 unused bits)
+  // Rows are inverted, because that's how they're fed to the shift registers
   // TODO: Move this to leds.cpp
   // TODO: Use a separate buffer, then copy to ledsBuffer to avoid tearing
   for (int bi = 0; bi < 8; bi++) {
@@ -67,7 +68,7 @@ int32_t gfx_decoder_loadNextFrame() {
         // insert placeholder for unused last stage (after pixel 19)
         sample >>=1;
 
-        ledBuffer[bi][y * COL_MODULES + xModule] = sample;
+        ledBuffer[bi][(ROW_COUNT - 1 - y) * COL_MODULES + xModule] = sample;
       }
     }
   }

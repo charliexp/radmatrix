@@ -16,8 +16,6 @@ inline void pulsePin(uint8_t pin) {
    // there are glitches without this (maybe just due to breadboard...)
   _NOP();
   _NOP();
-  _NOP();
-    // busy_wait_us_32(50);
   gpio_put(pin, LOW);
 }
 
@@ -94,6 +92,10 @@ void leds_initRenderer() {
 }
 
 void leds_render() {
+  // brightness phase
+  bool brightPhase = brightnessPhase >= 3;
+  auto buffer = ledBuffer[brightnessPhase + 3];
+
   // hide output
   outputEnable(ROW_OE, false);
 
@@ -103,65 +105,67 @@ void leds_render() {
   // start selecting rows
   gpio_put(ROW_SER, HIGH);
 
-  for (int yCount = 0; yCount < ROW_COUNT; yCount++) {
-    int y = ROW_COUNT - 1 - yCount;
-    // brigthness - pushing data takes time, so to maximize brightness (at high brightness phases)
-    // we want to keep the matrix on during update (except during latch). At low brightness phases,
-    // we want it off to actually be dim
-    bool brightPhase = brightnessPhase >= 2;
-    outputEnable(ROW_OE, brightPhase);
+  int bufferOffset = 0;
+  for (int yModule = 0; yModule < ROW_MODULES; yModule++) {
+    for (int moduleY = 0; moduleY < 20; moduleY++) {
+      // brigthness - pushing data takes time, so to maximize brightness (at high brightness phases)
+      // we want to keep the matrix on during update (except during latch). At low brightness phases,
+      // we want it off to actually be dim
+      outputEnable(ROW_OE, brightPhase);
 
-    // next row
-    pulsePin(ROW_SRCLK);
-    // only one row
-    gpio_put(ROW_SER, LOW);
-
-    // we use 7/8 stages on shift registers + 1 is unused
-    int moduleY = yCount % 20;
-    if (moduleY == 0) {
+      // next row
       pulsePin(ROW_SRCLK);
+      // only one row
+      gpio_put(ROW_SER, LOW);
+
+      // we use 7/8 stages on shift registers + 1 is unused
+      if (moduleY == 0) {
+        pulsePin(ROW_SRCLK);
+      }
+
+      if (moduleY == 7 || moduleY == 14 || (moduleY == 0 && yModule != 0)) {
+        pulsePin(ROW_SRCLK);
+      }
+
+      // set row data
+      // NOTE: values are loaded right-left
+      // Optimized implementation: use PIO, avoid division, modulo, etc...
+      // we use 7/8 stages of each shift register + 1 is unused so we need to do
+      // silly shit
+      // TODO: Some ideas for future optimization:
+      // - see if we can disable px pusher delays on improved electric interface
+      // - improve outer loop which adds 2us of processing on each loop
+      // - change busy wait into some kind of interrupt-based thing so that processing can continue
+      // - latch row and clock simultaneously, avoid disabling output
+      // - DMA?
+      for (int xModule = 0; xModule < COL_MODULES; xModule++) {
+        uint32_t pxValues = buffer[bufferOffset + xModule];
+        pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
+      }
+
+      // wait for all data to be shifted out
+      while (!pio_sm_is_tx_fifo_empty(pusher_pio, pusher_sm)) {
+        tight_loop_contents();
+      }
+      // TODO: Is there an API to wait for PIO to actually become idle?
+      // pio_sm_drain_tx_fifo doesn't seem to do the trick
+      // if not, we might need to use irqs or something
+      busy_wait_us(4);
+
+      // latch rows and columns
+      gpio_set_mask(1 << ROW_RCLK | 1 << COL_RCLK);
+      _NOP();
+      _NOP();
+      gpio_clr_mask(1 << ROW_RCLK | 1 << COL_RCLK);
+
+      // show for a certain period
+      outputEnable(ROW_OE, true);
+      busy_wait_us_32(brightnessPhaseDelays[brightnessPhase]);
+      outputEnable(ROW_OE, false);
+
+      // next row
+      bufferOffset += COL_MODULES;
     }
-
-    if (moduleY == 7 || moduleY == 14 || (moduleY == 0 && yCount != 0)) {
-      pulsePin(ROW_SRCLK);
-    }
-
-    // set row data
-    // NOTE: values are loaded right-left
-    // Optimized implementation: use PIO, avoid division, modulo, etc...
-    // we use 7/8 stages of each shift register + 1 is unused so we need to do
-    // silly shit
-    // TODO: Some ideas for future optimization:
-    // - see if we can disable px pusher delays on improved electric interface
-    // - improve outer loop which adds 2us of processing on each loop
-    // - change busy wait into some kind of interrupt-based thing so that processing can continue
-    // - latch row and clock simultaneously, avoid disabling output
-    // - DMA?
-    for (int xModule = 0; xModule < COL_MODULES; xModule++) {
-      uint32_t pxValues = ledBuffer[brightnessPhase + 3][y * COL_MODULES + xModule];
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
-    }
-
-    // wait for all data to be shifted out
-    while (!pio_sm_is_tx_fifo_empty(pusher_pio, pusher_sm)) {
-      tight_loop_contents();
-    }
-    // TODO: Is there an API to wait for PIO to actually become idle?
-    // pio_sm_drain_tx_fifo doesn't seem to do the trick
-    // if not, we might need to use irqs or something
-    busy_wait_us(4);
-
-    // disable columns before latch
-    outputEnable(ROW_OE, false);
-
-    // latch rows and columns
-    pulsePin(ROW_RCLK);
-    pulsePin(COL_RCLK);
-
-    // show for a certain period
-    outputEnable(ROW_OE, true);
-    busy_wait_us_32(brightnessPhaseDelays[brightnessPhase]);
-    outputEnable(ROW_OE, false);
   }
 
   // next brightness phase
