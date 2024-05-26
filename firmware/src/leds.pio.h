@@ -13,23 +13,24 @@
 // -------------- //
 
 #define leds_px_pusher_wrap_target 0
-#define leds_px_pusher_wrap 3
+#define leds_px_pusher_wrap 4
 
 #define leds_px_pusher_offset_entry_point 0u
 
 static const uint16_t leds_px_pusher_program_instructions[] = {
             //     .wrap_target
-    0x7063, //  0: out    null, 3         side 0     
-    0x6001, //  1: out    pins, 1                    
-    0x7964, //  2: out    null, 4         side 1 [1] 
-    0xb042, //  3: nop                    side 0     
+    0xf037, //  0: set    x, 23           side 0     
+    0x6068, //  1: out    null, 8                    
+    0xb042, //  2: nop                    side 0     
+    0x6001, //  3: out    pins, 1                    
+    0x1a42, //  4: jmp    x--, 2          side 1 [2] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program leds_px_pusher_program = {
     .instructions = leds_px_pusher_program_instructions,
-    .length = 4,
+    .length = 5,
     .origin = -1,
 };
 

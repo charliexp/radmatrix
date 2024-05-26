@@ -1,9 +1,21 @@
 .program leds_px_pusher
 .side_set 1 opt
-.wrap_target
 public entry_point:
-  out null, 3   side 0 [0]    ; ignore least significant digits
-  out pins, 1                 ; set bit (shifted for brightness phase by C code)
-  out null, 4   side 1 [1]    ; ignore remaining bits, latch data, allow time for latching
-  nop           side 0        ; return to 0 (weird glitches happen otherwise)
+.wrap_target
+  ; get 32 bits from fifo (not required with autopull, useful for debug)
+  ; pull
+  ; push 24 bits to the shift registers
+  ; also, return latch bit to 0
+  set x, 23   side 0
+  ; ignore the 8 least significant bits
+  out null, 8
+loop:
+  ; lower clock edge
+  nop side 0
+  ; set bit
+  out pins, 1
+  ; loop; latch bit (rising edge)
+  ; TODO: check if this delay can be lowered with a PCB
+  jmp x-- loop   side 1 [2]
+end:
 .wrap

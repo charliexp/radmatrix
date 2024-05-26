@@ -31,5 +31,6 @@ void leds_loop();
 void leds_render();
 
 extern uint8_t framebuffer[ROW_COUNT * COL_COUNT];
+extern uint32_t ledBuffer[8][ROW_COUNT * COL_MODULES];
 
 #endif

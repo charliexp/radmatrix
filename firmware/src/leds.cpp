@@ -38,6 +38,7 @@ uint8_t brightnessPhaseDelays[COLOR_BITS] = {0, 1, 6, 20, 60};
 
 // NOTE: Alignment required to allow 4-byte reads
 uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
+uint32_t ledBuffer[8][ROW_COUNT * COL_MODULES] = {0};
 
 void leds_init() {
   memset(framebuffer, 0, sizeof(framebuffer));
@@ -104,7 +105,7 @@ void leds_render() {
 
   for (int yCount = 0; yCount < ROW_COUNT; yCount++) {
     int y = ROW_COUNT - 1 - yCount;
-    // brigthness - pushing data takes 40us, so to maximize brightness (at high brightness phases)
+    // brigthness - pushing data takes time, so to maximize brightness (at high brightness phases)
     // we want to keep the matrix on during update (except during latch). At low brightness phases,
     // we want it off to actually be dim
     bool brightPhase = brightnessPhase >= 2;
@@ -132,46 +133,23 @@ void leds_render() {
     // silly shit
     // TODO: Some ideas for future optimization:
     // - see if we can disable px pusher delays on improved electric interface
-    // - use a profiler to see how the inner loop can be improved
-    // - do the shift register bullshit once per frame, so that data can be loaded into
-    //   registers with aligned access, DMA, etc.
     // - improve outer loop which adds 2us of processing on each loop
     // - change busy wait into some kind of interrupt-based thing so that processing can continue
     // - latch row and clock simultaneously, avoid disabling output
-    uint8_t *buffer = framebuffer + (y * COL_COUNT);
+    // - DMA?
     for (int xModule = 0; xModule < COL_MODULES; xModule++) {
-      uint32_t pxValues;
-
-      // placeholder at 0; pixels 0, 1, 2
-      pxValues = *(reinterpret_cast<uint32_t *>(buffer));
-      pxValues = pxValues << 8;
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
-
-      // pixels 3, 4, 5, placeholder at 6
-      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 3));
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
-
-      // pixels 6, 7, 8, 9
-      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 6));
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
-
-      // pixels 10, 11, 12, placeholder at 13
-      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 10));
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
-
-      // pixels 13, 14, 15, 16
-      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 13));
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
-
-      // pixels 17, 18, 19, placeholder
-      pxValues = *(reinterpret_cast<uint32_t *>(buffer + 17));
-      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues >> brightnessPhase);
-
-      buffer += 20;
+      uint32_t pxValues = ledBuffer[brightnessPhase + 3][y * COL_MODULES + xModule];
+      pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
     }
 
     // wait for all data to be shifted out
-    pio_sm_drain_tx_fifo(pusher_pio, pusher_sm);
+    while (!pio_sm_is_tx_fifo_empty(pusher_pio, pusher_sm)) {
+      tight_loop_contents();
+    }
+    // TODO: Is there an API to wait for PIO to actually become idle?
+    // pio_sm_drain_tx_fifo doesn't seem to do the trick
+    // if not, we might need to use irqs or something
+    busy_wait_us(4);
 
     // disable columns before latch
     outputEnable(ROW_OE, false);
@@ -201,7 +179,7 @@ void leds_initPusher() {
   uint latchPin = COL_SRCLK;
 
   pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 2, 0);
+  sm_config_set_clkdiv_int_frac(&config, 1, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
