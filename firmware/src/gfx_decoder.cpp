@@ -78,6 +78,7 @@ int32_t gfx_decoder_loadNextFrame() {
       }
     }
   }
+  ledBufferReady = true;
 
   // copy to framebuffer
   // TODO: mutex? double buffer? or something...

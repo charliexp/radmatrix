@@ -25,9 +25,9 @@ static const uint16_t leds_px_pusher_program_instructions[] = {
     0x7028, //  3: out    x, 8            side 0     
     0x0045, //  4: jmp    x--, 5                     
             //     .wrap
-    0xe301, //  5: set    pins, 1                [3] 
-    0xe000, //  6: set    pins, 0                    
-    0xc030, //  7: irq    wait 0 rel                 
+    0xc000, //  5: irq    nowait 0                   
+    0xe301, //  6: set    pins, 1                [3] 
+    0xe000, //  7: set    pins, 0                    
     0x0000, //  8: jmp    0                          
 };
 

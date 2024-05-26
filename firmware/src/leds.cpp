@@ -36,6 +36,7 @@ uint8_t brightnessPhaseDelays[COLOR_BITS] = {0, 1, 6, 20, 60};
 
 // NOTE: Alignment required to allow 4-byte reads
 uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
+bool ledBufferReady = false;
 uint32_t ledBuffer[8][ROW_COUNT * COL_MODULES] = {0};
 
 void leds_init() {
@@ -93,6 +94,11 @@ void leds_initRenderer() {
 }
 
 void leds_render() {
+  if (!ledBufferReady) {
+    outputEnable(ROW_OE, false);
+    return;
+  }
+
   // brightness phase
   bool brightPhase = brightnessPhase >= 3;
   auto buffer = ledBuffer[brightnessPhase + 3];
@@ -134,25 +140,16 @@ void leds_render() {
       // - see if we can disable px pusher delays on improved electric interface
       // - improve outer loop which adds 2us of processing on each loop
       // - change busy wait into some kind of interrupt-based thing so that processing can continue
-      // - latch row and clock simultaneously, avoid disabling output
       // - DMA?
       for (int xModule = 0; xModule < COL_MODULES; xModule++) {
         uint32_t pxValues = buffer[bufferOffset + xModule];
         pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
       }
 
-      // wait for all data to be shifted out
-      while (!pio_sm_is_tx_fifo_empty(pusher_pio, pusher_sm)) {
+      // wait until pushing and RCLK latch are done
+      while (!pio_interrupt_get(pusher_pio, 0)) {
         tight_loop_contents();
       }
-      // TODO: Is there an API to wait for PIO to actually become idle?
-      // pio_sm_drain_tx_fifo doesn't seem to do the trick
-      // if not, we might need to use irqs or something
-      busy_wait_us(4);
-      // TODO: Why doesn't this work?!
-      // while (!pio_interrupt_get(pusher_pio, pusher_sm)) {
-      //   tight_loop_contents();
-      // }
       pio_interrupt_clear(pusher_pio, pusher_sm);
 
       // show for a certain period
