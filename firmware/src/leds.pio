@@ -22,8 +22,10 @@ end:
   jmp x-- end_of_row
   .wrap
 end_of_row:
+  ; wait for permission to latch onto output
+  wait 1 irq 0
   ; indicate to main processor that row was processed
-  irq set 0
+  irq set 1
   ; clock RCLK (latch onto register output stage)
   set pins, 1 [3]
   set pins, 0

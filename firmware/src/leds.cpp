@@ -3,12 +3,16 @@
 #include "mbed_wait_api.h"
 #include "pico/multicore.h"
 #include "hardware/pio.h"
+#include "hardware/irq.h"
 
 #include "leds.h"
 #include "leds.pio.h"
 
 PIO pusher_pio = pio0;
 uint pusher_sm = 255; // invalid
+
+#define PWM_SLICE 0
+volatile bool delayFinished = true;
 
 // NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
@@ -32,7 +36,8 @@ inline void outputEnable(uint8_t pin, bool enable) {
 // we have COLOR_BITS-bit color depth, so 2^COLOR_BITS levels of brightness
 // we go from phase 0 to phase (COLOR_BITS-1)
 uint8_t brightnessPhase = 0;
-uint8_t brightnessPhaseDelays[COLOR_BITS] = {0, 1, 6, 20, 60};
+// in nanoseconds
+uint16_t brightnessPhaseDelays[COLOR_BITS] = {500, 1500, 3000, 20000, 60000};
 
 // NOTE: Alignment required to allow 4-byte reads
 uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
@@ -77,21 +82,23 @@ void leds_disable() {
   outputEnable(ROW_OE, false);
 }
 
+void leds_initPusher();
+void leds_init_pwm();
+
 void main2() {
-  // where we're going, we don't need no interrupts
-  noInterrupts();
+  leds_initPusher();
+  leds_init_pwm();
   while (true) {
     leds_render();
   }
 }
 
-void leds_initPusher();
-
 void leds_initRenderer() {
-  leds_initPusher();
   multicore_reset_core1();
   multicore_launch_core1(main2);
 }
+
+void leds_start_delay();
 
 void leds_render() {
   if (!ledBufferReady) {
@@ -100,8 +107,13 @@ void leds_render() {
   }
 
   // brightness phase
-  bool brightPhase = brightnessPhase >= 3;
   auto buffer = ledBuffer[brightnessPhase + 3];
+
+  // configure delays
+  pwm_set_clkdiv_int_frac(PWM_SLICE, 1, 0);
+  // 8ns per cycle at 125MHz
+  auto delayTicks = brightnessPhaseDelays[brightnessPhase] / 8;
+  pwm_set_wrap(PWM_SLICE, delayTicks);
 
   // hide output
   outputEnable(ROW_OE, false);
@@ -115,11 +127,6 @@ void leds_render() {
   int bufferOffset = 0;
   for (int yModule = 0; yModule < ROW_MODULES; yModule++) {
     for (int moduleY = 0; moduleY < 20; moduleY++) {
-      // brigthness - pushing data takes time, so to maximize brightness (at high brightness phases)
-      // we want to keep the matrix on during update (except during latch). At low brightness phases,
-      // we want it off to actually be dim
-      outputEnable(ROW_OE, brightPhase);
-
       // next row
       pulsePin(ROW_SRCLK);
       // only one row
@@ -146,20 +153,31 @@ void leds_render() {
         pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
       }
 
-      // wait until pushing and RCLK latch are done
-      while (!pio_interrupt_get(pusher_pio, 0)) {
+      // wait until previous row's delay is done
+      while (!delayFinished) {
         tight_loop_contents();
       }
-      pio_interrupt_clear(pusher_pio, pusher_sm);
 
-      // show for a certain period
-      outputEnable(ROW_OE, true);
-      busy_wait_us_32(brightnessPhaseDelays[brightnessPhase]);
-      outputEnable(ROW_OE, false);
+      // allow pusher to latch data
+      pusher_pio->irq_force = 1 << 0;
+
+      // wait until pushing and RCLK latch are done
+      while (!pio_interrupt_get(pusher_pio, 1)) {
+        tight_loop_contents();
+      }
+      pio_interrupt_clear(pusher_pio, 1);
+
+      // enable output for specified time
+      leds_start_delay();
 
       // next row
       bufferOffset += COL_MODULES;
     }
+  }
+
+  // wait until last row's delay is done
+  while (!delayFinished) {
+    tight_loop_contents();
   }
 
   // next brightness phase
@@ -203,4 +221,32 @@ void leds_initPusher() {
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
   pio_sm_set_enabled(pio, sm, true);
+}
+
+void leds_start_delay() {
+  // enable output, start PWM counter
+  delayFinished = false;
+  outputEnable(ROW_OE, true);
+  pwm_set_enabled(PWM_SLICE, true);
+}
+
+void leds_pwm_interrupt_handler() {
+  // disable output
+  outputEnable(ROW_OE, false);
+  // stop PWM counter
+  pwm_set_enabled(PWM_SLICE, false);
+  // acknowledge interrupt
+  pwm_clear_irq(PWM_SLICE);
+  delayFinished = true;
+}
+
+// We will use PWM to control OE signal with a precise delay
+// Note that we only use PWM for timing, it doesn't actually drive the OE GPIO
+// (timers are microsecond-resolution, and we need better than this)
+void leds_init_pwm() {
+  irq_set_exclusive_handler(PWM_IRQ_WRAP, leds_pwm_interrupt_handler);
+  irq_set_enabled(PWM_IRQ_WRAP, true);
+
+  pwm_clear_irq(PWM_SLICE);
+  pwm_set_irq_enabled(PWM_SLICE, true);
 }
