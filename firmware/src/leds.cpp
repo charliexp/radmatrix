@@ -37,7 +37,7 @@ inline void outputEnable(uint8_t pin, bool enable) {
 // we go from phase 0 to phase (COLOR_BITS-1)
 uint8_t brightnessPhase = 0;
 // in nanoseconds
-uint16_t brightnessPhaseDelays[COLOR_BITS] = {500, 1500, 3000, 20000, 60000};
+uint16_t brightnessPhaseDelays[COLOR_BITS] = {1000, 1500, 3000, 20000, 60000};
 
 // NOTE: Alignment required to allow 4-byte reads
 uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
@@ -115,6 +115,9 @@ void leds_render() {
   auto delayTicks = brightnessPhaseDelays[brightnessPhase] / 8;
   pwm_set_wrap(PWM_SLICE, delayTicks);
 
+  // allow PIO pusher to latch RCLK of the first row
+  pusher_pio->irq_force = 1 << 0;
+
   // hide output
   outputEnable(ROW_OE, false);
 
@@ -153,12 +156,11 @@ void leds_render() {
         pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
       }
 
-      // wait until previous row's delay is done
+      // NOTE: Previous row's delay interrupt sets pio irq 0
+      // (permission to latch RCLK)
       while (!delayFinished) {
         tight_loop_contents();
       }
-
-      // allow pusher to latch data
       pusher_pio->irq_force = 1 << 0;
 
       // wait until pushing and RCLK latch are done
@@ -182,6 +184,11 @@ void leds_render() {
 
   // next brightness phase
   brightnessPhase = (brightnessPhase + 1) % COLOR_BITS;
+}
+
+void leds_pusher_irq_handler() {
+  // leds_start_delay();
+  // pio_interrupt_clear(pusher_pio, 1);
 }
 
 void leds_initPusher() {
@@ -218,6 +225,11 @@ void leds_initPusher() {
   pio_gpio_init(pio, RCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, RCLK, 1, true);
 
+  //
+  // irq_set_exclusive_handler(PIO0_IRQ_0, leds_pusher_irq_handler);
+  // irq_set_enabled(PIO0_IRQ_0, true);
+  // pio_set_irq0_source_enabled(pio, pis_interrupt1, true);
+
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
   pio_sm_set_enabled(pio, sm, true);
@@ -233,6 +245,8 @@ void leds_start_delay() {
 void leds_pwm_interrupt_handler() {
   // disable output
   outputEnable(ROW_OE, false);
+  // allow PIO pusher to latch RCLK (of the next row)
+  // pusher_pio->irq_force = 1 << 0;
   // stop PWM counter
   pwm_set_enabled(PWM_SLICE, false);
   // acknowledge interrupt
