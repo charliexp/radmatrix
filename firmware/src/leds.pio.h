@@ -25,17 +25,16 @@ static const uint16_t leds_px_pusher_program_instructions[] = {
     0x7028, //  3: out    x, 8            side 0     
     0x0045, //  4: jmp    x--, 5                     
             //     .wrap
-    0x20c0, //  5: wait   1 irq, 0                   
-    0xc001, //  6: irq    nowait 1                   
-    0xe301, //  7: set    pins, 1                [3] 
-    0xe000, //  8: set    pins, 0                    
-    0x0000, //  9: jmp    0                          
+    0xc000, //  5: irq    nowait 0                   
+    0xe301, //  6: set    pins, 1                [3] 
+    0xe000, //  7: set    pins, 0                    
+    0x0000, //  8: jmp    0                          
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program leds_px_pusher_program = {
     .instructions = leds_px_pusher_program_instructions,
-    .length = 10,
+    .length = 9,
     .origin = -1,
 };
 
