@@ -32,8 +32,6 @@ void leds_disable();
 void leds_loop();
 void leds_render();
 
-extern uint8_t framebuffer[ROW_COUNT * COL_COUNT];
-extern bool ledBufferReady;
-extern uint32_t ledBuffer[8][ROW_COUNT * COL_MODULES];
+void leds_set_framebuffer(uint8_t *buffer);
 
 #endif
