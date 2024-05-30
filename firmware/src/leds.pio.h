@@ -10,15 +10,16 @@
 
 #define irq_did_latch 0
 #define irq_delaying 1
+#define srclk_0_delay 1
+#define srclk_1_delay 2
+#define rclk_1_delay 3
 
 // -------------- //
 // leds_px_pusher //
 // -------------- //
 
 #define leds_px_pusher_wrap_target 0
-#define leds_px_pusher_wrap 4
-
-#define leds_px_pusher_offset_entry_point 0u
+#define leds_px_pusher_wrap 8
 
 static const uint16_t leds_px_pusher_program_instructions[] = {
             //     .wrap_target
@@ -26,19 +27,18 @@ static const uint16_t leds_px_pusher_program_instructions[] = {
     0x7101, //  1: out    pins, 1         side 0 [1] 
     0x1a41, //  2: jmp    x--, 1          side 1 [2] 
     0x7028, //  3: out    x, 8            side 0     
-    0x0045, //  4: jmp    x--, 5                     
-            //     .wrap
+    0x0020, //  4: jmp    !x, 0                      
     0x2041, //  5: wait   0 irq, 1                   
     0xc000, //  6: irq    nowait 0                   
     0xe301, //  7: set    pins, 1                [3] 
     0xe000, //  8: set    pins, 0                    
-    0x0000, //  9: jmp    0                          
+            //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program leds_px_pusher_program = {
     .instructions = leds_px_pusher_program_instructions,
-    .length = 10,
+    .length = 9,
     .origin = -1,
 };
 
@@ -59,8 +59,6 @@ static inline pio_sm_config leds_px_pusher_program_get_default_config(uint offse
 
 #define leds_delay_output_on 0
 #define leds_delay_output_off 1
-
-#define leds_delay_offset_entry_point 0u
 
 static const uint16_t leds_delay_program_instructions[] = {
             //     .wrap_target

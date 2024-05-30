@@ -1,45 +1,49 @@
 .define public irq_did_latch 0
 .define public irq_delaying 1
 
+; TODO: check if delays can be lowered with a PCB
+.define public srclk_0_delay 1
+.define public srclk_1_delay 2
+.define public rclk_1_delay 3
+
 .program leds_px_pusher
 .side_set 1 opt
-public entry_point:
+entry_point:
 .wrap_target
   ; get 32 bits from fifo (not required with autopull, useful for debug)
   ; pull
   ; push 24 bits to the shift registers
   ; also, return latch bit to 0
-  set x, 23      side 0
+  set x, 23                     side 0
 loop:
-  ; TODO: check if delays can be lowered with a PCB
   ; set bit; lower clock edge
-  out pins, 1    side 0 [1]
+  out pins, 1                   side 0  [srclk_0_delay]
   ; loop; latch bit (rising edge)
-  jmp x-- loop   side 1 [2]
+  jmp x-- loop                  side 1  [srclk_1_delay]
 end:
   ; ignore unused bits
   ; load MSBs into x
   ; lower clock edge
   out x, 8    side 0
   ; MSB=1 indicates end of row
-  jmp x-- end_of_row
-  .wrap
+  jmp !x entry_point
 end_of_row:
   ; wait until previous row's delay is complete
   wait 0 irq irq_delaying
   ; signal that row is processed
   irq set irq_did_latch
   ; clock RCLK (latch onto register output stage)
-  set pins, 1 [3]
+  set pins, 1                           [rclk_1_delay]
   set pins, 0
   ; wait for next row
-  jmp entry_point
+  .wrap
 
 .program leds_delay
 .side_set 1 opt
 .define public output_on 0
 .define public output_off 1
-public entry_point:
+entry_point:
+.wrap_target
   ; begin only after data is latched
   wait 1 irq irq_did_latch
   ; signal that delay is ongoing
@@ -54,3 +58,4 @@ end:
   ; signal that delay is complete
   ; disable output
   irq clear irq_delaying        side output_off
+  .wrap
