@@ -10,6 +10,7 @@
 PIO leds_pio = pio0;
 uint pusher_sm = 255; // invalid
 uint delay_sm = 255; // invalid
+uint row_sm = 255; // invalid
 
 // NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
@@ -90,6 +91,7 @@ void leds_initPusher();
 
 void leds_initRenderer() {
   leds_initPusher();
+  leds_initRowSelector();
   leds_initDelay();
   multicore_reset_core1();
   multicore_launch_core1(main2);
@@ -175,9 +177,6 @@ void leds_initPusher() {
 
   uint offset = pio_add_program(pio, &leds_px_pusher_program);
 
-  uint dataPin = COL_SER;
-  uint latchPin = COL_SRCLK;
-
   pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
   sm_config_set_clkdiv_int_frac(&config, 1, 0);
 
@@ -185,22 +184,51 @@ void leds_initPusher() {
   sm_config_set_out_shift(&config, true, true, 32);
 
   // Set OUT (data) pin, connect to pad, set as output
-  sm_config_set_out_pins(&config, dataPin, 1);
-  pio_gpio_init(pio, dataPin);
-  pio_sm_set_consecutive_pindirs(pio, sm, dataPin, 1, true);
+  sm_config_set_out_pins(&config, COL_SER, 1);
+  pio_gpio_init(pio, COL_SER);
+  pio_sm_set_consecutive_pindirs(pio, sm, COL_SER, 1, true);
 
   // data is inverted
-  gpio_set_outover(dataPin, GPIO_OVERRIDE_INVERT);
+  gpio_set_outover(COL_SER, GPIO_OVERRIDE_INVERT);
 
   // Set sideset (SRCLK) pin, connect to pad, set as output
-  sm_config_set_sideset_pins(&config, latchPin);
-  pio_gpio_init(pio, latchPin);
-  pio_sm_set_consecutive_pindirs(pio, sm, latchPin, 1, true);
+  sm_config_set_sideset_pins(&config, COL_SRCLK);
+  pio_gpio_init(pio, COL_SRCLK);
+  pio_sm_set_consecutive_pindirs(pio, sm, COL_SRCLK, 1, true);
 
   // Set SET (RCLK) pin, connect to pad, set as output
   sm_config_set_set_pins(&config, RCLK, 1);
   pio_gpio_init(pio, RCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, RCLK, 1, true);
+
+  // Load our configuration, and jump to the start of the program
+  pio_sm_init(pio, sm, offset, &config);
+  pio_sm_set_enabled(pio, sm, true);
+}
+
+void leds_initRowSelector() {
+  PIO pio = leds_pio;
+  uint sm = pio_claim_unused_sm(pio, true);
+  row_sm = sm;
+
+  uint offset = pio_add_program(pio, &leds_row_selector_program);
+
+  pio_sm_config config = leds_row_selector_program_get_default_config(offset);
+  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+
+  // Shift OSR to the right, autopull
+  sm_config_set_out_shift(&config, true, true, 32);
+
+  // Set OUT and SET (data) pin, connect to pad, set as output
+  sm_config_set_out_pins(&config, ROW_SER, 1);
+  sm_config_set_set_pins(&config, ROW_SER, 1);
+  pio_gpio_init(pio, ROW_SER);
+  pio_sm_set_consecutive_pindirs(pio, sm, ROW_SER, 1, true);
+
+  // Set sideset (SRCLK) pin, connect to pad, set as output
+  sm_config_set_sideset_pins(&config, ROW_SRCLK);
+  pio_gpio_init(pio, ROW_SRCLK);
+  pio_sm_set_consecutive_pindirs(pio, sm, ROW_SRCLK, 1, true);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);

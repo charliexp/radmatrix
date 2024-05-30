@@ -1,5 +1,6 @@
 .define public irq_did_latch 0
 .define public irq_delaying 1
+.define public irq_row_selected 1
 
 ; TODO: check if delays can be lowered with a PCB
 .define public srclk_0_delay 1
@@ -24,18 +25,41 @@ end:
   ; ignore unused bits
   ; load MSBs into x
   ; lower clock edge
-  out x, 8    side 0
+  out x, 8                      side 0
   ; MSB=1 indicates end of row
   jmp !x entry_point
 end_of_row:
   ; wait until previous row's delay is complete
+  ; (irq will be 0 on first row by default)
   wait 0 irq irq_delaying
-  ; signal that row is processed
+  ; wait until row is selected, and clear flag
+  wait 1 irq irq_row_selected
+  ; signal that we're about to latch the row onto display
   irq set irq_did_latch
   ; clock RCLK (latch onto register output stage)
   set pins, 1                           [rclk_1_delay]
   set pins, 0
   ; wait for next row
+  .wrap
+
+.program leds_row_selector
+.side_set 1 opt
+entry_point:
+.wrap_target
+  ; LSB=1 indicates first (bottom) row, ergo, high SER for the first pulse
+  out pins, 1                   side 0  [srclk_0_delay]
+  ; The rest of the word indicates number of SRCLK pulses
+  out x, 31
+loop:
+  ; pulse SRCLK x times
+  ; set SER=0 after first pulse
+  nop                           side 1  [srclk_1_delay]
+  set pins, 0                   side 0  [srclk_0_delay]
+  jmp x-- loop
+end:
+  ; signal that row is selected and wait until acknowledged
+  ; some delay so that in the worst case scenario we don't start changing rows before RCLK latch
+  irq wait irq_row_selected             [4]
   .wrap
 
 .program leds_delay

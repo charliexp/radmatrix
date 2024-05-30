@@ -10,6 +10,7 @@
 
 #define irq_did_latch 0
 #define irq_delaying 1
+#define irq_row_selected 1
 #define srclk_0_delay 1
 #define srclk_1_delay 2
 #define rclk_1_delay 3
@@ -19,7 +20,7 @@
 // -------------- //
 
 #define leds_px_pusher_wrap_target 0
-#define leds_px_pusher_wrap 8
+#define leds_px_pusher_wrap 9
 
 static const uint16_t leds_px_pusher_program_instructions[] = {
             //     .wrap_target
@@ -29,22 +30,56 @@ static const uint16_t leds_px_pusher_program_instructions[] = {
     0x7028, //  3: out    x, 8            side 0     
     0x0020, //  4: jmp    !x, 0                      
     0x2041, //  5: wait   0 irq, 1                   
-    0xc000, //  6: irq    nowait 0                   
-    0xe301, //  7: set    pins, 1                [3] 
-    0xe000, //  8: set    pins, 0                    
+    0x20c1, //  6: wait   1 irq, 1                   
+    0xc000, //  7: irq    nowait 0                   
+    0xe301, //  8: set    pins, 1                [3] 
+    0xe000, //  9: set    pins, 0                    
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program leds_px_pusher_program = {
     .instructions = leds_px_pusher_program_instructions,
-    .length = 9,
+    .length = 10,
     .origin = -1,
 };
 
 static inline pio_sm_config leds_px_pusher_program_get_default_config(uint offset) {
     pio_sm_config c = pio_get_default_sm_config();
     sm_config_set_wrap(&c, offset + leds_px_pusher_wrap_target, offset + leds_px_pusher_wrap);
+    sm_config_set_sideset(&c, 2, true, false);
+    return c;
+}
+#endif
+
+// ----------------- //
+// leds_row_selector //
+// ----------------- //
+
+#define leds_row_selector_wrap_target 0
+#define leds_row_selector_wrap 5
+
+static const uint16_t leds_row_selector_program_instructions[] = {
+            //     .wrap_target
+    0x7101, //  0: out    pins, 1         side 0 [1] 
+    0x603f, //  1: out    x, 31                      
+    0xba42, //  2: nop                    side 1 [2] 
+    0xf100, //  3: set    pins, 0         side 0 [1] 
+    0x0042, //  4: jmp    x--, 2                     
+    0xc421, //  5: irq    wait 1                 [4] 
+            //     .wrap
+};
+
+#if !PICO_NO_HARDWARE
+static const struct pio_program leds_row_selector_program = {
+    .instructions = leds_row_selector_program_instructions,
+    .length = 6,
+    .origin = -1,
+};
+
+static inline pio_sm_config leds_row_selector_program_get_default_config(uint offset) {
+    pio_sm_config c = pio_get_default_sm_config();
+    sm_config_set_wrap(&c, offset + leds_row_selector_wrap_target, offset + leds_row_selector_wrap);
     sm_config_set_sideset(&c, 2, true, false);
     return c;
 }
