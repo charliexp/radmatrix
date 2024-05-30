@@ -193,25 +193,23 @@ void leds_render() {
   auto buffer = ledBuffer[brightnessPhase];
   auto delayData = brightnessPhaseDelays[brightnessPhase];
 
-  int bufferOffset = 0;
-  for (int yModule = 0; yModule < ROW_MODULES; yModule++) {
-    for (int moduleY = 0; moduleY < 20; moduleY++) {
-      // set row data
-      for (int xModule = 0; xModule < COL_MODULES; xModule++) {
-        uint32_t pxValues = buffer[bufferOffset + xModule];
-        pio_sm_put_blocking(leds_pio, pusher_sm, pxValues);
-      }
-
-      // set row selection data
-      uint32_t rowSelData = buffer[bufferOffset + COL_MODULES];
-      pio_sm_put_blocking(leds_pio, row_sm, rowSelData);
-
-      // set delay data
-      pio_sm_put_blocking(leds_pio, delay_sm, delayData);
-
-      // next row
-      bufferOffset += COL_MODULES + 1;
+  // The correct data to push onto PIO has been precomputed by leds_set_framebuffer
+  // So we only need to move the buffer onto PIO TX FIFOs to keep them full
+  // TODO: Rewrite this to be interrupt-based. Should be relatively easy to always keep PIO
+  // full via interrupts and free up most of the core's time to other tasks
+  for (uint8_t y = 0; y < ROW_COUNT; y++) {
+    // set row data
+    for (uint8_t x = 0; x < COL_MODULES; x++) {
+      auto pxValues = *buffer++;
+      pio_sm_put_blocking(leds_pio, pusher_sm, pxValues);
     }
+
+    // set row selection data
+    auto rowSelData = *buffer++;
+    pio_sm_put_blocking(leds_pio, row_sm, rowSelData);
+
+    // set delay data
+    pio_sm_put_blocking(leds_pio, delay_sm, delayData);
   }
 
   // next brightness phase
@@ -230,6 +228,10 @@ void leds_initPusher() {
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
+
+  // Use FIFO join to create a longer TX FIFO
+  // NOTE: This is not needed for the other SMs, as the px pusher will always be the bottleneck
+  sm_config_set_fifo_join(&config, PIO_FIFO_JOIN_TX);
 
   // Set OUT (data) pin, connect to pad, set as output
   sm_config_set_out_pins(&config, COL_SER, 1);
