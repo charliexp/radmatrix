@@ -34,8 +34,19 @@ inline void outputEnable(uint8_t pin, bool enable) {
 // we have COLOR_BITS-bit color depth, so 2^COLOR_BITS levels of brightness
 // we go from phase 0 to phase (COLOR_BITS-1)
 uint8_t brightnessPhase = 0;
+
 // delays in nanoseconds
-uint32_t brightnessPhaseDelays[COLOR_BITS] = {500, 1500, 6000, 20000, 60000};
+#define NS_TO_DELAY(ns) ns / NS_PER_CYCLE
+uint32_t brightnessPhaseDelays[COLOR_BITS] = {
+  NS_TO_DELAY(50),
+  NS_TO_DELAY(100),
+  NS_TO_DELAY(200),
+  NS_TO_DELAY(500),
+  NS_TO_DELAY(1500),
+  NS_TO_DELAY(6000),
+  NS_TO_DELAY(20000),
+  NS_TO_DELAY(60000),
+};
 
 // NOTE: Alignment required to allow 4-byte reads
 uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
@@ -50,10 +61,7 @@ uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
 //     1 bit (LSB) to indicate start of frame (1) or not (0)
 //     remaining bits to indicate a number of shift register pulses
 //     (again, 24 shift register stages per 20 rows, so there are placeholders)
-// - one word to indicate requested delay
-//     number of cycles (8ns per cycle at 125MHz) to display row for
-//     note that this could be moved outside the buffer easily
-uint32_t ledBuffer[8][ROW_COUNT * (COL_MODULES + 2)] = {0};
+uint32_t ledBuffer[8][ROW_COUNT * (COL_MODULES + 1)] = {0};
 bool ledBufferReady = false;
 
 void leds_set_framebuffer(uint8_t *buffer) {
@@ -66,7 +74,7 @@ void leds_set_framebuffer(uint8_t *buffer) {
         auto y = yModule * 20 + moduleY;
 
         auto bufferYOffset = (ROW_COUNT - 1 - y) * COL_COUNT;
-        auto outputYOffset = y * (COL_MODULES + 2);
+        auto outputYOffset = y * (COL_MODULES + 1);
 
         // set data for a given row
         for (int xModule = 0; xModule < COL_MODULES; xModule++) {
@@ -109,13 +117,6 @@ void leds_set_framebuffer(uint8_t *buffer) {
 
         uint32_t rowData = firstRow | (rowPulses << 1);
         ledBuffer[bi][outputYOffset + COL_MODULES] = rowData;
-
-        // set delay data
-        int brightnessPhase = max(bi - 3, 0);
-        // 8ns per cycle
-        // TODO: Check actual clock speed
-        uint32_t delayCycles = brightnessPhaseDelays[brightnessPhase] / 8;
-        ledBuffer[bi][outputYOffset + COL_MODULES + 1] = delayCycles;
       }
     }
   }
@@ -189,7 +190,8 @@ void leds_render() {
     return;
   }
 
-  auto buffer = ledBuffer[brightnessPhase + 3];
+  auto buffer = ledBuffer[brightnessPhase];
+  auto delayData = brightnessPhaseDelays[brightnessPhase];
 
   int bufferOffset = 0;
   for (int yModule = 0; yModule < ROW_MODULES; yModule++) {
@@ -205,11 +207,10 @@ void leds_render() {
       pio_sm_put_blocking(leds_pio, row_sm, rowSelData);
 
       // set delay data
-      uint32_t delayData = buffer[bufferOffset + COL_MODULES + 1];
       pio_sm_put_blocking(leds_pio, delay_sm, delayData);
 
       // next row
-      bufferOffset += COL_MODULES + 2;
+      bufferOffset += COL_MODULES + 1;
     }
   }
 
