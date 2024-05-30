@@ -7,8 +7,9 @@
 #include "leds.h"
 #include "leds.pio.h"
 
-PIO pusher_pio = pio0;
+PIO leds_pio = pio0;
 uint pusher_sm = 255; // invalid
+uint delay_sm = 255; // invalid
 
 // NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
@@ -89,6 +90,7 @@ void leds_initPusher();
 
 void leds_initRenderer() {
   leds_initPusher();
+  leds_initDelay();
   multicore_reset_core1();
   multicore_launch_core1(main2);
 }
@@ -143,14 +145,14 @@ void leds_render() {
       // - DMA?
       for (int xModule = 0; xModule < COL_MODULES; xModule++) {
         uint32_t pxValues = buffer[bufferOffset + xModule];
-        pio_sm_put_blocking(pusher_pio, pusher_sm, pxValues);
+        pio_sm_put_blocking(leds_pio, pusher_sm, pxValues);
       }
 
       // wait until pushing and RCLK latch are done
-      while (!pio_interrupt_get(pusher_pio, 0)) {
+      while (!pio_interrupt_get(leds_pio, 0)) {
         tight_loop_contents();
       }
-      pio_interrupt_clear(pusher_pio, pusher_sm);
+      pio_interrupt_clear(leds_pio, pusher_sm);
 
       // show for a certain period
       outputEnable(ROW_OE, true);
@@ -167,7 +169,7 @@ void leds_render() {
 }
 
 void leds_initPusher() {
-  PIO pio = pusher_pio;
+  PIO pio = leds_pio;
   uint sm = pio_claim_unused_sm(pio, true);
   pusher_sm = sm;
 
@@ -199,6 +201,29 @@ void leds_initPusher() {
   sm_config_set_set_pins(&config, RCLK, 1);
   pio_gpio_init(pio, RCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, RCLK, 1, true);
+
+  // Load our configuration, and jump to the start of the program
+  pio_sm_init(pio, sm, offset, &config);
+  pio_sm_set_enabled(pio, sm, true);
+}
+
+void leds_initDelay() {
+  PIO pio = leds_pio;
+  uint sm = pio_claim_unused_sm(pio, true);
+  delay_sm = sm;
+
+  uint offset = pio_add_program(pio, &leds_delay_program);
+
+  pio_sm_config config = leds_delay_program_get_default_config(offset);
+  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+
+  // Shift OSR to the right, autopull
+  sm_config_set_out_shift(&config, true, true, 32);
+
+  // Set sideset (OE) pin, connect to pad, set as output
+  sm_config_set_sideset_pins(&config, ROW_OE);
+  pio_gpio_init(pio, ROW_OE);
+  pio_sm_set_consecutive_pindirs(pio, sm, ROW_OE, 1, true);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);

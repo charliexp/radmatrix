@@ -8,6 +8,9 @@
 #include "hardware/pio.h"
 #endif
 
+#define irq_did_latch 0
+#define irq_delaying 1
+
 // -------------- //
 // leds_px_pusher //
 // -------------- //
@@ -25,22 +28,60 @@ static const uint16_t leds_px_pusher_program_instructions[] = {
     0x7028, //  3: out    x, 8            side 0     
     0x0045, //  4: jmp    x--, 5                     
             //     .wrap
-    0xc000, //  5: irq    nowait 0                   
-    0xe301, //  6: set    pins, 1                [3] 
-    0xe000, //  7: set    pins, 0                    
-    0x0000, //  8: jmp    0                          
+    0x2041, //  5: wait   0 irq, 1                   
+    0xc000, //  6: irq    nowait 0                   
+    0xe301, //  7: set    pins, 1                [3] 
+    0xe000, //  8: set    pins, 0                    
+    0x0000, //  9: jmp    0                          
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program leds_px_pusher_program = {
     .instructions = leds_px_pusher_program_instructions,
-    .length = 9,
+    .length = 10,
     .origin = -1,
 };
 
 static inline pio_sm_config leds_px_pusher_program_get_default_config(uint offset) {
     pio_sm_config c = pio_get_default_sm_config();
     sm_config_set_wrap(&c, offset + leds_px_pusher_wrap_target, offset + leds_px_pusher_wrap);
+    sm_config_set_sideset(&c, 2, true, false);
+    return c;
+}
+#endif
+
+// ---------- //
+// leds_delay //
+// ---------- //
+
+#define leds_delay_wrap_target 0
+#define leds_delay_wrap 4
+
+#define leds_delay_output_on 0
+#define leds_delay_output_off 1
+
+#define leds_delay_offset_entry_point 0u
+
+static const uint16_t leds_delay_program_instructions[] = {
+            //     .wrap_target
+    0x20c0, //  0: wait   1 irq, 0                   
+    0xc001, //  1: irq    nowait 1                   
+    0x6020, //  2: out    x, 32                      
+    0x1043, //  3: jmp    x--, 3          side 0     
+    0xd841, //  4: irq    clear 1         side 1     
+            //     .wrap
+};
+
+#if !PICO_NO_HARDWARE
+static const struct pio_program leds_delay_program = {
+    .instructions = leds_delay_program_instructions,
+    .length = 5,
+    .origin = -1,
+};
+
+static inline pio_sm_config leds_delay_program_get_default_config(uint offset) {
+    pio_sm_config c = pio_get_default_sm_config();
+    sm_config_set_wrap(&c, offset + leds_delay_wrap_target, offset + leds_delay_wrap);
     sm_config_set_sideset(&c, 2, true, false);
     return c;
 }
