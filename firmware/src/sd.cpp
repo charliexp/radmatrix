@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <RP2040_SD.h>
+// #include <RP2040_SD.h>
 #include "sd.h"
 #include "audio.h"
 #include "gfx_decoder.h"
@@ -34,12 +34,15 @@ bool isSDCardInserted() {
   return digitalRead(SD_DET_PIN) == LOW;
 }
 
+/*
 void printSDConfig();
 void testSDCard();
 void printSDStats();
 void printDirectory(File dir, int numTabs);
+*/
 
 void setupSD() {
+  /*
   SPI.begin();
 
   // printSDConfig();
@@ -59,8 +62,10 @@ void setupSD() {
 
   // File root = SD.open("/");
   // printDirectory(root, 0);
+  */
 }
 
+/*
 void printSDConfig() {
   Serial.println(BOARD_NAME);
   Serial.println(RP2040_SD_VERSION);
@@ -155,11 +160,12 @@ void printSDStats(RP2040_SdVolume volume) {
   Serial.print("Volume size (GB):  ");
   Serial.println((float)volumesize / 1024.0);
 }
-
+*/
 String playlist[128] = {};
 size_t playlistSize = 0;
 
 void sd_loadPlaylist() {
+  /*
   auto path = "video/playlist.txt";
 
   if (!SD.exists(path)) {
@@ -220,11 +226,13 @@ void sd_loadPlaylist() {
     Serial.print(": ");
     Serial.println(playlist[i]);
   }
+  */
 }
 
-File audioFile;
+// File audioFile;
 
 void sd_loadAudio(size_t index) {
+  /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
     return;
@@ -258,9 +266,11 @@ void sd_loadAudio(size_t index) {
   }
 
   audio_start();
+  */
 }
 
 void sd_loadNextAudio() {
+  /*
   if (!next_buffer_requested) {
     return;
   }
@@ -282,11 +292,13 @@ void sd_loadNextAudio() {
     Serial.print(" bytes from audio file in ");
     Serial.print(millis() - b4);
     Serial.println("ms");
-    */
+    * /
   }
+  */
 }
 
 bool sd_loadGfxFrameLengths(size_t index) {
+  /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
     return false;
@@ -317,13 +329,15 @@ bool sd_loadGfxFrameLengths(size_t index) {
   Serial.println("Done reading frame lengths");
 
   return true;
+  */
 }
 
-File gfxFile;
+// File gfxFile;
 
 uint16_t frameIdx = 0;
 
 bool sd_loadGfxBlob(size_t index) {
+  /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
     return false;
@@ -342,10 +356,12 @@ bool sd_loadGfxBlob(size_t index) {
   frameIdx = 0;
 
   return true;
+  */
 }
 
 // Returns size of frame read or -1 if error
 int32_t sd_loadNextFrame() {
+  /*
   if (frameIdx > 0) {
     // return -1;
   }
@@ -386,4 +402,5 @@ int32_t sd_loadNextFrame() {
   }
 
   return frameSize;
+  */
 }
