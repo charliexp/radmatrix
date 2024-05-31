@@ -4,6 +4,7 @@
 #include "sd.h"
 #include "leds.h"
 #include "gfx_decoder.h"
+#include "can2040.h"
 
 void loadVideo(size_t index);
 
