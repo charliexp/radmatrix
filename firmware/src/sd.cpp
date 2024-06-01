@@ -4,6 +4,7 @@
 #include "sd.h"
 #include "audio.h"
 #include "gfx_decoder.h"
+#include "hw_config.h"
 
 #define SD_DET_PIN 28
 
