@@ -4,9 +4,49 @@
 #include "sd.h"
 #include "audio.h"
 #include "gfx_decoder.h"
+
 #include "hw_config.h"
+#include "ff.h"
+#include "f_util.h"
 
 #define SD_DET_PIN 28
+
+static spi_t spi = {
+  .hw_inst = spi0,
+  .miso_gpio = 4,
+  .mosi_gpio = 3,
+  .sck_gpio = 2,
+  .baud_rate = 10 * 1000 * 1000,
+};
+
+static sd_spi_if_t spi_if = {
+  .spi = &spi,
+  .ss_gpio = 7,
+};
+
+static sd_card_t sd_card = {
+  .type = SD_IF_SPI,
+  .spi_if_p = &spi_if,
+};
+
+void sd_test() {
+  FATFS fs;
+  FRESULT fr = f_mount(&fs, "", 1);
+  if (FR_OK != fr) panic("f_mount error: %s (%d)\n", FRESULT_str(fr), fr);
+  FIL fil;
+  const char* const filename = "filename.txt";
+  fr = f_open(&fil, filename, FA_OPEN_APPEND | FA_WRITE);
+  if (FR_OK != fr && FR_EXIST != fr)
+      panic("f_open(%s) error: %s (%d)\n", filename, FRESULT_str(fr), fr);
+  if (f_printf(&fil, "Hello, world!\n") < 0) {
+      printf("f_printf failed\n");
+  }
+  fr = f_close(&fil);
+  if (FR_OK != fr) {
+      printf("f_close error: %s (%d)\n", FRESULT_str(fr), fr);
+  }
+  f_unmount("");
+}
 
 /*
 #if PIN_SPI_SS != 17
