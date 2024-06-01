@@ -64,7 +64,7 @@ void init_audio() {
 
     pwm_config_set_clkdiv(&config, AUDIO_CLK_DIV);
     pwm_config_set_wrap(&config, 250);
-    pwm_init(audio_pin_slice, 0, &config, true);
+    pwm_init(audio_pin_slice, /*0,*/ &config, true);
 
     pwm_set_gpio_level(AUDIO_PIN, 0);
 }

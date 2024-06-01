@@ -7,6 +7,7 @@
 
 #define SD_DET_PIN 28
 
+/*
 #if PIN_SPI_SS != 17
 #error "PIN_SPI_SS must be 17"
 #endif
@@ -19,15 +20,18 @@
 #if PIN_SPI_MISO != 16
 #error "PIN_SPI_MISO must be 16"
 #endif
+*/
 
 void setupSDPins() {
   // TODO: Is that even needed if we use built-in SPI?
+  /*
   pinMode(PIN_SPI_MISO, INPUT);
   pinMode(PIN_SPI_SS, OUTPUT);
   digitalWrite(PIN_SPI_SS, HIGH);
   pinMode(PIN_SPI_SCK, OUTPUT);
   pinMode(PIN_SPI_MOSI, OUTPUT);
   pinMode(SD_DET_PIN, INPUT_PULLUP);
+  */
 }
 
 bool isSDCardInserted() {
@@ -298,6 +302,7 @@ void sd_loadNextAudio() {
 }
 
 bool sd_loadGfxFrameLengths(size_t index) {
+  return false;
   /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
@@ -337,6 +342,7 @@ bool sd_loadGfxFrameLengths(size_t index) {
 uint16_t frameIdx = 0;
 
 bool sd_loadGfxBlob(size_t index) {
+  return false;
   /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
@@ -361,6 +367,7 @@ bool sd_loadGfxBlob(size_t index) {
 
 // Returns size of frame read or -1 if error
 int32_t sd_loadNextFrame() {
+  return -1;
   /*
   if (frameIdx > 0) {
     // return -1;

@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include "hardware/gpio.h"
-#include "mbed_wait_api.h"
 #include "pico/multicore.h"
 #include "hardware/pio.h"
 
@@ -16,8 +15,7 @@ uint row_sm = 255; // invalid
 inline void pulsePin(uint8_t pin) {
   gpio_put(pin, HIGH);
    // there are glitches without this (maybe just due to breadboard...)
-  _NOP();
-  _NOP();
+  asm volatile("nop \n nop \n nop");
   gpio_put(pin, LOW);
 }
 
