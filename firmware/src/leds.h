@@ -24,10 +24,10 @@
 
 #define COLOR_BITS 8
 #define FPS 30
-#define MS_PER_FRAME 1000 / FPS
+#define MS_PER_FRAME (1000 / FPS)
 
 #define CPU_MHZ 125
-#define NS_PER_CYCLE 1000 / CPU_MHZ
+#define NS_PER_CYCLE (1000 / CPU_MHZ)
 
 void leds_init();
 void leds_initRenderer();

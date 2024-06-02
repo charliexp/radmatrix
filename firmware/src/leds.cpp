@@ -12,6 +12,8 @@ uint pusher_sm = 255; // invalid
 uint delay_sm = 255; // invalid
 uint row_sm = 255; // invalid
 
+#define LEDS_PIO_CLKDIV 1
+
 // NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
   gpio_put(pin, HIGH);
@@ -36,7 +38,7 @@ inline void outputEnable(uint8_t pin, bool enable) {
 uint8_t brightnessPhase = 0;
 
 // delays in nanoseconds
-#define NS_TO_DELAY(ns) ns / NS_PER_CYCLE
+#define NS_TO_DELAY(ns) (ns / NS_PER_CYCLE / LEDS_PIO_CLKDIV)
 uint32_t brightnessPhaseDelays[COLOR_BITS] = {
   NS_TO_DELAY(50),
   NS_TO_DELAY(100),
@@ -104,18 +106,18 @@ void leds_set_framebuffer(uint8_t *buffer) {
         }
 
         // set row shifting data
-        bool firstRow = y == (ROW_COUNT - 1);
-        uint32_t rowPulses = 1;
+        bool firstRow = y == 0;
+        uint32_t extraPulses = 0;
 
         if (moduleY == 0) {
-          rowPulses++;
+          extraPulses++;
         }
 
         if (moduleY == 7 || moduleY == 14 || (moduleY == 0 && yModule != 0)) {
-          rowPulses++;
+          extraPulses++;
         }
 
-        uint32_t rowData = firstRow | (rowPulses << 1);
+        uint32_t rowData = firstRow | (extraPulses << 1);
         ledBuffer[bi][outputYOffset + COL_MODULES] = rowData;
       }
     }
@@ -224,7 +226,7 @@ void leds_initPusher() {
   uint offset = pio_add_program(pio, &leds_px_pusher_program);
 
   pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, LEDS_PIO_CLKDIV, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
@@ -264,7 +266,7 @@ void leds_initRowSelector() {
   uint offset = pio_add_program(pio, &leds_row_selector_program);
 
   pio_sm_config config = leds_row_selector_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, LEDS_PIO_CLKDIV, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
@@ -293,7 +295,7 @@ void leds_initDelay() {
   uint offset = pio_add_program(pio, &leds_delay_program);
 
   pio_sm_config config = leds_delay_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, LEDS_PIO_CLKDIV, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);

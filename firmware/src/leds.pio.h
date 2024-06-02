@@ -9,8 +9,8 @@
 #endif
 
 #define irq_did_latch 0
-#define irq_delaying 1
 #define irq_row_selected 1
+#define irq_delaying 2
 #define srclk_0_delay 1
 #define srclk_1_delay 2
 #define rclk_1_delay 3
@@ -29,7 +29,7 @@ static const uint16_t leds_px_pusher_program_instructions[] = {
     0x1a41, //  2: jmp    x--, 1          side 1 [2] 
     0x7028, //  3: out    x, 8            side 0     
     0x0020, //  4: jmp    !x, 0                      
-    0x2041, //  5: wait   0 irq, 1                   
+    0x2042, //  5: wait   0 irq, 2                   
     0x20c1, //  6: wait   1 irq, 1                   
     0xc000, //  7: irq    nowait 0                   
     0xe301, //  8: set    pins, 1                [3] 
@@ -98,10 +98,10 @@ static inline pio_sm_config leds_row_selector_program_get_default_config(uint of
 static const uint16_t leds_delay_program_instructions[] = {
             //     .wrap_target
     0x20c0, //  0: wait   1 irq, 0                   
-    0xc001, //  1: irq    nowait 1                   
+    0xc002, //  1: irq    nowait 2                   
     0x6020, //  2: out    x, 32                      
     0x1043, //  3: jmp    x--, 3          side 0     
-    0xd841, //  4: irq    clear 1         side 1     
+    0xd842, //  4: irq    clear 2         side 1     
             //     .wrap
 };
 
