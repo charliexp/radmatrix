@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <SPI.h>
-// #include <RP2040_SD.h>
 #include "sd.h"
 #include "audio.h"
 #include "gfx_decoder.h"
@@ -82,39 +81,17 @@ String playlist[128] = {};
 size_t playlistSize = 0;
 
 void sd_loadPlaylist() {
-  // auto path = "video/playlist.txt";
-
-/*
-  FRESULT result = f_stat(path, NULL);
-  if (result != FR_OK) {
-    Serial.println("Could not find playlist for videos :(");
-    return;
-  }
-*/
+  auto path = "video/playlist.txt";
 
   FIL playlistFile;
-  FRESULT result = f_open(&playlistFile, "video/playlist.txt", FA_READ);
+  FRESULT result = f_open(&playlistFile, path, FA_READ);
   CHECK_RESULT(result, "playlist file open");
 
   Serial.println("Playlist file opened");
 
-  /*
-
-  if (!SD.exists(path)) {
-    Serial.println("Could not find playlist for videos :(");
-    return;
-  }
-
-  auto playlistFile = SD.open(path, FILE_READ);
-  Serial.println("Playlist file opened");
-  */
-
   char playlist_buffer[512];
   auto fileSize = f_size(&playlistFile);
 
-  /*
-  auto fileSize = playlistFile.size();
-  */
   if (fileSize > sizeof(playlist_buffer)) {
     Serial.print("Playlist file too large, max: ");
     Serial.println(sizeof(playlist_buffer));
@@ -135,14 +112,6 @@ void sd_loadPlaylist() {
 
   result = f_close(&playlistFile);
   CHECK_RESULT(result, "playlist file close");
-  /*
-  if (playlistFile.read(&playlist_buffer, sizeof(playlist_buffer)) != fileSize) {
-    Serial.println("Could not read playlist file");
-    return;
-  }
-
-  playlistFile.close();
-  */
 
   Serial.println("Parsing playlist...");
 
@@ -181,7 +150,6 @@ void sd_loadPlaylist() {
   }
 }
 
-// File audioFile;
 FIL *audioFile;
 
 void sd_loadAudio(size_t index) {
@@ -204,18 +172,6 @@ void sd_loadAudio(size_t index) {
   result = f_open(audioFile, path.c_str(), FA_READ);
   CHECK_RESULT(result, "audio file open");
 
-  /*
-  if (!SD.exists(path)) {
-    Serial.println("Audio not found :(");
-    return;
-  }
-
-  if (audioFile) {
-    audioFile.close();
-  }
-
-  audioFile = SD.open(path, FILE_READ);
-  */
   Serial.println("Audio file opened");
 
   audio_stop();
@@ -236,19 +192,6 @@ void sd_loadAudio(size_t index) {
     return;
   }
 
-  /*
-  // load two buffers' worth of audio
-  if (audioFile.read(&wav_buffer_0, BUFFER_LEN) < BUFFER_LEN) {
-    Serial.println("Could not read first sample");
-    return;
-  }
-
-  if (audioFile.read(&wav_buffer_1, BUFFER_LEN) < BUFFER_LEN) {
-    Serial.println("Could not read second sample");
-    return;
-  }
-  */
-
   audio_start();
 }
 
@@ -267,13 +210,7 @@ void sd_loadNextAudio() {
   result = f_read(audioFile, next_buffer, BUFFER_LEN, &bytesRead);
   CHECK_RESULT(result, "audio sample");
 
-  /*
-  auto bytesRead = audioFile.read(next_buffer, BUFFER_LEN);
-  */
-
   if (bytesRead < BUFFER_LEN) {
-    // Serial.println("End of audio file, rewinding...");
-    // audioFile.seek(0);
     Serial.println("End of audio.");
     audio_stop();
   } else {
@@ -294,16 +231,6 @@ bool sd_loadGfxFrameLengths(size_t index) {
   }
 
   auto path = "video/" + playlist[index] + "/gfx_len.bin";
-
-  /*
-  if (!SD.exists(path)) {
-    Serial.println("Frame lengths file not found :(");
-    return false;
-  }
-
-  auto lengthsFile = SD.open(path, FILE_READ);
-  auto fileSize = lengthsFile.size();
-  */
 
   FIL lengthsFile;
   FRESULT result = f_open(&lengthsFile, path.c_str(), FA_READ);
@@ -333,27 +260,9 @@ bool sd_loadGfxFrameLengths(size_t index) {
   result = f_close(&lengthsFile);
   CHECK_RESULT(result, "frame lengths file close");
 
-  /*
-  while (lengthsFile.available()) {
-    lengthsFile.read(&gfxFrameLengthsBuffer, sizeof(gfxFrameLengthsBuffer));
-  }
-
-  lengthsFile.close();
-  */
- /*
-  Serial.println("Done reading frame lengths");
-  Serial.println("lengths be:");
-  for (size_t i = 0; i < 200; i++) {
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.println(gfxFrameLengthsBuffer[i]);
-  }
- */
-
   return true;
 }
 
-// File gfxFile;
 FIL *gfxFile;
 
 uint16_t frameIdx = 0;
@@ -366,18 +275,18 @@ bool sd_loadGfxBlob(size_t index) {
 
   auto path = "video/" + playlist[index] + "/gfx.bin";
 
-  gfxFile = (FIL*) malloc(sizeof(FIL));
-  FRESULT result = f_open(gfxFile, path.c_str(), FA_READ);
-  CHECK_RESULT(result, "gfx blob file open");
+  FRESULT result;
 
-  /*
-  if (!SD.exists(path)) {
-    Serial.println("Gfx blob file not found :(");
-    return false;
+  if (gfxFile) {
+    result = f_close(gfxFile);
+    CHECK_RESULT(result, "gfx file close");
+    free(gfxFile);
   }
 
-  gfxFile = SD.open(path, FILE_READ);
-  */
+  gfxFile = (FIL*) malloc(sizeof(FIL));
+  result = f_open(gfxFile, path.c_str(), FA_READ);
+  CHECK_RESULT(result, "gfx blob file open");
+
   Serial.println("Opened video frames");
 
   frameIdx = 0;
@@ -395,13 +304,6 @@ int32_t sd_loadNextFrame() {
     Serial.println("Gfx file not available");
     return -1;
   }
-
-  /*
-  if (!gfxFile || !gfxFile.available()) {
-    Serial.println("Gfx file not available");
-    return -1;
-  }
-  */
 
   if (frameIdx >= frameCount) {
     Serial.println("Frame out of range");
@@ -423,10 +325,6 @@ int32_t sd_loadNextFrame() {
   FRESULT result = f_read(gfxFile, &gfxFrameBuffer, frameSize, &bytesRead);
   CHECK_RESULT(result, "playlist file read");
 
-  /*
-  // read data
-  auto bytesRead = gfxFile.read(&gfxFrameBuffer, frameSize);
-  */
   if (bytesRead < frameSize) {
     Serial.println("Could not read the entire frame");
     return -1;
@@ -434,9 +332,6 @@ int32_t sd_loadNextFrame() {
 
   // increment
   if (frameIdx == frameCount - 1) {
-    // Serial.println("Last frame, rewinding...");
-    // gfxFile.seek(0);
-    // frameIdx = 0;
     Serial.println("Last frame, next video!");
     return -2;
   } else {
