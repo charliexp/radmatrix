@@ -30,6 +30,8 @@ void setup() {
   sd_loadPlaylist();
 
   loadVideo(0);
+
+  // gfx_decoder_setTestFrame();
 }
 
 size_t currentVideoIndex = 0;

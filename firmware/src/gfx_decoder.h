@@ -10,5 +10,6 @@ extern uint8_t gfxFrameBuffer[6400];
 
 int32_t gfx_decoder_loadNextFrame();
 int32_t gfx_decoder_handleLoop();
+void gfx_decoder_setTestFrame();
 
 #endif

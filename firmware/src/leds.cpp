@@ -11,6 +11,8 @@ uint pusher_sm = 255; // invalid
 uint delay_sm = 255; // invalid
 uint row_sm = 255; // invalid
 
+#define LEDS_PIO_CLKDIV 1
+
 // NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
   gpio_put(pin, HIGH);
@@ -34,16 +36,36 @@ inline void outputEnable(uint8_t pin, bool enable) {
 uint8_t brightnessPhase = 0;
 
 // delays in nanoseconds
-#define NS_TO_DELAY(ns) ns / NS_PER_CYCLE
+#define NS_TO_DELAY(ns) (ns / NS_PER_CYCLE / LEDS_PIO_CLKDIV)
 uint32_t brightnessPhaseDelays[COLOR_BITS] = {
-  NS_TO_DELAY(50),
-  NS_TO_DELAY(100),
-  NS_TO_DELAY(200),
-  NS_TO_DELAY(500),
-  NS_TO_DELAY(1500),
-  NS_TO_DELAY(6000),
-  NS_TO_DELAY(20000),
-  NS_TO_DELAY(60000),
+  // NOTE: 100ns seems to be the minimum that's (barely) visible
+  /*   1 */ NS_TO_DELAY(170),
+  /*   2 */ NS_TO_DELAY(180),
+  /*   4 */ NS_TO_DELAY(210),
+  /*   8 */ NS_TO_DELAY(540),
+  /*  16 */ NS_TO_DELAY(2300), // x2
+  /*  32 */ NS_TO_DELAY(3000), // x4
+  /*  64 */ NS_TO_DELAY(2500), // x10
+  /* 128 */ NS_TO_DELAY(3300), // x20
+};
+
+#define DITHERING_PHASES 20;
+uint8_t ditheringPhase = 0;
+uint8_t brightnessPhaseDithering[COLOR_BITS] = {
+  // Out of DITHERING_PHASES, how many of these should a given
+  // brightness phase be displayed?
+  // NOTE: This is done brecause for small delays, pixel pushing dominates the time, making
+  // the display's duty cycle (and hence brightness) low. But since these less significant bits
+  // contribute little to the overall brightness, and overall displaying time is short (a fraction of
+  // a framerate), we can skip displaying these small brightness levels most of the time.
+  /*   1 */ 1,
+  /*   2 */ 1,
+  /*   4 */ 1,
+  /*   8 */ 1,
+  /*  16 */ 2,
+  /*  32 */ 4,
+  /*  64 */ 10,
+  /* 128 */ 20,
 };
 
 // NOTE: Alignment required to allow 4-byte reads
@@ -102,18 +124,18 @@ void leds_set_framebuffer(uint8_t *buffer) {
         }
 
         // set row shifting data
-        bool firstRow = y == (ROW_COUNT - 1);
-        uint32_t rowPulses = 1;
+        bool firstRow = y == 0;
+        uint32_t extraPulses = 0;
 
         if (moduleY == 0) {
-          rowPulses++;
+          extraPulses++;
         }
 
         if (moduleY == 7 || moduleY == 14 || (moduleY == 0 && yModule != 0)) {
-          rowPulses++;
+          extraPulses++;
         }
 
-        uint32_t rowData = firstRow | (rowPulses << 1);
+        uint32_t rowData = firstRow | (extraPulses << 1);
         ledBuffer[bi][outputYOffset + COL_MODULES] = rowData;
       }
     }
@@ -183,10 +205,15 @@ void leds_initRenderer() {
   multicore_launch_core1(main2);
 }
 
+void leds_nextPhase();
+
 void leds_render() {
   if (!ledBufferReady) {
     return;
   }
+
+  // next brightness phase
+  leds_nextPhase();
 
   auto buffer = ledBuffer[brightnessPhase];
   auto delayData = brightnessPhaseDelays[brightnessPhase];
@@ -209,9 +236,19 @@ void leds_render() {
     // set delay data
     pio_sm_put_blocking(leds_pio, delay_sm, delayData);
   }
+}
 
-  // next brightness phase
-  brightnessPhase = (brightnessPhase + 1) % COLOR_BITS;
+void leds_nextPhase() {
+  brightnessPhase++;
+
+  if (brightnessPhase == COLOR_BITS) {
+    brightnessPhase = 0;
+    ditheringPhase = (ditheringPhase + 1) % DITHERING_PHASES;
+  }
+
+  while (ditheringPhase >= brightnessPhaseDithering[brightnessPhase]) {
+    brightnessPhase++;
+  }
 }
 
 void leds_initPusher() {
@@ -222,7 +259,7 @@ void leds_initPusher() {
   uint offset = pio_add_program(pio, &leds_px_pusher_program);
 
   pio_sm_config config = leds_px_pusher_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, LEDS_PIO_CLKDIV, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
@@ -262,7 +299,7 @@ void leds_initRowSelector() {
   uint offset = pio_add_program(pio, &leds_row_selector_program);
 
   pio_sm_config config = leds_row_selector_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, LEDS_PIO_CLKDIV, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
@@ -291,7 +328,7 @@ void leds_initDelay() {
   uint offset = pio_add_program(pio, &leds_delay_program);
 
   pio_sm_config config = leds_delay_program_get_default_config(offset);
-  sm_config_set_clkdiv_int_frac(&config, 1, 0);
+  sm_config_set_clkdiv_int_frac(&config, LEDS_PIO_CLKDIV, 0);
 
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);

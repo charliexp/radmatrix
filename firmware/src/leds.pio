@@ -1,6 +1,6 @@
 .define public irq_did_latch 0
-.define public irq_delaying 1
 .define public irq_row_selected 1
+.define public irq_delaying 2
 
 ; TODO: check if delays can be lowered with a PCB
 .define public srclk_0_delay 1
@@ -48,7 +48,7 @@ entry_point:
 .wrap_target
   ; LSB=1 indicates first (bottom) row, ergo, high SER for the first pulse
   out pins, 1                   side 0  [srclk_0_delay]
-  ; The rest of the word indicates number of SRCLK pulses
+  ; The rest of the word indicates number of extra SRCLK pulses
   out x, 31
 loop:
   ; pulse SRCLK x times
