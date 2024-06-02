@@ -40,14 +40,15 @@ uint8_t brightnessPhase = 0;
 // delays in nanoseconds
 #define NS_TO_DELAY(ns) (ns / NS_PER_CYCLE / LEDS_PIO_CLKDIV)
 uint32_t brightnessPhaseDelays[COLOR_BITS] = {
-  NS_TO_DELAY(50),
-  NS_TO_DELAY(100),
-  NS_TO_DELAY(200),
-  NS_TO_DELAY(500),
-  NS_TO_DELAY(1500),
-  NS_TO_DELAY(6000),
-  NS_TO_DELAY(20000),
-  NS_TO_DELAY(60000),
+  // NOTE: 100ns seems to be the minimum that's (barely) visible
+  /*   1 */ NS_TO_DELAY(115),
+  /*   2 */ NS_TO_DELAY(130),
+  /*   4 */ NS_TO_DELAY(140),
+  /*   8 */ NS_TO_DELAY(160),
+  /*  16 */ NS_TO_DELAY(190),
+  /*  32 */ NS_TO_DELAY(500),
+  /*  64 */ NS_TO_DELAY(3200),
+  /* 128 */ NS_TO_DELAY(14000),
 };
 
 // NOTE: Alignment required to allow 4-byte reads
