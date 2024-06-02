@@ -11,17 +11,22 @@
 
 #define SD_DET_PIN 28
 
+#define SD_PIN_SS 17
+#define SD_PIN_SCK 18
+#define SD_PIN_MOSI 19
+#define SD_PIN_MISO 16
+
 static spi_t spi = {
   .hw_inst = spi0,
-  .miso_gpio = 4,
-  .mosi_gpio = 3,
-  .sck_gpio = 2,
+  .miso_gpio = SD_PIN_MISO,
+  .mosi_gpio = SD_PIN_MOSI,
+  .sck_gpio = SD_PIN_SCK,
   .baud_rate = 10 * 1000 * 1000,
 };
 
 static sd_spi_if_t spi_if = {
   .spi = &spi,
-  .ss_gpio = 7,
+  .ss_gpio = SD_PIN_SS,
 };
 
 static sd_card_t sd_card = {
@@ -29,189 +34,71 @@ static sd_card_t sd_card = {
   .spi_if_p = &spi_if,
 };
 
-void sd_test() {
-  FATFS fs;
-  FRESULT fr = f_mount(&fs, "", 1);
-  if (FR_OK != fr) panic("f_mount error: %s (%d)\n", FRESULT_str(fr), fr);
-  FIL fil;
-  const char* const filename = "filename.txt";
-  fr = f_open(&fil, filename, FA_OPEN_APPEND | FA_WRITE);
-  if (FR_OK != fr && FR_EXIST != fr)
-      panic("f_open(%s) error: %s (%d)\n", filename, FRESULT_str(fr), fr);
-  if (f_printf(&fil, "Hello, world!\n") < 0) {
-      printf("f_printf failed\n");
-  }
-  fr = f_close(&fil);
-  if (FR_OK != fr) {
-      printf("f_close error: %s (%d)\n", FRESULT_str(fr), fr);
-  }
-  f_unmount("");
+size_t sd_get_num() {
+  return 1;
 }
 
-/*
-#if PIN_SPI_SS != 17
-#error "PIN_SPI_SS must be 17"
-#endif
-#if PIN_SPI_SCK != 18
-#error "PIN_SPI_SCK must be 18"
-#endif
-#if PIN_SPI_MOSI != 19
-#error "PIN_SPI_MOSI must be 19"
-#endif
-#if PIN_SPI_MISO != 16
-#error "PIN_SPI_MISO must be 16"
-#endif
-*/
+sd_card_t *sd_get_by_num(size_t num) {
+  if (num == 0) {
+    return &sd_card;
+  }
+
+  return nullptr;
+}
 
 void setupSDPins() {
   // TODO: Is that even needed if we use built-in SPI?
-  /*
-  pinMode(PIN_SPI_MISO, INPUT);
-  pinMode(PIN_SPI_SS, OUTPUT);
-  digitalWrite(PIN_SPI_SS, HIGH);
-  pinMode(PIN_SPI_SCK, OUTPUT);
-  pinMode(PIN_SPI_MOSI, OUTPUT);
-  pinMode(SD_DET_PIN, INPUT_PULLUP);
-  */
 }
 
 bool isSDCardInserted() {
   return digitalRead(SD_DET_PIN) == LOW;
 }
 
-/*
-void printSDConfig();
-void testSDCard();
-void printSDStats();
-void printDirectory(File dir, int numTabs);
-*/
+#define CHECK_RESULT(result, caller) \
+  if (result != FR_OK) { \
+    Serial.print(caller); \
+    Serial.print(" error: "); \
+    Serial.print(FRESULT_str(result)); \
+    Serial.print(" ("); \
+    Serial.print(result); \
+    Serial.println(")"); \
+  }
+
+FATFS *fs;
 
 void setupSD() {
-  /*
-  SPI.begin();
+  Serial.println("Initializing SD card...");
 
-  // printSDConfig();
+  sd_init_driver();
 
-  if (!SD.begin(20000000, PIN_SPI_SS)) {
-    Serial.println("SD Initialization failed!");
-    // Serial.print("Error code: ");
-    // Serial.println(SD.card.errorCode(), HEX);
-    while (true) {}
-    return;
-  }
+  fs = (FATFS*) malloc(sizeof(FATFS));
+  FRESULT result = f_mount(fs, "", 1);
+  CHECK_RESULT(result, "f_mount");
 
   Serial.println("SD Initialization done");
-
-  // testSDCard();
-  // printSDStats(SD.volume);
-
-  // File root = SD.open("/");
-  // printDirectory(root, 0);
-  */
 }
 
-/*
-void printSDConfig() {
-  Serial.println(BOARD_NAME);
-  Serial.println(RP2040_SD_VERSION);
-
-  Serial.print("Initializing SD card with SS = ");
-  Serial.println(PIN_SPI_SS);
-  Serial.print("SCK = ");
-  Serial.println(PIN_SPI_SCK);
-  Serial.print("MOSI = ");
-  Serial.println(PIN_SPI_MOSI);
-  Serial.print("MISO = ");
-  Serial.println(PIN_SPI_MISO);
-}
-
-void testSDCard() {
-  File myFile = SD.open("test.txt", FILE_WRITE);
-
-  // if the file opened okay, write to it:
-  if (myFile) {
-    Serial.print("Writing to test.txt...");
-    myFile.println("testing 1, 2, 3.");
-    myFile.close();
-    Serial.println("done.");
-  } else {
-    Serial.println("error opening test.txt");
-  }
-
-  // re-open the file for reading:
-  myFile = SD.open("test.txt");
-  if (myFile) {
-    Serial.println("test.txt:");
-
-    while (myFile.available()) {
-      Serial.write(myFile.read());
-    }
-    myFile.close();
-  } else {
-    Serial.println("error opening test.txt");
-  }
-}
-
-void printDirectory(File dir, int numTabs) {
-  while (true) {
-    File entry = dir.openNextFile();
-
-    if (!entry) {
-      // no more files
-      break;
-    }
-
-    for (uint8_t i = 0; i < numTabs; i++) {
-      Serial.print('\t');
-    }
-
-    Serial.print(entry.name());
-
-    if (entry.isDirectory()) {
-      Serial.println("/");
-      printDirectory(entry, numTabs + 1);
-    } else {
-      // files have sizes, directories do not
-      Serial.print("\t\t");
-      Serial.println(entry.size(), DEC);
-    }
-    entry.close();
-  }
-}
-
-void printSDStats(RP2040_SdVolume volume) {
-  Serial.print("Clusters:          ");
-  Serial.println(volume.clusterCount());
-  Serial.print("Blocks x Cluster:  ");
-  Serial.println(volume.blocksPerCluster());
-
-  Serial.print("Total Blocks:      ");
-  Serial.println(volume.blocksPerCluster() * volume.clusterCount());
-  Serial.println();
-
-  // print the type and size of the first FAT-type volume
-  uint32_t volumesize;
-  Serial.print("Volume type is:    FAT");
-  Serial.println(volume.fatType(), DEC);
-
-  volumesize = volume.blocksPerCluster();    // clusters are collections of blocks
-  volumesize *= volume.clusterCount();       // we'll have a lot of clusters
-  volumesize /= 2;                           // SD card blocks are always 512 bytes (2 blocks are 1 KB)
-  Serial.print("Volume size (KB):  ");
-  Serial.println(volumesize);
-  Serial.print("Volume size (MB):  ");
-  volumesize /= 1024;
-  Serial.println(volumesize);
-  Serial.print("Volume size (GB):  ");
-  Serial.println((float)volumesize / 1024.0);
-}
-*/
 String playlist[128] = {};
 size_t playlistSize = 0;
 
 void sd_loadPlaylist() {
+  // auto path = "video/playlist.txt";
+
+/*
+  FRESULT result = f_stat(path, NULL);
+  if (result != FR_OK) {
+    Serial.println("Could not find playlist for videos :(");
+    return;
+  }
+*/
+
+  FIL playlistFile;
+  FRESULT result = f_open(&playlistFile, "video/playlist.txt", FA_READ);
+  CHECK_RESULT(result, "playlist file open");
+
+  Serial.println("Playlist file opened");
+
   /*
-  auto path = "video/playlist.txt";
 
   if (!SD.exists(path)) {
     Serial.println("Could not find playlist for videos :(");
@@ -220,21 +107,42 @@ void sd_loadPlaylist() {
 
   auto playlistFile = SD.open(path, FILE_READ);
   Serial.println("Playlist file opened");
+  */
 
   char playlist_buffer[512];
+  auto fileSize = f_size(&playlistFile);
+
+  /*
   auto fileSize = playlistFile.size();
+  */
   if (fileSize > sizeof(playlist_buffer)) {
     Serial.print("Playlist file too large, max: ");
     Serial.println(sizeof(playlist_buffer));
     return;
   }
 
+  unsigned int bytesRead;
+  result = f_read(&playlistFile, &playlist_buffer, fileSize, &bytesRead);
+  CHECK_RESULT(result, "playlist file read");
+
+  if (bytesRead != fileSize) {
+    Serial.print("playlist file read error: read ");
+    Serial.print(bytesRead);
+    Serial.print(" bytes, expected ");
+    Serial.println(fileSize);
+    return;
+  }
+
+  result = f_close(&playlistFile);
+  CHECK_RESULT(result, "playlist file close");
+  /*
   if (playlistFile.read(&playlist_buffer, sizeof(playlist_buffer)) != fileSize) {
     Serial.println("Could not read playlist file");
     return;
   }
 
   playlistFile.close();
+  */
 
   Serial.println("Parsing playlist...");
 
@@ -271,13 +179,12 @@ void sd_loadPlaylist() {
     Serial.print(": ");
     Serial.println(playlist[i]);
   }
-  */
 }
 
 // File audioFile;
+FIL *audioFile;
 
 void sd_loadAudio(size_t index) {
-  /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
     return;
@@ -285,6 +192,19 @@ void sd_loadAudio(size_t index) {
 
   auto path = "video/" + playlist[index] + "/audio.bin";
 
+  FRESULT result;
+
+  if (audioFile) {
+    result = f_close(audioFile);
+    CHECK_RESULT(result, "audio file close");
+    free(audioFile);
+  }
+
+  audioFile = (FIL*) malloc(sizeof(FIL));
+  result = f_open(audioFile, path.c_str(), FA_READ);
+  CHECK_RESULT(result, "audio file open");
+
+  /*
   if (!SD.exists(path)) {
     Serial.println("Audio not found :(");
     return;
@@ -295,10 +215,28 @@ void sd_loadAudio(size_t index) {
   }
 
   audioFile = SD.open(path, FILE_READ);
+  */
   Serial.println("Audio file opened");
 
   audio_stop();
 
+  // load two buffers' worth of audio
+  unsigned int bytesRead;
+  result = f_read(audioFile, &wav_buffer_0, BUFFER_LEN, &bytesRead);
+  CHECK_RESULT(result, "first audio sample");
+  if (bytesRead < BUFFER_LEN) {
+    Serial.println("Could not read first sample");
+    return;
+  }
+
+  result = f_read(audioFile, &wav_buffer_1, BUFFER_LEN, &bytesRead);
+  CHECK_RESULT(result, "second audio sample");
+  if (bytesRead < BUFFER_LEN) {
+    Serial.println("Could not read second sample");
+    return;
+  }
+
+  /*
   // load two buffers' worth of audio
   if (audioFile.read(&wav_buffer_0, BUFFER_LEN) < BUFFER_LEN) {
     Serial.println("Could not read first sample");
@@ -309,13 +247,12 @@ void sd_loadAudio(size_t index) {
     Serial.println("Could not read second sample");
     return;
   }
+  */
 
   audio_start();
-  */
 }
 
 void sd_loadNextAudio() {
-  /*
   if (!next_buffer_requested) {
     return;
   }
@@ -323,7 +260,16 @@ void sd_loadNextAudio() {
 
   auto b4 = millis();
   auto next_buffer = wav_buffer1_active ? &wav_buffer_0 : &wav_buffer_1;
+
+  FRESULT result;
+  unsigned int bytesRead;
+
+  result = f_read(audioFile, next_buffer, BUFFER_LEN, &bytesRead);
+  CHECK_RESULT(result, "audio sample");
+
+  /*
   auto bytesRead = audioFile.read(next_buffer, BUFFER_LEN);
+  */
 
   if (bytesRead < BUFFER_LEN) {
     // Serial.println("End of audio file, rewinding...");
@@ -337,14 +283,11 @@ void sd_loadNextAudio() {
     Serial.print(" bytes from audio file in ");
     Serial.print(millis() - b4);
     Serial.println("ms");
-    * /
+    */
   }
-  */
 }
 
 bool sd_loadGfxFrameLengths(size_t index) {
-  return false;
-  /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
     return false;
@@ -352,6 +295,7 @@ bool sd_loadGfxFrameLengths(size_t index) {
 
   auto path = "video/" + playlist[index] + "/gfx_len.bin";
 
+  /*
   if (!SD.exists(path)) {
     Serial.println("Frame lengths file not found :(");
     return false;
@@ -359,32 +303,62 @@ bool sd_loadGfxFrameLengths(size_t index) {
 
   auto lengthsFile = SD.open(path, FILE_READ);
   auto fileSize = lengthsFile.size();
+  */
+
+  FIL lengthsFile;
+  FRESULT result = f_open(&lengthsFile, path.c_str(), FA_READ);
+  CHECK_RESULT(result, "frame lengths file open");
+
+  auto fileSize = f_size(&lengthsFile);
 
   if (fileSize > sizeof(gfxFrameLengthsBuffer)) {
     Serial.println("Frame lengths file too large");
     return false;
   }
-
+  Serial.println(fileSize);
   frameCount = fileSize / sizeof(uint16_t);
 
+  unsigned int bytesRead;
+  result = f_read(&lengthsFile, &gfxFrameLengthsBuffer, fileSize, &bytesRead);
+  CHECK_RESULT(result, "playlist file read");
+
+  if (bytesRead != fileSize) {
+    Serial.print("frame lengths file read error: read ");
+    Serial.print(bytesRead);
+    Serial.print(" bytes, expected ");
+    Serial.println(fileSize);
+    return false;
+  }
+
+  result = f_close(&lengthsFile);
+  CHECK_RESULT(result, "frame lengths file close");
+
+  /*
   while (lengthsFile.available()) {
     lengthsFile.read(&gfxFrameLengthsBuffer, sizeof(gfxFrameLengthsBuffer));
   }
 
   lengthsFile.close();
+  */
+ /*
   Serial.println("Done reading frame lengths");
+  Serial.println("lengths be:");
+  for (size_t i = 0; i < 200; i++) {
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(gfxFrameLengthsBuffer[i]);
+  }
+ */
 
   return true;
-  */
 }
 
 // File gfxFile;
+FIL *gfxFile;
 
 uint16_t frameIdx = 0;
 
 bool sd_loadGfxBlob(size_t index) {
-  return false;
-  /*
   if (index >= playlistSize) {
     Serial.println("Index out of range");
     return false;
@@ -392,31 +366,42 @@ bool sd_loadGfxBlob(size_t index) {
 
   auto path = "video/" + playlist[index] + "/gfx.bin";
 
+  gfxFile = (FIL*) malloc(sizeof(FIL));
+  FRESULT result = f_open(gfxFile, path.c_str(), FA_READ);
+  CHECK_RESULT(result, "gfx blob file open");
+
+  /*
   if (!SD.exists(path)) {
     Serial.println("Gfx blob file not found :(");
     return false;
   }
 
   gfxFile = SD.open(path, FILE_READ);
+  */
   Serial.println("Opened video frames");
 
   frameIdx = 0;
 
   return true;
-  */
 }
 
 // Returns size of frame read or -1 if error
 int32_t sd_loadNextFrame() {
-  return -1;
-  /*
   if (frameIdx > 0) {
     // return -1;
   }
+
+  if (!gfxFile) {
+    Serial.println("Gfx file not available");
+    return -1;
+  }
+
+  /*
   if (!gfxFile || !gfxFile.available()) {
     Serial.println("Gfx file not available");
     return -1;
   }
+  */
 
   if (frameIdx >= frameCount) {
     Serial.println("Frame out of range");
@@ -425,14 +410,23 @@ int32_t sd_loadNextFrame() {
 
   // get size of frame png
   auto frameSize = gfxFrameLengthsBuffer[frameIdx];
+
   if (frameSize > sizeof(gfxFrameBuffer)) {
     Serial.print("Frame too large: ");
     Serial.println(frameSize);
+    while (true) {}
     return -1;
   }
 
   // read data
+  unsigned int bytesRead;
+  FRESULT result = f_read(gfxFile, &gfxFrameBuffer, frameSize, &bytesRead);
+  CHECK_RESULT(result, "playlist file read");
+
+  /*
+  // read data
   auto bytesRead = gfxFile.read(&gfxFrameBuffer, frameSize);
+  */
   if (bytesRead < frameSize) {
     Serial.println("Could not read the entire frame");
     return -1;
@@ -450,5 +444,4 @@ int32_t sd_loadNextFrame() {
   }
 
   return frameSize;
-  */
 }
