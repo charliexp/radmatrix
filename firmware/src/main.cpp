@@ -63,7 +63,9 @@ void nextSong() {
 
 void loop() {
   if (digitalRead(4) == LOW) {
+    delay(100);
     nextSong();
+    delay(50);
   }
 
   // if (Serial.available() > 0) {
