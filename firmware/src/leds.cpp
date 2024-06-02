@@ -41,14 +41,33 @@ uint8_t brightnessPhase = 0;
 #define NS_TO_DELAY(ns) (ns / NS_PER_CYCLE / LEDS_PIO_CLKDIV)
 uint32_t brightnessPhaseDelays[COLOR_BITS] = {
   // NOTE: 100ns seems to be the minimum that's (barely) visible
-  /*   1 */ NS_TO_DELAY(115),
-  /*   2 */ NS_TO_DELAY(130),
-  /*   4 */ NS_TO_DELAY(140),
-  /*   8 */ NS_TO_DELAY(160),
-  /*  16 */ NS_TO_DELAY(190),
-  /*  32 */ NS_TO_DELAY(500),
-  /*  64 */ NS_TO_DELAY(3200),
-  /* 128 */ NS_TO_DELAY(14000),
+  /*   1 */ NS_TO_DELAY(170),
+  /*   2 */ NS_TO_DELAY(180),
+  /*   4 */ NS_TO_DELAY(210),
+  /*   8 */ NS_TO_DELAY(540),
+  /*  16 */ NS_TO_DELAY(2300), // x2
+  /*  32 */ NS_TO_DELAY(3000), // x4
+  /*  64 */ NS_TO_DELAY(2500), // x10
+  /* 128 */ NS_TO_DELAY(3300), // x20
+};
+
+#define DITHERING_PHASES 20;
+uint8_t ditheringPhase = 0;
+uint8_t brightnessPhaseDithering[COLOR_BITS] = {
+  // Out of DITHERING_PHASES, how many of these should a given
+  // brightness phase be displayed?
+  // NOTE: This is done brecause for small delays, pixel pushing dominates the time, making
+  // the display's duty cycle (and hence brightness) low. But since these less significant bits
+  // contribute little to the overall brightness, and overall displaying time is short (a fraction of
+  // a framerate), we can skip displaying these small brightness levels most of the time.
+  /*   1 */ 1,
+  /*   2 */ 1,
+  /*   4 */ 1,
+  /*   8 */ 1,
+  /*  16 */ 2,
+  /*  32 */ 4,
+  /*  64 */ 10,
+  /* 128 */ 20,
 };
 
 // NOTE: Alignment required to allow 4-byte reads
@@ -188,10 +207,15 @@ void leds_initRenderer() {
   multicore_launch_core1(main2);
 }
 
+void leds_nextPhase();
+
 void leds_render() {
   if (!ledBufferReady) {
     return;
   }
+
+  // next brightness phase
+  leds_nextPhase();
 
   auto buffer = ledBuffer[brightnessPhase];
   auto delayData = brightnessPhaseDelays[brightnessPhase];
@@ -214,9 +238,19 @@ void leds_render() {
     // set delay data
     pio_sm_put_blocking(leds_pio, delay_sm, delayData);
   }
+}
 
-  // next brightness phase
-  brightnessPhase = (brightnessPhase + 1) % COLOR_BITS;
+void leds_nextPhase() {
+  brightnessPhase++;
+
+  if (brightnessPhase == COLOR_BITS) {
+    brightnessPhase = 0;
+    ditheringPhase = (ditheringPhase + 1) % DITHERING_PHASES;
+  }
+
+  while (ditheringPhase >= brightnessPhaseDithering[brightnessPhase]) {
+    brightnessPhase++;
+  }
 }
 
 void leds_initPusher() {
