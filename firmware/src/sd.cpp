@@ -8,12 +8,12 @@
 #include "ff.h"
 #include "f_util.h"
 
-#define SD_DET_PIN 28
+#define SD_DET_PIN 4
 
-#define SD_PIN_SS 17
-#define SD_PIN_SCK 18
-#define SD_PIN_MOSI 19
-#define SD_PIN_MISO 16
+#define SD_PIN_SS 1
+#define SD_PIN_SCK 2
+#define SD_PIN_MOSI 3
+#define SD_PIN_MISO 0
 
 static spi_t spi = {
   .hw_inst = spi0,

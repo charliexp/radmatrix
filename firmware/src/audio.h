@@ -3,7 +3,7 @@
 #ifndef _audio_h
 #define _audio_h
 
-#define AUDIO_PIN 2
+#define AUDIO_PIN 8
 
 #define AUDIO_RATE 22000.0f
 #define BUFFER_LEN 512*4

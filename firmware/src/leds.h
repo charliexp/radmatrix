@@ -4,18 +4,18 @@
 
 #include <Arduino.h>
 
-#define COL_SER 20
-#define COL_OE 21
-// #define COL_RCLK 22
-#define RCLK 22
-#define COL_SRCLK 26
-#define COL_SRCLR 27
+#define COL_SER 21
+#define COL_OE 22
+// #define COL_RCLK 23
+#define RCLK 23
+#define COL_SRCLK 24
+#define COL_SRCLR 25
 
 #define ROW_SER 14
 #define ROW_OE 13
-// #define ROW_RCLK 12
-#define ROW_SRCLK 11
-#define ROW_SRCLR 10
+// #define ROW_RCLK 20
+#define ROW_SRCLK 18
+#define ROW_SRCLR 15
 
 #define ROW_MODULES 2
 #define ROW_COUNT ROW_MODULES * 20

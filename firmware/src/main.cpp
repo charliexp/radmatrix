@@ -11,7 +11,7 @@ void loadVideo(size_t index);
 void setup() {
   leds_init();
   setupSDPins();
-  pinMode(4, INPUT_PULLUP);
+  pinMode(9, INPUT_PULLUP);
 
   delay(2000);
   Serial.begin(115200);
@@ -62,7 +62,7 @@ void nextSong() {
 }
 
 void loop() {
-  if (digitalRead(4) == LOW) {
+  if (digitalRead(9) == LOW) {
     delay(100);
     nextSong();
     delay(50);
