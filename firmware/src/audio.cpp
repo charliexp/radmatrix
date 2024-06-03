@@ -43,8 +43,8 @@ void pwm_interrupt_handler() {
 
 // 11 KHz is fine for speech. Phone lines generally sample at 8 KHz
 #define SYS_CLOCK 125000000.0f
-#define AUDIO_WRAP 250.0f
-#define AUDIO_CLK_DIV (SYS_CLOCK / AUDIO_WRAP / 8 / AUDIO_RATE)
+#define AUDIO_WRAP 256.0f
+#define AUDIO_CLK_DIV (SYS_CLOCK / AUDIO_WRAP / 8.0f / AUDIO_RATE)
 
 void init_audio() {
     gpio_set_function(AUDIO_PIN, GPIO_FUNC_PWM);
@@ -63,7 +63,7 @@ void init_audio() {
     pwm_config config = pwm_get_default_config();
 
     pwm_config_set_clkdiv(&config, AUDIO_CLK_DIV);
-    pwm_config_set_wrap(&config, 250);
+    pwm_config_set_wrap(&config, AUDIO_WRAP);
     pwm_init(audio_pin_slice, /*0,*/ &config, true);
 
     pwm_set_gpio_level(AUDIO_PIN, 0);

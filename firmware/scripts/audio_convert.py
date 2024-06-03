@@ -16,7 +16,7 @@ if len(data_in.shape)>1:
 print("resampling...")
 
 converter = 'sinc_best'  # or 'sinc_fastest', ...
-desired_sample_rate = 22000.0
+desired_sample_rate = 44000.0
 ratio = desired_sample_rate/datasamplerate
 data_out = samplerate.resample(data_in, ratio, converter)
 

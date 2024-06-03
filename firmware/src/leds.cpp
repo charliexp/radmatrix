@@ -158,27 +158,26 @@ void leds_init() {
   pinMode(COL_SER, OUTPUT);
   pinMode(COL_OE, OUTPUT);
   outputEnable(ROW_OE, false);
-  // pinMode(COL_RCLK, OUTPUT);
-  pinMode(RCLK, OUTPUT);
+  pinMode(COL_RCLK, OUTPUT);
   pinMode(COL_SRCLK, OUTPUT);
-  pinMode(COL_SRCLR, OUTPUT);
+  pinMode(COL_RCLK, OUTPUT);
 
   // set up row pins
   pinMode(ROW_SER, OUTPUT);
   pinMode(ROW_OE, OUTPUT);
   outputEnable(ROW_OE, false);
-  // pinMode(ROW_RCLK, OUTPUT);
+  pinMode(ROW_RCLK, OUTPUT);
   pinMode(ROW_SRCLK, OUTPUT);
   pinMode(ROW_SRCLR, OUTPUT);
 
-  // clear output - cols
+  // clear output
   clearShiftReg(COL_SRCLK, COL_SRCLR);
-  pulsePin(RCLK);
-  outputEnable(COL_OE, true); // this is fine, because we control OE via rows only
-
-  // clear output - rows
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
-  pulsePin(RCLK);
+
+  pulsePin(COL_RCLK);
+  pulsePin(ROW_RCLK);
+
+  outputEnable(COL_OE, true); // this is fine, because we control OE via rows only
 }
 
 void leds_disable() {
@@ -282,9 +281,9 @@ void leds_initPusher() {
   pio_sm_set_consecutive_pindirs(pio, sm, COL_SRCLK, 1, true);
 
   // Set SET (RCLK) pin, connect to pad, set as output
-  sm_config_set_set_pins(&config, RCLK, 1);
-  pio_gpio_init(pio, RCLK);
-  pio_sm_set_consecutive_pindirs(pio, sm, RCLK, 1, true);
+  sm_config_set_set_pins(&config, ROW_RCLK, 1);
+  pio_gpio_init(pio, ROW_RCLK);
+  pio_sm_set_consecutive_pindirs(pio, sm, ROW_RCLK, 1, true);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
