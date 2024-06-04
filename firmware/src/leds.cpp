@@ -11,12 +11,9 @@ uint pusher_sm = 255; // invalid
 uint delay_sm = 255; // invalid
 uint row_sm = 255; // invalid
 
-#define LEDS_PIO_CLKDIV 1
-
 // NOTE: RCLK, SRCLK capture on *rising* edge
 inline void pulsePin(uint8_t pin) {
   gpio_put(pin, HIGH);
-   // there are glitches without this (maybe just due to breadboard...)
   asm volatile("nop \n nop \n nop");
   gpio_put(pin, LOW);
 }
@@ -34,42 +31,11 @@ inline void outputEnable(uint8_t pin, bool enable) {
 // we have COLOR_BITS-bit color depth, so 2^COLOR_BITS levels of brightness
 // we go from phase 0 to phase (COLOR_BITS-1)
 uint8_t brightnessPhase = 0;
-
-// delays in nanoseconds
-#define NS_TO_DELAY(ns) (ns / NS_PER_CYCLE / LEDS_PIO_CLKDIV)
-uint32_t brightnessPhaseDelays[COLOR_BITS] = {
-  // NOTE: 100ns seems to be the minimum that's (barely) visible
-  /*   1 */ NS_TO_DELAY(170),
-  /*   2 */ NS_TO_DELAY(180),
-  /*   4 */ NS_TO_DELAY(210),
-  /*   8 */ NS_TO_DELAY(540),
-  /*  16 */ NS_TO_DELAY(2300), // x2
-  /*  32 */ NS_TO_DELAY(3000), // x4
-  /*  64 */ NS_TO_DELAY(2500), // x10
-  /* 128 */ NS_TO_DELAY(3300), // x20
-};
-
-#define DITHERING_PHASES 20;
 uint8_t ditheringPhase = 0;
-uint8_t brightnessPhaseDithering[COLOR_BITS] = {
-  // Out of DITHERING_PHASES, how many of these should a given
-  // brightness phase be displayed?
-  // NOTE: This is done brecause for small delays, pixel pushing dominates the time, making
-  // the display's duty cycle (and hence brightness) low. But since these less significant bits
-  // contribute little to the overall brightness, and overall displaying time is short (a fraction of
-  // a framerate), we can skip displaying these small brightness levels most of the time.
-  /*   1 */ 1,
-  /*   2 */ 1,
-  /*   4 */ 1,
-  /*   8 */ 1,
-  /*  16 */ 2,
-  /*  32 */ 4,
-  /*  64 */ 10,
-  /* 128 */ 20,
-};
 
-// NOTE: Alignment required to allow 4-byte reads
-uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
+#if DEBUG_FRAMEBUFFER
+uint8_t framebuffer[ROW_COUNT * COL_COUNT] = {0};
+#endif
 
 // Framebuffer encoded for fast PIO pixel pushing
 // There's one buffer for each of pixel's bit indices (aka brightness phases),
@@ -81,13 +47,14 @@ uint8_t framebuffer[ROW_COUNT * COL_COUNT]  __attribute__((aligned(32))) = {0};
 //     1 bit (LSB) to indicate start of frame (1) or not (0)
 //     remaining bits to indicate a number of shift register pulses
 //     (again, 24 shift register stages per 20 rows, so there are placeholders)
-uint32_t ledBuffer[8][ROW_COUNT * (COL_MODULES + 1)] = {0};
+uint32_t ledBuffer[COLOR_BITS][ROW_COUNT * (COL_MODULES + 1)] = {0};
 bool ledBufferReady = false;
 
 void leds_set_framebuffer(uint8_t *buffer) {
   // TODO: Use a separate buffer, then copy to ledsBuffer to avoid tearing
-  for (int bi = 0; bi < 8; bi++) {
-    uint8_t bitPosition = 1 << bi;
+  #define UNUSED_BITS 8 - COLOR_BITS
+  for (int bi = 0; bi < COLOR_BITS; bi++) {
+    uint8_t bitPosition = 1 << (bi + UNUSED_BITS);
 
     for (int yModule = 0; yModule < ROW_MODULES; yModule++) {
       for (int moduleY = 0; moduleY < 20; moduleY++) {
@@ -142,13 +109,17 @@ void leds_set_framebuffer(uint8_t *buffer) {
   }
   ledBufferReady = true;
 
+  #if DEBUG_FRAMEBUFFER
   // copy to framebuffer
   // TODO: mutex? double buffer? or something...
   memcpy(framebuffer, buffer, ROW_COUNT * COL_COUNT);
+  #endif
 }
 
 void leds_init() {
+  #if DEBUG_FRAMEBUFFER
   memset(framebuffer, 0, sizeof(framebuffer));
+  #endif
 
   // disable output
   outputEnable(COL_OE, false);
@@ -192,14 +163,9 @@ void main2() {
   }
 }
 
-void leds_initPusher();
-void leds_initRowSelector();
-void leds_initDelay();
+void leds_initPIO();
 
 void leds_initRenderer() {
-  leds_initPusher();
-  leds_initRowSelector();
-  leds_initDelay();
   multicore_reset_core1();
   multicore_launch_core1(main2);
 }
@@ -340,4 +306,10 @@ void leds_initDelay() {
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
   pio_sm_set_enabled(pio, sm, true);
+}
+
+void leds_initPIO() {
+  leds_initPusher();
+  leds_initRowSelector();
+  leds_initDelay();
 }

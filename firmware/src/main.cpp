@@ -5,13 +5,13 @@
 #include "leds.h"
 #include "gfx_decoder.h"
 #include "can2040.h"
+#include "config.h"
 
 void loadVideo(size_t index);
 
 void setup() {
   leds_init();
-  setupSDPins();
-  pinMode(9, INPUT_PULLUP);
+  pinMode(NEXT_PIN, INPUT_PULLUP);
 
   delay(2000);
   Serial.begin(115200);
@@ -20,24 +20,32 @@ void setup() {
   init_audio();
   leds_initRenderer();
 
-  // while (!isSDCardInserted()) {
-  //   Serial.println("SD card not connected, waiting...");
-  //   delay(1000);
-  // }
-  // delay(100);
+  #if SD_HAS_DETECTION
+  while (!isSDCardInserted()) {
+    Serial.println("SD card not connected, waiting...");
+    delay(1000);
+  }
+  delay(100);
+  #endif
 
   setupSD();
   sd_loadPlaylist();
 
+  #if DEBUG_TEST_FRAME
+  gfx_decoder_setTestFrame();
+  #else
   loadVideo(0);
-
-  // gfx_decoder_setTestFrame();
+  #endif
 }
 
 size_t currentVideoIndex = 0;
 bool isLoaded = false;
 
 void loadVideo(size_t index) {
+  #if DEBUG_TEST_FRAME
+  return;
+  #endif
+
   audio_stop();
 
   sd_loadAudio(index);
@@ -62,7 +70,7 @@ void nextSong() {
 }
 
 void loop() {
-  if (digitalRead(9) == LOW) {
+  if (digitalRead(NEXT_PIN) == LOW) {
     delay(100);
     nextSong();
     delay(50);

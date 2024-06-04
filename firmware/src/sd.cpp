@@ -3,24 +3,18 @@
 #include "sd.h"
 #include "audio.h"
 #include "gfx_decoder.h"
+#include "config.h"
 
 #include "hw_config.h"
 #include "ff.h"
 #include "f_util.h"
-
-#define SD_DET_PIN 4
-
-#define SD_PIN_SS 1
-#define SD_PIN_SCK 2
-#define SD_PIN_MOSI 3
-#define SD_PIN_MISO 0
 
 static spi_t spi = {
   .hw_inst = spi0,
   .miso_gpio = SD_PIN_MISO,
   .mosi_gpio = SD_PIN_MOSI,
   .sck_gpio = SD_PIN_SCK,
-  .baud_rate = 10 * 1000 * 1000,
+  .baud_rate = SD_CARD_BAUD_RATE,
 };
 
 static sd_spi_if_t spi_if = {
@@ -31,6 +25,10 @@ static sd_spi_if_t spi_if = {
 static sd_card_t sd_card = {
   .type = SD_IF_SPI,
   .spi_if_p = &spi_if,
+  #if SD_HAS_DETECTION
+  .use_card_detect = true,
+  .card_detect_gpio = SD_DET_PIN,
+  #endif
 };
 
 size_t sd_get_num() {
@@ -43,10 +41,6 @@ sd_card_t *sd_get_by_num(size_t num) {
   }
 
   return nullptr;
-}
-
-void setupSDPins() {
-  // TODO: Is that even needed if we use built-in SPI?
 }
 
 bool isSDCardInserted() {
@@ -296,9 +290,11 @@ bool sd_loadGfxBlob(size_t index) {
 
 // Returns size of frame read or -1 if error
 int32_t sd_loadNextFrame() {
+  #if DEBUG_FIRST_FRAME
   if (frameIdx > 0) {
-    // return -1;
+    return -1;
   }
+  #endif
 
   if (!gfxFile) {
     Serial.println("Gfx file not available");

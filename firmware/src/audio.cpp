@@ -5,8 +5,6 @@
 #include "hardware/gpio.h"
 #include "audio.h"
 
-// #include "audio_sample.h"
-
 // Adapted from https://github.com/rgrosset/pico-pwm-audio
 
 #define MAX_PWM_POS (BUFFER_LEN << 3)
@@ -42,9 +40,8 @@ void pwm_interrupt_handler() {
 }
 
 // 11 KHz is fine for speech. Phone lines generally sample at 8 KHz
-#define SYS_CLOCK 125000000.0f
 #define AUDIO_WRAP 256.0f
-#define AUDIO_CLK_DIV (SYS_CLOCK / AUDIO_WRAP / 8.0f / AUDIO_RATE)
+#define AUDIO_CLK_DIV (CPU_CLOCK_HZ / AUDIO_WRAP / 8.0f / AUDIO_RATE)
 
 void init_audio() {
     gpio_set_function(AUDIO_PIN, GPIO_FUNC_PWM);

@@ -3,10 +3,10 @@
 #include "lodepng.h"
 #include "leds.h"
 
-uint16_t gfxFrameLengthsBuffer[24000] = {0};
+uint16_t gfxFrameLengthsBuffer[GFX_DECODER_LENGTH_BUFFER_SIZE] = {0};
 uint16_t frameCount = 0;
 
-uint8_t gfxFrameBuffer[6400] = {0};
+uint8_t gfxFrameBuffer[GFX_DECODER_FRAME_BUFFER_SIZE] = {0};
 
 int32_t gfx_decoder_loadNextFrame() {
   // load frame from SD card

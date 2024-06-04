@@ -1,8 +1,9 @@
 #include <string.h>
 #include <Arduino.h>
+#include "config.h"
 
-#define CELLS_X 40
-#define CELLS_Y 40
+#define CELLS_X COL_MODULES * 20
+#define CELLS_Y ROW_MODULES * 20
 #define CELL_COUNT (CELLS_X * CELLS_Y)
 
 bool cells[CELL_COUNT] = {0};
