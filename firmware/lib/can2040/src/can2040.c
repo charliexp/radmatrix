@@ -8,7 +8,8 @@
 #include <string.h> // memset
 // NOTE: This was changed from the original checkout
 // #include "RP2040.h" // hw_set_bits
-#include "hardware/address_mapped.h" // hw_set_bits
+#include "hardware/address_mapped.h" // hw_set_bit
+#include "cmsis_gcc.h" // NOTE: this was added for _DMB() to build
 #include "can2040.h" // can2040_setup
 #include "hardware/regs/dreq.h" // DREQ_PIO0_RX1
 #include "hardware/structs/dma.h" // dma_hw

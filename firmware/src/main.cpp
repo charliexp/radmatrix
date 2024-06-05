@@ -20,6 +20,10 @@ void setup() {
   init_audio();
   leds_initRenderer();
 
+  #if CAN_ENABLED
+  canbus_setup();
+  #endif
+
   #if SD_HAS_DETECTION
   while (!isSDCardInserted()) {
     Serial.println("SD card not connected, waiting...");
@@ -100,4 +104,8 @@ void loop() {
       nextSong();
     }
   }
+
+  #if CAN_ENABLED
+  canbus_loop();
+  #endif
 }
