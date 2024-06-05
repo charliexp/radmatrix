@@ -141,6 +141,23 @@ void leds_init() {
   pinMode(ROW_SRCLK, OUTPUT);
   pinMode(ROW_SRCLR, OUTPUT);
 
+  // set pin inversion
+  #if COL_SER_INVERTED
+  gpio_set_outover(COL_SER, GPIO_OVERRIDE_INVERT);
+  #endif
+  #if COL_OE_INVERTED
+  gpio_set_outover(COL_OE, GPIO_OVERRIDE_INVERT);
+  #endif
+  #if COL_RCLK_INVERTED
+  gpio_set_outover(COL_RCLK, GPIO_OVERRIDE_INVERT);
+  #endif
+  #if COL_SRCLK_INVERTED
+  gpio_set_outover(COL_SRCLK, GPIO_OVERRIDE_INVERT);
+  #endif
+  #if COL_SRCLR_INVERTED
+  gpio_set_outover(COL_SRCLR, GPIO_OVERRIDE_INVERT);
+  #endif
+
   // clear output
   clearShiftReg(COL_SRCLK, COL_SRCLR);
   clearShiftReg(ROW_SRCLK, ROW_SRCLR);
@@ -238,18 +255,15 @@ void leds_initPusher() {
   pio_gpio_init(pio, COL_SER);
   pio_sm_set_consecutive_pindirs(pio, sm, COL_SER, 1, true);
 
-  // data is inverted
-  gpio_set_outover(COL_SER, GPIO_OVERRIDE_INVERT);
-
   // Set sideset (SRCLK) pin, connect to pad, set as output
   sm_config_set_sideset_pins(&config, COL_SRCLK);
   pio_gpio_init(pio, COL_SRCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, COL_SRCLK, 1, true);
 
   // Set SET (RCLK) pin, connect to pad, set as output
-  sm_config_set_set_pins(&config, ROW_RCLK, 1);
-  pio_gpio_init(pio, ROW_RCLK);
-  pio_sm_set_consecutive_pindirs(pio, sm, ROW_RCLK, 1, true);
+  sm_config_set_set_pins(&config, COL_RCLK, 1);
+  pio_gpio_init(pio, COL_RCLK);
+  pio_sm_set_consecutive_pindirs(pio, sm, COL_RCLK, 1, true);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
@@ -269,9 +283,8 @@ void leds_initRowSelector() {
   // Shift OSR to the right, autopull
   sm_config_set_out_shift(&config, true, true, 32);
 
-  // Set OUT and SET (data) pin, connect to pad, set as output
+  // Set OUT/MOV (data) pin, connect to pad, set as output
   sm_config_set_out_pins(&config, ROW_SER, 1);
-  sm_config_set_set_pins(&config, ROW_SER, 1);
   pio_gpio_init(pio, ROW_SER);
   pio_sm_set_consecutive_pindirs(pio, sm, ROW_SER, 1, true);
 
@@ -279,6 +292,11 @@ void leds_initRowSelector() {
   sm_config_set_sideset_pins(&config, ROW_SRCLK);
   pio_gpio_init(pio, ROW_SRCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, ROW_SRCLK, 1, true);
+
+  // Set SET (RCLK) pin, connect to pad, set as output
+  sm_config_set_set_pins(&config, ROW_RCLK, 1);
+  pio_gpio_init(pio, ROW_RCLK);
+  pio_sm_set_consecutive_pindirs(pio, sm, ROW_RCLK, 1, true);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);

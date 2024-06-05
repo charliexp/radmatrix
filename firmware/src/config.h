@@ -48,6 +48,12 @@
 #define ROW_SRCLK 18
 // #define ROW_SRCLR 15
 
+#define COL_SER_INVERTED false // double inverted
+#define COL_OE_INVERTED true
+#define COL_RCLK_INVERTED true
+#define COL_SRCLK_INVERTED true
+#define COL_SRCLR_INVERTED false
+
 // --- screen settings ---
 
 #define ROW_MODULES 2

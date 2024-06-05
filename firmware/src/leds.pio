@@ -1,14 +1,14 @@
-.define public irq_did_latch 0
-.define public irq_row_selected 1
-.define public irq_delaying 2
+.define public irq_delaying 0
+.define public irq_px_pushed 1
+.define public irq_rclk_sync 2
+.define public irq_did_latch 3
 
-; TODO: check if delays can be lowered with a PCB
-.define public srclk_0_delay 1
-.define public srclk_1_delay 2
 .define public rclk_1_delay 3
 
 .program leds_px_pusher
 .side_set 1 opt
+.define public srclk_0_delay 1
+.define public srclk_1_delay 2
 entry_point:
 .wrap_target
   ; get 32 bits from fifo (not required with autopull, useful for debug)
@@ -29,13 +29,13 @@ end:
   ; MSB=1 indicates end of row
   jmp !x entry_point
 end_of_row:
+  ; pixels pushed - can begin row selection
+  irq set irq_px_pushed
   ; wait until previous row's delay is complete
   ; (irq will be 0 on first row by default)
   wait 0 irq irq_delaying
-  ; wait until row is selected, and clear flag
-  wait 1 irq irq_row_selected
-  ; signal that we're about to latch the row onto display
-  irq set irq_did_latch
+  ; synchronize ROW_RCLK and COL_RCLK - note that the delays MUST be the same
+  wait 1 irq irq_rclk_sync
   ; clock RCLK (latch onto register output stage)
   set pins, 1                           [rclk_1_delay]
   set pins, 0
@@ -44,22 +44,31 @@ end_of_row:
 
 .program leds_row_selector
 .side_set 1 opt
+.define public srclk_0_delay 1
+.define public srclk_1_delay 2
 entry_point:
 .wrap_target
+  ; wait until pixels are pushed
+  ; (NOTE: This can happen in parallel if ROW_SER and COL_SER are separate)
+  wait 1 irq irq_px_pushed
   ; LSB=1 indicates first (bottom) row, ergo, high SER for the first pulse
   out pins, 1                   side 0  [srclk_0_delay]
   ; The rest of the word indicates number of extra SRCLK pulses
   out x, 31
 loop:
   ; pulse SRCLK x times
-  ; set SER=0 after first pulse
   nop                           side 1  [srclk_1_delay]
-  set pins, 0                   side 0  [srclk_0_delay]
+  ; set SER=0 after first pulse
+  mov pins, null                side 0  [srclk_0_delay]
   jmp x-- loop
 end:
-  ; signal that row is selected and wait until acknowledged
-  ; some delay so that in the worst case scenario we don't start changing rows before RCLK latch
-  irq wait irq_row_selected             [4]
+  ; synchronize ROW_RCLK and COL_RCLK - note that the delays MUST be the same
+  irq wait irq_rclk_sync
+  ; clock RCLK (latch onto register output stage)
+  set pins, 1                           [rclk_1_delay]
+  ; signal that rclk had latched (delay/oe can begin)
+  irq set irq_did_latch
+  set pins, 0
   .wrap
 
 .program leds_delay
