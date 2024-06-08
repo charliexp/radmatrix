@@ -43,12 +43,12 @@
 // #define COL_SRCLR 25
 
 // #define ROW_SER 14
-#define ROW_OE 13
+#define ROW_OE 19
 #define ROW_RCLK 20
 #define ROW_SRCLK 18
 // #define ROW_SRCLR 15
 
-#define COL_SER_INVERTED false // double inverted
+#define COL_SER_INVERTED false
 #define COL_OE_INVERTED true
 #define COL_RCLK_INVERTED true
 #define COL_SRCLK_INVERTED true
@@ -75,7 +75,7 @@
 // --- other settings ---
 
 #define CPU_CLOCK_HZ 125000000.0f
-#define SD_CARD_BAUD_RATE 10 * 1000 * 1000
+#define SD_CARD_BAUD_RATE 12 * 1000 * 1000
 #define REFERENCE_VOLTAGE 3.3f // for ADC
 #define CAN_BITRATE 500000
 

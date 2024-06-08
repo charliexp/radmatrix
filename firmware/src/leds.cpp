@@ -148,12 +148,6 @@ void leds_init() {
   #if COL_OE_INVERTED
   gpio_set_outover(COL_OE, GPIO_OVERRIDE_INVERT);
   #endif
-  #if COL_RCLK_INVERTED
-  gpio_set_outover(COL_RCLK, GPIO_OVERRIDE_INVERT);
-  #endif
-  #if COL_SRCLK_INVERTED
-  gpio_set_outover(COL_SRCLK, GPIO_OVERRIDE_INVERT);
-  #endif
   #if COL_SRCLR_INVERTED
   gpio_set_outover(COL_SRCLR, GPIO_OVERRIDE_INVERT);
   #endif
@@ -183,6 +177,7 @@ void main2() {
 void leds_initPIO();
 
 void leds_initRenderer() {
+  leds_initPIO();
   multicore_reset_core1();
   multicore_launch_core1(main2);
 }
@@ -259,11 +254,17 @@ void leds_initPusher() {
   sm_config_set_sideset_pins(&config, COL_SRCLK);
   pio_gpio_init(pio, COL_SRCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, COL_SRCLK, 1, true);
+  #if COL_SRCLK_INVERTED
+  gpio_set_outover(COL_SRCLK, GPIO_OVERRIDE_INVERT);
+  #endif
 
   // Set SET (RCLK) pin, connect to pad, set as output
   sm_config_set_set_pins(&config, COL_RCLK, 1);
   pio_gpio_init(pio, COL_RCLK);
   pio_sm_set_consecutive_pindirs(pio, sm, COL_RCLK, 1, true);
+  #if COL_RCLK_INVERTED
+  gpio_set_outover(COL_RCLK, GPIO_OVERRIDE_INVERT);
+  #endif
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
