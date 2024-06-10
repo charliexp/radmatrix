@@ -3,12 +3,12 @@
 .define public irq_rclk_sync 2
 .define public irq_did_latch 3
 
-.define public rclk_1_delay 3
+.define public rclk_1_delay 6
 
 .program leds_px_pusher
 .side_set 1 opt
-.define public srclk_0_delay 1
-.define public srclk_1_delay 2
+.define public srclk_0_delay 3
+.define public srclk_1_delay 5
 entry_point:
 .wrap_target
   ; get 32 bits from fifo (not required with autopull, useful for debug)
@@ -44,8 +44,8 @@ end_of_row:
 
 .program leds_row_selector
 .side_set 1 opt
-.define public srclk_0_delay 1
-.define public srclk_1_delay 2
+.define public srclk_0_delay 0
+.define public srclk_1_delay 1
 entry_point:
 .wrap_target
   ; wait until pixels are pushed
@@ -66,9 +66,9 @@ end:
   irq wait irq_rclk_sync
   ; clock RCLK (latch onto register output stage)
   set pins, 1                           [rclk_1_delay]
+  set pins, 0
   ; signal that rclk had latched (delay/oe can begin)
   irq set irq_did_latch
-  set pins, 0
   .wrap
 
 .program leds_delay

@@ -32,23 +32,23 @@
 
 // --- pinout - screen ---
 
-#define COMMON_SER 21
+// #define COMMON_SER 21
 // #define COMMON_RCLK 23
 #define COMMON_SRCLR 25
 
-// #define COL_SER 21
+#define COL_SER 21
 #define COL_OE 22
 #define COL_RCLK 23
 #define COL_SRCLK 24
 // #define COL_SRCLR 25
 
-// #define ROW_SER 14
+#define ROW_SER 14
 #define ROW_OE 19
 #define ROW_RCLK 20
 #define ROW_SRCLK 18
 // #define ROW_SRCLR 15
 
-#define COL_SER_INVERTED false
+#define COL_SER_INVERTED true
 #define COL_OE_INVERTED true
 #define COL_RCLK_INVERTED true
 #define COL_SRCLK_INVERTED true

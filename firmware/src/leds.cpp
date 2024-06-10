@@ -15,6 +15,8 @@ uint row_sm = 255; // invalid
 inline void pulsePin(uint8_t pin) {
   gpio_put(pin, HIGH);
   asm volatile("nop \n nop \n nop");
+  asm volatile("nop \n nop \n nop");
+  asm volatile("nop \n nop \n nop");
   gpio_put(pin, LOW);
 }
 
@@ -142,9 +144,6 @@ void leds_init() {
   pinMode(ROW_SRCLR, OUTPUT);
 
   // set pin inversion
-  #if COL_SER_INVERTED
-  gpio_set_outover(COL_SER, GPIO_OVERRIDE_INVERT);
-  #endif
   #if COL_OE_INVERTED
   gpio_set_outover(COL_OE, GPIO_OVERRIDE_INVERT);
   #endif
@@ -249,6 +248,9 @@ void leds_initPusher() {
   sm_config_set_out_pins(&config, COL_SER, 1);
   pio_gpio_init(pio, COL_SER);
   pio_sm_set_consecutive_pindirs(pio, sm, COL_SER, 1, true);
+  #if COL_SER_INVERTED
+  gpio_set_outover(COL_SER, GPIO_OVERRIDE_INVERT);
+  #endif
 
   // Set sideset (SRCLK) pin, connect to pad, set as output
   sm_config_set_sideset_pins(&config, COL_SRCLK);
@@ -257,6 +259,7 @@ void leds_initPusher() {
   #if COL_SRCLK_INVERTED
   gpio_set_outover(COL_SRCLK, GPIO_OVERRIDE_INVERT);
   #endif
+  gpio_set_drive_strength(COL_SRCLK, GPIO_DRIVE_STRENGTH_12MA);
 
   // Set SET (RCLK) pin, connect to pad, set as output
   sm_config_set_set_pins(&config, COL_RCLK, 1);
@@ -265,6 +268,7 @@ void leds_initPusher() {
   #if COL_RCLK_INVERTED
   gpio_set_outover(COL_RCLK, GPIO_OVERRIDE_INVERT);
   #endif
+  gpio_set_drive_strength(COL_RCLK, GPIO_DRIVE_STRENGTH_12MA);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
@@ -329,6 +333,6 @@ void leds_initDelay() {
 
 void leds_initPIO() {
   leds_initPusher();
-  leds_initRowSelector();
   leds_initDelay();
+  leds_initRowSelector();
 }
