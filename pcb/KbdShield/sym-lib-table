@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "led-matrix")(type "KiCad")(uri "/Users/radex/Documents/Hackerspace/pico-led-matrix/pcb/led-matrix.kicad_sym")(options "")(descr ""))
+)
