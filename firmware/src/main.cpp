@@ -3,6 +3,7 @@
 #include "audio.h"
 #include "sd.h"
 #include "leds.h"
+#include "can.h"
 #include "gfx_decoder.h"
 #include "can2040.h"
 #include "config.h"
@@ -19,6 +20,10 @@ void setup() {
 
   init_audio();
   leds_initRenderer();
+  if (CPU_CLOCK_HZ != rp2040.f_cpu()) {
+    Serial.println("CPU clock speed is not set correctly!");
+    while (true) {}
+  }
 
   #if CAN_ENABLED
   canbus_setup();

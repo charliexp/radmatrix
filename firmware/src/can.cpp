@@ -10,13 +10,18 @@ static void canbus_pio_irq_handler() {
 }
 
 void canbus_setup() {
+  Serial.println("Setting up CAN...");
+
   uint32_t pio_num = 1;
   can2040_setup(&canbus, pio_num);
   can2040_callback_config(&canbus, can2040_callback);
 
-  irq_set_exclusive_handler(PIO1_IRQ_0, canbus_pio_irq_handler);
-  irq_set_priority(PIO1_IRQ_0, 1);
-  irq_set_enabled(PIO1_IRQ_0, true);
+  irq_set_exclusive_handler(PIO1_IRQ_0_IRQn, canbus_pio_irq_handler);
+  irq_set_priority(PIO1_IRQ_0_IRQn, 1);
+  irq_set_enabled(PIO1_IRQ_0_IRQn, true);
+
+  pinMode(CAN_PIN_SILENT, OUTPUT);
+  digitalWrite(CAN_PIN_SILENT, LOW); // set to active mode
 
   can2040_start(&canbus, CPU_CLOCK_HZ, CAN_BITRATE, CAN_PIN_RX, CAN_PIN_TX);
 }
@@ -41,12 +46,14 @@ void canbus_heartbeat() {
   int msg_type = 31;
 
   // {kind:5}{device:8}{type:5}{reserved:11}
-  uint32_t id = CAN2040_ID_EFF | ((msg_kind << (8 + 5)) | (device_id << 5) | msg_type) << 11;
+  // uint32_t id = CAN2040_ID_EFF | ((msg_kind << (8 + 5)) | (device_id << 5) | msg_type) << 11;
 
   can2040_msg msg = {
-    .id = id,
-    .dlc = 0,
+    .id = 0x35,
+    .dlc = 8,
+    .data = {'P', 'A', 'P', 'I', 'E', 'S', 'Z', '!'},
   };
+
   auto result = can2040_transmit(&canbus, &msg);
   if (result != 0) {
     Serial.println("CAN: heartbeat failed");

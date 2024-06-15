@@ -14,7 +14,7 @@
 #define SD_HAS_DETECTION true
 #define SD_DET_PIN 4
 
-#define CAN_ENABLED false
+#define CAN_ENABLED true
 #define CAN_PIN_RX 5
 #define CAN_PIN_TX 7
 #define CAN_PIN_SILENT 6
@@ -74,7 +74,7 @@
 
 // --- other settings ---
 
-#define CPU_CLOCK_HZ 125000000.0f
+#define CPU_CLOCK_HZ 133000000.0f
 #define SD_CARD_BAUD_RATE 12 * 1000 * 1000
 #define REFERENCE_VOLTAGE 3.3f // for ADC
 #define CAN_BITRATE 500000
