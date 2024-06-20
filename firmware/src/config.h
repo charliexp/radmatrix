@@ -75,7 +75,7 @@
 // --- other settings ---
 
 #define CPU_CLOCK_HZ 133000000.0f
-#define SD_CARD_BAUD_RATE 12 * 1000 * 1000
+#define SD_CARD_BAUD_RATE 24 * 1000 * 1000
 #define REFERENCE_VOLTAGE 3.3f // for ADC
 #define CAN_BITRATE 500000
 
