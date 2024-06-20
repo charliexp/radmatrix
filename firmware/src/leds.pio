@@ -3,12 +3,12 @@
 .define public irq_rclk_sync 2
 .define public irq_did_latch 3
 
-.define public rclk_1_delay 6
+.define public rclk_1_delay 3
 
 .program leds_px_pusher
 .side_set 1 opt
-.define public srclk_0_delay 3
-.define public srclk_1_delay 5
+.define public srclk_0_delay 2
+.define public srclk_1_delay 3
 entry_point:
 .wrap_target
   ; get 32 bits from fifo (not required with autopull, useful for debug)

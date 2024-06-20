@@ -18,12 +18,13 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Hello worldd!");
 
-  init_audio();
-  leds_initRenderer();
   if (CPU_CLOCK_HZ != rp2040.f_cpu()) {
     Serial.println("CPU clock speed is not set correctly!");
     while (true) {}
   }
+
+  init_audio();
+  leds_initRenderer();
 
   #if CAN_ENABLED
   canbus_setup();

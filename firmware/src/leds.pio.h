@@ -12,7 +12,7 @@
 #define irq_px_pushed 1
 #define irq_rclk_sync 2
 #define irq_did_latch 3
-#define rclk_1_delay 6
+#define rclk_1_delay 3
 
 // -------------- //
 // leds_px_pusher //
@@ -21,20 +21,20 @@
 #define leds_px_pusher_wrap_target 0
 #define leds_px_pusher_wrap 9
 
-#define leds_px_pusher_srclk_0_delay 3
-#define leds_px_pusher_srclk_1_delay 5
+#define leds_px_pusher_srclk_0_delay 2
+#define leds_px_pusher_srclk_1_delay 3
 
 static const uint16_t leds_px_pusher_program_instructions[] = {
             //     .wrap_target
     0xf037, //  0: set    x, 23           side 0     
-    0x7301, //  1: out    pins, 1         side 0 [3] 
-    0x1d41, //  2: jmp    x--, 1          side 1 [5] 
+    0x7201, //  1: out    pins, 1         side 0 [2] 
+    0x1b41, //  2: jmp    x--, 1          side 1 [3] 
     0x7028, //  3: out    x, 8            side 0     
     0x0020, //  4: jmp    !x, 0                      
     0xc001, //  5: irq    nowait 1                   
     0x2040, //  6: wait   0 irq, 0                   
     0x20c2, //  7: wait   1 irq, 2                   
-    0xe601, //  8: set    pins, 1                [6] 
+    0xe301, //  8: set    pins, 1                [3] 
     0xe000, //  9: set    pins, 0                    
             //     .wrap
 };
@@ -73,7 +73,7 @@ static const uint16_t leds_row_selector_program_instructions[] = {
     0xb003, //  4: mov    pins, null      side 0     
     0x0043, //  5: jmp    x--, 3                     
     0xc022, //  6: irq    wait 2                     
-    0xe601, //  7: set    pins, 1                [6] 
+    0xe301, //  7: set    pins, 1                [3] 
     0xe000, //  8: set    pins, 0                    
     0xc003, //  9: irq    nowait 3                   
             //     .wrap
