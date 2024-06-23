@@ -20,14 +20,14 @@ The microcontroller board was optimized for JLC PCBA to a lesser extent -- I use
 
 The display is capable of:
 
-- 8 bit (TODO, 5-bit demonstrated) red color
+- 8 bit red color
 - 60fps (TODO, 30fps demonstrated)
 
 Additionally, the MCU board can:
 
 - Read multiple "videos" (specially encoded for this firmware) from an SD card
-- Pipe in 8-bit 44kHz audio (TODO, lower quality demonstrated due to SD performance issues)
-- do CAN (TODO)
+- Pipe in 8-bit 44kHz audio
+- Transmit and receive CAN messages
 
 ## v2
 
