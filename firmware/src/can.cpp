@@ -2,7 +2,12 @@
 #include "config.h"
 #include "can.h"
 
+volatile bool canbus_wants_next_song = false;
+
 static void can2040_callback(struct can2040 *cd, uint32_t notify, struct can2040_msg *msg) {
+  if (notify == CAN2040_NOTIFY_RX && msg->id == 0x78 && msg->dlc == 1 && msg->data[0] == 'N') {
+    canbus_wants_next_song = true;
+  }
 }
 
 static void canbus_pio_irq_handler() {
@@ -30,7 +35,7 @@ unsigned long canbus_last_heartbeat_at = 0;
 int canbus_heartbeat_interval = 1000;
 void canbus_heartbeat();
 
-void canbus_loop() {
+canbus_status canbus_loop() {
   auto now = millis();
   if (canbus_last_heartbeat_at + canbus_heartbeat_interval < now) {
     canbus_last_heartbeat_at = now;
@@ -38,6 +43,14 @@ void canbus_loop() {
     canbus_heartbeat_interval = 1000 + random(-200, 200);
     canbus_heartbeat();
   }
+
+  auto wants_next_song = canbus_wants_next_song;
+  canbus_wants_next_song = false;
+
+  canbus_status status = {
+    .wants_next_song = wants_next_song,
+  };
+  return status;
 }
 
 void canbus_heartbeat() {
@@ -57,5 +70,7 @@ void canbus_heartbeat() {
   auto result = can2040_transmit(&canbus, &msg);
   if (result != 0) {
     Serial.println("CAN: heartbeat failed");
+  } else {
+    Serial.println("CAN: Heartbeat sent!");
   }
 }

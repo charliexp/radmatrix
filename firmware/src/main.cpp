@@ -112,6 +112,11 @@ void loop() {
   }
 
   #if CAN_ENABLED
-  canbus_loop();
+  auto canbus_status = canbus_loop();
+  if (canbus_status.wants_next_song) {
+    delay(100);
+    nextSong();
+    delay(50);
+  }
   #endif
 }

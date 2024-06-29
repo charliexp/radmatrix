@@ -9,7 +9,11 @@ extern "C" {
 
 static struct can2040 canbus;
 
+typedef struct {
+  bool wants_next_song;
+} canbus_status;
+
 void canbus_setup();
-void canbus_loop();
+canbus_status canbus_loop();
 
 #endif
