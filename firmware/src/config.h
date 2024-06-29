@@ -36,8 +36,8 @@
 // #define COMMON_RCLK 23
 // #define COMMON_SRCLR 25
 
-#define COL_SER 22 // orig: 21
-#define COL_OE 21 // orig: 22
+#define COL_SER 21 // orig: 21
+#define COL_OE 22 // orig: 22
 #define COL_RCLK 23 // orig: 23
 #define COL_SRCLK 24 // orig: 24
 #define COL_SRCLR 25 // orig: 25
@@ -48,10 +48,10 @@
 #define ROW_SRCLK 18
 #define ROW_SRCLR 15
 
-#define COL_SER_INVERTED false
+#define COL_SER_INVERTED true
 #define COL_OE_INVERTED false
-#define COL_RCLK_INVERTED true
-#define COL_SRCLK_INVERTED true
+#define COL_RCLK_INVERTED false
+#define COL_SRCLK_INVERTED false
 #define COL_SRCLR_INVERTED false
 
 // --- screen settings ---
@@ -88,7 +88,7 @@
 // --- screen - performance ---
 // NOTE: In case of screen glitching, these may need to be tweaked to decrease
 // data rate to the display and stay within the limits of the hardware/electrical connection
-#define LEDS_PIO_CLKDIV 1
+#define LEDS_PIO_CLKDIV 3
 // Also see leds.pio where delays may be adjusted (need manual compilation)
 
 // --- screen - color correction ---

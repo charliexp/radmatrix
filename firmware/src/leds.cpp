@@ -133,7 +133,7 @@ void leds_init() {
   outputEnable(ROW_OE, false);
   pinMode(COL_RCLK, OUTPUT);
   pinMode(COL_SRCLK, OUTPUT);
-  pinMode(COL_RCLK, OUTPUT);
+  pinMode(COL_SRCLR, OUTPUT);
 
   // set up row pins
   pinMode(ROW_SER, OUTPUT);
@@ -259,7 +259,7 @@ void leds_initPusher() {
   #if COL_SRCLK_INVERTED
   gpio_set_outover(COL_SRCLK, GPIO_OVERRIDE_INVERT);
   #endif
-  gpio_set_drive_strength(COL_SRCLK, GPIO_DRIVE_STRENGTH_12MA);
+  // gpio_set_drive_strength(COL_SRCLK, GPIO_DRIVE_STRENGTH_12MA);
 
   // Set SET (RCLK) pin, connect to pad, set as output
   sm_config_set_set_pins(&config, COL_RCLK, 1);
@@ -268,7 +268,7 @@ void leds_initPusher() {
   #if COL_RCLK_INVERTED
   gpio_set_outover(COL_RCLK, GPIO_OVERRIDE_INVERT);
   #endif
-  gpio_set_drive_strength(COL_RCLK, GPIO_DRIVE_STRENGTH_12MA);
+  // gpio_set_drive_strength(COL_RCLK, GPIO_DRIVE_STRENGTH_12MA);
 
   // Load our configuration, and jump to the start of the program
   pio_sm_init(pio, sm, offset, &config);
