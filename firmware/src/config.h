@@ -88,7 +88,7 @@
 // --- screen - performance ---
 // NOTE: In case of screen glitching, these may need to be tweaked to decrease
 // data rate to the display and stay within the limits of the hardware/electrical connection
-#define LEDS_PIO_CLKDIV 1
+#define LEDS_PIO_CLKDIV 2
 // Also see leds.pio where delays may be adjusted (need manual compilation)
 
 // --- screen - color correction ---

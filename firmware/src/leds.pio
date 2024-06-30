@@ -3,7 +3,7 @@
 .define public irq_rclk_sync 2
 .define public irq_did_latch 3
 
-.define public rclk_1_delay 2
+.define public rclk_1_delay 7
 
 .program leds_px_pusher
 .side_set 1 opt
