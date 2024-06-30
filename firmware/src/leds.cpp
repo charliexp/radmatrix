@@ -181,39 +181,6 @@ void leds_initRenderer() {
   multicore_launch_core1(main2);
 }
 
-void leds_nextPhase();
-
-void leds_render() {
-  if (!ledBufferReady) {
-    return;
-  }
-
-  // next brightness phase
-  leds_nextPhase();
-
-  auto buffer = ledBuffer[brightnessPhase];
-  auto delayData = brightnessPhaseDelays[brightnessPhase];
-
-  // The correct data to push onto PIO has been precomputed by leds_set_framebuffer
-  // So we only need to move the buffer onto PIO TX FIFOs to keep them full
-  // TODO: Rewrite this to be interrupt-based. Should be relatively easy to always keep PIO
-  // full via interrupts and free up most of the core's time to other tasks
-  for (uint8_t y = 0; y < ROW_COUNT; y++) {
-    // set row data
-    for (uint8_t x = 0; x < COL_MODULES; x++) {
-      auto pxValues = *buffer++;
-      pio_sm_put_blocking(leds_pio, pusher_sm, pxValues);
-    }
-
-    // set row selection data
-    auto rowSelData = *buffer++;
-    pio_sm_put_blocking(leds_pio, row_sm, rowSelData);
-
-    // set delay data
-    pio_sm_put_blocking(leds_pio, delay_sm, delayData);
-  }
-}
-
 void leds_nextPhase() {
   brightnessPhase++;
 
@@ -224,6 +191,74 @@ void leds_nextPhase() {
 
   while (ditheringPhase >= brightnessPhaseDithering[brightnessPhase]) {
     brightnessPhase++;
+  }
+}
+
+uint32_t *currentBuffer = nullptr;
+uint32_t currentDelayData;
+uint8_t currentY = 0;
+uint8_t currentX = 0;
+
+void leds_startFrame() {
+  // next brightness phase
+  leds_nextPhase();
+
+  currentBuffer = ledBuffer[brightnessPhase];
+  currentDelayData = brightnessPhaseDelays[brightnessPhase];
+}
+
+void leds_endRow() {
+  // set row selection data
+  auto rowSelData = *currentBuffer++;
+  assert(!pio_sm_is_tx_fifo_full(leds_pio, row_sm));
+  pio_sm_put(leds_pio, row_sm, rowSelData);
+
+  // set delay data
+  assert(!pio_sm_is_tx_fifo_full(leds_pio, delay_sm));
+  pio_sm_put(leds_pio, delay_sm, currentDelayData);
+}
+
+void leds_renderStep() {
+  if (!ledBufferReady) {
+    return;
+  }
+
+  // start of frame
+  if (currentY == 0 && currentX == 0) {
+    leds_startFrame();
+  }
+
+  // send row data
+  auto pxValues = *currentBuffer++;
+  assert(!pio_sm_is_tx_fifo_full(leds_pio, pusher_sm));
+  pio_sm_put(leds_pio, pusher_sm, pxValues);
+
+  // end of row
+  currentX++;
+  if (currentX == COL_MODULES) {
+    leds_endRow();
+    currentX = 0;
+    currentY++;
+  }
+
+  // end of frame
+  if (currentY == ROW_COUNT) {
+    currentY = 0;
+  }
+}
+
+void leds_render() {
+  // The correct data to push onto PIO has been precomputed by leds_set_framebuffer
+  // So we only need to move the buffer onto PIO TX FIFOs to keep them full
+  // TODO: Rewrite this to be interrupt-based. Should be relatively easy to always keep PIO
+  // full via interrupts and free up most of the core's time to other tasks
+
+  while (true) {
+    while (pio_sm_is_tx_fifo_full(leds_pio, pusher_sm)) {
+      // busy wait
+    }
+
+    leds_renderStep();
   }
 }
 
