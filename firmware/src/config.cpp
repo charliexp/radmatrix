@@ -11,8 +11,8 @@ uint32_t brightnessPhaseDelays[COLOR_BITS] = {
   /*   1 */ NS_TO_DELAY(170),
   /*   2 */ NS_TO_DELAY(180),
   /*   4 */ NS_TO_DELAY(210),
-  /*   8 */ NS_TO_DELAY(540),
-  /*  16 */ NS_TO_DELAY(2300), // x2
+  /*   8 */ NS_TO_DELAY(1740),
+  /*  16 */ NS_TO_DELAY(2100), // x2
   /*  32 */ NS_TO_DELAY(3000), // x4
   /*  64 */ NS_TO_DELAY(2500), // x10
   /* 128 */ NS_TO_DELAY(3300), // x20
