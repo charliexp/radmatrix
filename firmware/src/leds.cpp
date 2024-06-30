@@ -208,6 +208,7 @@ void leds_startFrame() {
 }
 
 void leds_endRow() {
+  // NOTE: pusher_sm is always the bottleneck, so we don't need to check for full TX FIFO here
   // set row selection data
   auto rowSelData = *currentBuffer++;
   assert(!pio_sm_is_tx_fifo_full(leds_pio, row_sm));
@@ -216,16 +217,21 @@ void leds_endRow() {
   // set delay data
   assert(!pio_sm_is_tx_fifo_full(leds_pio, delay_sm));
   pio_sm_put(leds_pio, delay_sm, currentDelayData);
+
+  // end of row
+  currentX = 0;
+  currentY++;
+
+  // end of frame?
+  if (currentY == ROW_COUNT) {
+    currentY = 0;
+    leds_startFrame();
+  }
 }
 
 void leds_renderStep() {
   if (!ledBufferReady) {
     return;
-  }
-
-  // start of frame
-  if (currentY == 0 && currentX == 0) {
-    leds_startFrame();
   }
 
   // send row data
@@ -237,13 +243,6 @@ void leds_renderStep() {
   currentX++;
   if (currentX == COL_MODULES) {
     leds_endRow();
-    currentX = 0;
-    currentY++;
-  }
-
-  // end of frame
-  if (currentY == ROW_COUNT) {
-    currentY = 0;
   }
 }
 
@@ -252,6 +251,9 @@ void leds_render() {
   // So we only need to move the buffer onto PIO TX FIFOs to keep them full
   // TODO: Rewrite this to be interrupt-based. Should be relatively easy to always keep PIO
   // full via interrupts and free up most of the core's time to other tasks
+
+  // start first frame
+  leds_startFrame();
 
   while (true) {
     while (pio_sm_is_tx_fifo_full(leds_pio, pusher_sm)) {
