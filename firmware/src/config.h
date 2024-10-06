@@ -30,6 +30,13 @@
 #define V_SENSE_PIN 28
 #define I_SENSE_PIN 29
 
+#if CC1_PIN < 26 || CC1_PIN > 29 || \
+    CC2_PIN < 26 || CC2_PIN > 29 || \
+    V_SENSE_PIN < 26 || V_SENSE_PIN > 29 || \
+    I_SENSE_PIN < 26 || I_SENSE_PIN > 29
+#error "Invalid ADC pin"
+#endif
+
 // --- pinout - screen ---
 
 // #define COMMON_SER 21
@@ -77,6 +84,7 @@
 #define CPU_CLOCK_HZ 133000000.0f
 #define SD_CARD_BAUD_RATE 24 * 1000 * 1000
 #define REFERENCE_VOLTAGE 3.3f // for ADC
+#define CURRENT_FACTOR 1.0f // for current sensor
 #define CAN_BITRATE 500000
 
 // --- debug settings ---
