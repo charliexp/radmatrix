@@ -82,7 +82,7 @@
 // --- other settings ---
 
 #define CPU_CLOCK_HZ 133000000.0f
-#define SD_CARD_BAUD_RATE 24 * 1000 * 1000
+#define SD_CARD_BAUD_RATE 12 * 1000 * 1000
 #define REFERENCE_VOLTAGE 3.3f // for ADC
 #define CURRENT_FACTOR 1.0f // for current sensor
 #define CAN_BITRATE 500000
@@ -96,7 +96,7 @@
 // --- screen - performance ---
 // NOTE: In case of screen glitching, these may need to be tweaked to decrease
 // data rate to the display and stay within the limits of the hardware/electrical connection
-#define LEDS_PIO_CLKDIV 2
+#define LEDS_PIO_CLKDIV 4
 // Also see leds.pio where delays may be adjusted (need manual compilation)
 
 // --- screen - color correction ---
