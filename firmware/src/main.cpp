@@ -62,12 +62,12 @@ void loadVideo(size_t index) {
 
   if (!sd_loadGfxFrameLengths(index)) {
     Serial.println("Failed to load gfx frame lengths");
-    while (true) {}
+    return;
   }
 
   if (!sd_loadGfxBlob(index)) {
     Serial.println("Failed to load gfx blob");
-    while (true) {}
+    return;
   }
 
   isLoaded = true;

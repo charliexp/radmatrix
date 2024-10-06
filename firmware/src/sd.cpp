@@ -312,7 +312,6 @@ int32_t sd_loadNextFrame() {
   if (frameSize > sizeof(gfxFrameBuffer)) {
     Serial.print("Frame too large: ");
     Serial.println(frameSize);
-    while (true) {}
     return -1;
   }
 
