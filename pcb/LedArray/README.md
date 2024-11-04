@@ -11,3 +11,9 @@
    - Forward voltage: 1.9-2.3V (at 20mA)
    - Max peak forward current: 80mA
    - Max continuous forward current: 20mA
+
+### Rev B
+
+Sent for manufacturing 2024-11-04 (est.), delivered TBD.
+
+Fixed orientation (with an unideal trace layout) and notes on the back.

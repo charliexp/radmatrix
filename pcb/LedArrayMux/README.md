@@ -16,3 +16,9 @@ Errata:
    - It doesn't appear that 74HC595 dies immediately because of this, and the 10k resistor would limit worst-case scenario current to 0.5mA, but probably bad idea to ignore this altogether
    - It's possible to set VCC to 5V, and add level shifting on signal lines
    - Alternatively, the shift register could be replaced with 74HCT595 so that 3V3 signals register as logic high at 5V VCC
+
+### Rev B
+
+Ordered for manufacturing 2024-11-04 (est.), delivered TBD
+
+Minor layout tweaks + added more decoupling capacitance. The major bugs are not fixed, as this rev is for a display that has it worked around.
