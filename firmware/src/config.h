@@ -63,8 +63,8 @@
 
 // --- screen settings ---
 
-#define ROW_MODULES 2
-#define COL_MODULES 2
+#define ROW_MODULES 3
+#define COL_MODULES 4
 
 #define COLOR_BITS 8
 
@@ -96,7 +96,7 @@
 // --- screen - performance ---
 // NOTE: In case of screen glitching, these may need to be tweaked to decrease
 // data rate to the display and stay within the limits of the hardware/electrical connection
-#define LEDS_PIO_CLKDIV 4
+#define LEDS_PIO_CLKDIV 3
 // Also see leds.pio where delays may be adjusted (need manual compilation)
 
 // --- screen - color correction ---
