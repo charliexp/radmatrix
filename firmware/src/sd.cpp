@@ -117,7 +117,7 @@ void sd_loadPlaylist() {
   while (true) {
     auto nextIdx = playlistStr.indexOf('\n', idx);
     if (nextIdx == -1) {
-      break;
+      nextIdx = playlistStr.length();
     }
 
     auto line = playlistStr.substring(idx, nextIdx);
