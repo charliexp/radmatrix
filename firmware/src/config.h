@@ -68,7 +68,7 @@
 
 #define COLOR_BITS 8
 
-#define MAX_FPS 60
+#define MAX_FPS 30
 #define MAX_LENGTH_MIN 10
 
 #define ROW_COUNT ROW_MODULES * 20
