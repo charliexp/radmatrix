@@ -31,7 +31,7 @@ int32_t gfx_decoder_loadNextFrame() {
     Serial.println(lodepng_error_text(error));
     free(buffer);
     return false;
-  } else if (width != ROW_COUNT || height != COL_COUNT) {
+  } else if (width != COL_COUNT || height != ROW_COUNT) {
     Serial.print("Bad dimensions: ");
     Serial.print(width);
     Serial.print("x");
